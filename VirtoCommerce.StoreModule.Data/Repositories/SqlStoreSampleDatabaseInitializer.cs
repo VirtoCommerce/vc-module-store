@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.StoreModule.Data.Model;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using coreModel = VirtoCommerce.Domain.Store.Model;
 
-namespace VirtoCommerce.StoreModule.Web.SampleData
+namespace VirtoCommerce.StoreModule.Data.Repositories
 {
-	public class SqlStoreSampleDatabaseInitializer : SqlStoreDatabaseInitializer
+	public class SqlStoreSampleDatabaseInitializer : SetupDatabaseInitializer<StoreRepositoryImpl, VirtoCommerce.StoreModule.Data.Migrations.Configuration>
 	{
 		private readonly bool _reduced;
 
@@ -20,8 +21,7 @@ namespace VirtoCommerce.StoreModule.Web.SampleData
 
 		protected override void Seed(StoreRepositoryImpl context)
 		{
-			//CreateFulfillmentCenter(context);
-			CreateStores(context, _reduced);
+			//CreateStores(context, _reduced);
 
 			base.Seed(context);
 		}

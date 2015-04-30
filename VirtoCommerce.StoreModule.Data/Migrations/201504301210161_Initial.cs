@@ -7,12 +7,11 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
     {
         public override void Up()
         {
-           
             CreateTable(
-                "dbo.vc_Store",
+                "dbo.Store",
                 c => new
                     {
-                        StoreId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(nullable: false, maxLength: 128),
                         Name = c.String(nullable: false, maxLength: 128),
                         Description = c.String(maxLength: 256),
                         Url = c.String(maxLength: 256),
@@ -32,60 +31,56 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
                         ReturnsFulfillmentCenterId = c.String(maxLength: 128),
                         CreatedDate = c.DateTime(nullable: false),
                         ModifiedDate = c.DateTime(),
-                        CreatedBy = c.String(),
-                        ModifiedBy = c.String(),
+                        CreatedBy = c.String(maxLength: 64),
+                        ModifiedBy = c.String(maxLength: 64),
                         Discriminator = c.String(maxLength: 128),
                     })
-                .PrimaryKey(t => t.StoreId)
-                .ForeignKey("dbo.vc_FulfillmentCenter", t => t.FulfillmentCenterId)
-                .ForeignKey("dbo.vc_FulfillmentCenter", t => t.ReturnsFulfillmentCenterId)
-                .Index(t => t.FulfillmentCenterId)
-                .Index(t => t.ReturnsFulfillmentCenterId);
+                .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.vc_StoreCurrency",
+                "dbo.StoreCurrency",
                 c => new
                     {
-                        StoreCurrencyId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(nullable: false, maxLength: 128),
                         CurrencyCode = c.String(nullable: false, maxLength: 32),
                         StoreId = c.String(nullable: false, maxLength: 128),
                         Discriminator = c.String(maxLength: 128),
                     })
-                .PrimaryKey(t => t.StoreCurrencyId)
-                .ForeignKey("dbo.vc_Store", t => t.StoreId, cascadeDelete: true)
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Store", t => t.StoreId, cascadeDelete: true)
                 .Index(t => t.StoreId);
             
             CreateTable(
-                "dbo.vc_StoreLanguage",
+                "dbo.StoreLanguage",
                 c => new
                     {
-                        StoreLanguageId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(nullable: false, maxLength: 128),
                         LanguageCode = c.String(nullable: false, maxLength: 32),
                         StoreId = c.String(nullable: false, maxLength: 128),
                         Discriminator = c.String(maxLength: 128),
                     })
-                .PrimaryKey(t => t.StoreLanguageId)
-                .ForeignKey("dbo.vc_Store", t => t.StoreId, cascadeDelete: true)
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Store", t => t.StoreId, cascadeDelete: true)
                 .Index(t => t.StoreId);
             
             CreateTable(
-                "dbo.vc_StorePaymentGateway",
+                "dbo.StorePaymentGateway",
                 c => new
                     {
-                        StorePaymentGatewayId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(nullable: false, maxLength: 128),
                         PaymentGateway = c.String(nullable: false, maxLength: 128),
                         StoreId = c.String(nullable: false, maxLength: 128),
                         Discriminator = c.String(maxLength: 128),
                     })
-                .PrimaryKey(t => t.StorePaymentGatewayId)
-                .ForeignKey("dbo.vc_Store", t => t.StoreId, cascadeDelete: true)
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Store", t => t.StoreId, cascadeDelete: true)
                 .Index(t => t.StoreId);
             
             CreateTable(
-                "dbo.vc_StoreSetting",
+                "dbo.StoreSetting",
                 c => new
                     {
-                        StoreSettingId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(nullable: false, maxLength: 128),
                         Name = c.String(nullable: false, maxLength: 64),
                         ShortTextValue = c.String(maxLength: 512),
                         LongTextValue = c.String(),
@@ -98,32 +93,27 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
                         StoreId = c.String(nullable: false, maxLength: 128),
                         Discriminator = c.String(maxLength: 128),
                     })
-                .PrimaryKey(t => t.StoreSettingId)
-                .ForeignKey("dbo.vc_Store", t => t.StoreId, cascadeDelete: true)
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Store", t => t.StoreId, cascadeDelete: true)
                 .Index(t => t.StoreId);
             
         }
         
         public override void Down()
         {
-            DropForeignKey("dbo.vc_StoreSetting", "StoreId", "dbo.vc_Store");
-            DropForeignKey("dbo.vc_Store", "ReturnsFulfillmentCenterId", "dbo.vc_FulfillmentCenter");
-            DropForeignKey("dbo.vc_StorePaymentGateway", "StoreId", "dbo.vc_Store");
-            DropForeignKey("dbo.vc_StoreLanguage", "StoreId", "dbo.vc_Store");
-            DropForeignKey("dbo.vc_Store", "FulfillmentCenterId", "dbo.vc_FulfillmentCenter");
-            DropForeignKey("dbo.vc_StoreCurrency", "StoreId", "dbo.vc_Store");
-            DropIndex("dbo.vc_StoreSetting", new[] { "StoreId" });
-            DropIndex("dbo.vc_StorePaymentGateway", new[] { "StoreId" });
-            DropIndex("dbo.vc_StoreLanguage", new[] { "StoreId" });
-            DropIndex("dbo.vc_StoreCurrency", new[] { "StoreId" });
-            DropIndex("dbo.vc_Store", new[] { "ReturnsFulfillmentCenterId" });
-            DropIndex("dbo.vc_Store", new[] { "FulfillmentCenterId" });
-            DropTable("dbo.vc_StoreSetting");
-            DropTable("dbo.vc_StorePaymentGateway");
-            DropTable("dbo.vc_StoreLanguage");
-            DropTable("dbo.vc_StoreCurrency");
-            DropTable("dbo.vc_Store");
-            DropTable("dbo.vc_FulfillmentCenter");
+            DropForeignKey("dbo.StoreSetting", "StoreId", "dbo.Store");
+            DropForeignKey("dbo.StorePaymentGateway", "StoreId", "dbo.Store");
+            DropForeignKey("dbo.StoreLanguage", "StoreId", "dbo.Store");
+            DropForeignKey("dbo.StoreCurrency", "StoreId", "dbo.Store");
+            DropIndex("dbo.StoreSetting", new[] { "StoreId" });
+            DropIndex("dbo.StorePaymentGateway", new[] { "StoreId" });
+            DropIndex("dbo.StoreLanguage", new[] { "StoreId" });
+            DropIndex("dbo.StoreCurrency", new[] { "StoreId" });
+            DropTable("dbo.StoreSetting");
+            DropTable("dbo.StorePaymentGateway");
+            DropTable("dbo.StoreLanguage");
+            DropTable("dbo.StoreCurrency");
+            DropTable("dbo.Store");
         }
     }
 }
