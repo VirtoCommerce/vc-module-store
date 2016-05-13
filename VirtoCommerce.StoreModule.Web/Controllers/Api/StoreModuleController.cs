@@ -9,9 +9,9 @@ using VirtoCommerce.Domain.Payment.Services;
 using VirtoCommerce.Domain.Shipping.Services;
 using VirtoCommerce.Domain.Store.Services;
 using VirtoCommerce.Domain.Tax.Services;
-using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Notifications;
 using VirtoCommerce.Platform.Core.Security;
+using VirtoCommerce.Platform.Core.Web.Security;
 using VirtoCommerce.StoreModule.Data.Notifications;
 using VirtoCommerce.StoreModule.Web.Converters;
 using VirtoCommerce.StoreModule.Web.Security;
@@ -76,8 +76,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// Get all stores
         /// </summary>
         [HttpGet]
-        [ResponseType(typeof(webModel.Store[]))]
         [Route("")]
+        [ResponseType(typeof(webModel.Store[]))]
         [OverrideAuthorization]
         public IHttpActionResult GetStores()
         {
@@ -97,8 +97,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <responce code="404">Store not found</responce>
         /// <responce code="200">Store returned successfully OK</responce>
         [HttpGet]
-        [ResponseType(typeof(webModel.Store))]
         [Route("{id}")]
+        [ResponseType(typeof(webModel.Store))]
         public IHttpActionResult GetStoreById(string id)
         {
             var store = _storeService.GetById(id);
@@ -118,8 +118,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         /// <param name="store">Store</param>
         [HttpPost]
-        [ResponseType(typeof(webModel.Store))]
         [Route("")]
+        [ResponseType(typeof(webModel.Store))]
         [CheckPermission(Permission = StorePredefinedPermissions.Create)]
         public IHttpActionResult Create(webModel.Store store)
         {
@@ -133,8 +133,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         /// <param name="store">Store</param>
         [HttpPut]
-        [ResponseType(typeof(void))]
         [Route("")]
+        [ResponseType(typeof(void))]
         public IHttpActionResult Update(webModel.Store store)
         {
             var coreStore = store.ToCoreModel(_shippingService.GetAllShippingMethods(), _paymentService.GetAllPaymentMethods(), _taxService.GetAllTaxProviders());
@@ -148,8 +148,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         /// <param name="ids">Ids of store that needed to delete</param>
         [HttpDelete]
-        [ResponseType(typeof(void))]
         [Route("")]
+        [ResponseType(typeof(void))]
         public IHttpActionResult Delete([FromUri] string[] ids)
         {
             var stores = ids.Select(x => _storeService.GetById(x)).ToArray();
@@ -185,7 +185,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 
             _notificationManager.ScheduleSendNotification(notification);
 
-            return StatusCode(System.Net.HttpStatusCode.NoContent);
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -195,8 +195,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="id">Contact ID</param>
         /// <returns></returns>
         [HttpGet]
-        [ResponseType(typeof(webModel.LoginOnBehalfInfo))]
         [Route("{storeId}/accounts/{id}/loginonbehalf")]
+        [ResponseType(typeof(webModel.LoginOnBehalfInfo))]
         public async Task<IHttpActionResult> GetLoginOnBehalfInfo(string storeId, string id)
         {
             var result = new webModel.LoginOnBehalfInfo
@@ -221,21 +221,22 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="userId"></param>
         /// <returns></returns>
         [HttpGet]
-        [ResponseType(typeof(webModel.Store[]))]
         [Route("allowed/{userId}")]
+        [ResponseType(typeof(webModel.Store[]))]
         public async Task<IHttpActionResult> GetUserAllowedStores(string userId)
         {
             var retVal = new List<webModel.Store>();
             var user = await _securityService.FindByIdAsync(userId, UserDetails.Reduced);
-            if(user != null)
+            if (user != null)
             {
                 var storeIds = _storeService.GetUserAllowedStoreIds(user);
-                retVal.AddRange(_storeService.GetByIds(storeIds.ToArray()).Select(x=>x.ToWebModel()));
+                retVal.AddRange(_storeService.GetByIds(storeIds.ToArray()).Select(x => x.ToWebModel()));
             }
             return Ok(retVal.ToArray());
         }
 
-        protected void CheckCurrentUserHasPermissionForObjects(string permission, params coreModel.Store[] objects)
+
+        private void CheckCurrentUserHasPermissionForObjects(string permission, params coreModel.Store[] objects)
         {
             //Scope bound security check
             var scopes = objects.SelectMany(x => _permissionScopeService.GetObjectPermissionScopeStrings(x)).Distinct().ToArray();
@@ -244,7 +245,5 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 throw new HttpResponseException(HttpStatusCode.Unauthorized);
             }
         }
-
-
     }
 }
