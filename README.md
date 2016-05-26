@@ -8,7 +8,7 @@ Key features:
 * customer account linking between stores
 * store asset management
 
-![image](https://cloud.githubusercontent.com/assets/7566324/15540050/edd41b2e-2285-11e6-8962-a173e002ace7.png)
+![stores UI](https://cloud.githubusercontent.com/assets/5801549/15567593/855799ac-2327-11e6-9c87-b0ff7811c48e.png)
 
 # Documentation
 User guide: <a href="http://docs.virtocommerce.com/x/9gDr" target="_blank">Virto Commerce Store module</a>
