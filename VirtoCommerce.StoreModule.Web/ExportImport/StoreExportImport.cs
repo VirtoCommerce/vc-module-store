@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Practices.ObjectBuilder2;
+using Newtonsoft.Json;
 using VirtoCommerce.Domain.Store.Model;
 using VirtoCommerce.Domain.Store.Services;
 using VirtoCommerce.Platform.Core.Common;
@@ -31,12 +32,12 @@ namespace VirtoCommerce.StoreModule.Web.ExportImport
             backupObject.Stores.ForEach(x => x.PaymentMethods = x.PaymentMethods.Where(s => s.IsActive).ToList());
             backupObject.Stores.ForEach(x => x.ShippingMethods = x.ShippingMethods.Where(s => s.IsActive).ToList());
 
-            backupObject.SerializeJson(backupStream);
+            backupObject.SerializeJson(backupStream, GetJsonSerializer());
         }
 
         public void DoImport(Stream backupStream, Action<ExportImportProgressInfo> progressCallback)
         {
-            var backupObject = backupStream.DeserializeJson<BackupObject>();
+            var backupObject = backupStream.DeserializeJson<BackupObject>(GetJsonSerializer());
 			var originalObject = GetBackupObject(progressCallback);
 
 			var progressInfo = new ExportImportProgressInfo();
@@ -75,6 +76,19 @@ namespace VirtoCommerce.StoreModule.Web.ExportImport
                 Stores = _storeService.SearchStores(new SearchCriteria { Take = int.MaxValue }).Stores
             };
         }
+
+        private static JsonSerializer GetJsonSerializer()
+        {
+            return new JsonSerializer
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.Auto,
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full
+            };
+        }
+
 
     }
 }
