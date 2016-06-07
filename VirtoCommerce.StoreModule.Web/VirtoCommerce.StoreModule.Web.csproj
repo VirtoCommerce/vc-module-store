@@ -202,6 +202,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Controllers\Api\StoreModuleController.cs" />
     <Compile Include="Converters\FulfillmentConverter.cs" />
     <Compile Include="Converters\PaymentMethodConverter.cs" />
@@ -221,7 +224,6 @@
     <Compile Include="Model\TaxProvider.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\CommonAssemblyInfo.cs" />
     <Compile Include="Security\StorePredefinedPermissions.cs" />
     <Compile Include="Security\StoreSelectedScope.cs" />
   </ItemGroup>
