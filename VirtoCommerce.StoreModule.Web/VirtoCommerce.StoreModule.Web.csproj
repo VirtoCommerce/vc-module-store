@@ -221,6 +221,7 @@
     <Compile Include="Model\TaxProvider.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\CommonAssemblyInfo.cs" />
     <Compile Include="Security\StorePredefinedPermissions.cs" />
     <Compile Include="Security\StoreSelectedScope.cs" />
   </ItemGroup>
