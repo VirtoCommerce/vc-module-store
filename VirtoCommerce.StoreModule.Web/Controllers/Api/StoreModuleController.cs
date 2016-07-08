@@ -171,14 +171,15 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             var store = _storeService.GetById(request.StoreId);
 
             if (store == null)
-                throw new NullReferenceException(string.Format("no store with this id = {0}", request.StoreId));
+                throw new InvalidOperationException(string.Concat("Store not found. StoreId: ", request.StoreId));
 
             if (string.IsNullOrEmpty(store.Email) && string.IsNullOrEmpty(store.AdminEmail))
-                throw new NullReferenceException(string.Format("set email or admin email for store with id = {0}", request.StoreId));
+                throw new InvalidOperationException(string.Concat("Both store email and admin email are empty. StoreId: ", request.StoreId));
 
             var notification = _notificationManager.GetNewNotification<StoreDynamicEmailNotification>(request.StoreId, "Store", request.Language);
 
             notification.Recipient = !string.IsNullOrEmpty(store.Email) ? store.Email : store.AdminEmail;
+            notification.Sender = notification.Recipient;
             notification.IsActive = true;
             notification.FormType = request.Type;
             notification.Fields = request.Fields;
@@ -208,7 +209,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 
             if (user != null)
             {
-                //TODO: Check what requested user has permission to login on behalf in concrete store
+                //TODO: Check if requested user has permission to login on behalf for given store
                 result.CanLoginOnBehalf = _securityService.UserHasAnyPermission(user.UserName, null, StorePredefinedPermissions.LoginOnBehalf);
             }
 
