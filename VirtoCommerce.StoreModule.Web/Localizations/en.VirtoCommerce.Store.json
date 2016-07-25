@@ -95,7 +95,7 @@
           "additional-languages": "Additional languages",
           "default-currency": "Default currency",
           "additional-currencies": "Additional currencies",
-          "linked-stores": "Linked stores. (Customers can use theirs credentials here.)"
+          "linked-stores": "Linked stores (Customers can use theirs credentials here)"
         },
         "placeholders": {
           "code": "Enter code",
