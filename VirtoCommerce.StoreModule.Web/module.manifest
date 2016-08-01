@@ -60,10 +60,11 @@
                 <allowedValues>
                     <value>None</value>
                     <value>Short</value>
+                    <value>Collapsed</value>
                     <value>Long</value>
                 </allowedValues>
                 <title>SEO Links</title>
-                <description>Determines how to generate links for products and categories. Long: /grandparent-category/parent-category/my-cool-category/my-cool-product, Short: /my-cool-product, None: /product/123</description>
+                <description>Determines how to generate links for products and categories. Long: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product, Collapsed: /virtual-parent-category/my-cool-category/my-cool-product, Short: /my-cool-product, None: /product/123</description>
             </setting>
         </group>
     </settings>
