@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Http.Results;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VirtoCommerce.CoreModule.Data.Repositories;
 using VirtoCommerce.CoreModule.Data.Services;
 using VirtoCommerce.Domain.Commerce.Services;
@@ -12,22 +11,22 @@ using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Web.Controllers.Api;
 using VirtoCommerce.StoreModule.Web.Model;
+using Xunit;
 
 namespace VirtoCommerce.StoreModule.Test
 {
-    [TestClass]
     public class StoreControllerTest
     {
-        [TestMethod]
+        [Fact]
         public void GetStoreListTest()
         {
             var controller = GetStoreController();
             var result = controller.GetStores() as OkNegotiatedContentResult<Store[]>;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Content);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Content);
         }
 
-        [TestMethod]
+        [Fact]
         public void CreateNewStore()
         {
             var controller = GetStoreController();
@@ -57,10 +56,10 @@ namespace VirtoCommerce.StoreModule.Test
 
             };
             var result = controller.Create(store) as OkNegotiatedContentResult<Store>;
-            Assert.IsNotNull(result.Content);
+            Assert.NotNull(result.Content);
         }
 
-        [TestMethod]
+        [Fact]
         public void UpdateStore()
         {
             var controller = GetStoreController();
@@ -82,14 +81,14 @@ namespace VirtoCommerce.StoreModule.Test
             store = result.Content;
         }
 
-        [TestMethod]
+        [Fact]
         public void DeleteStore()
         {
             var controller = GetStoreController();
             controller.Delete(new[] { "testStore" });
             var result = controller.GetStoreById("testStore") as OkNegotiatedContentResult<Store>;
 
-            Assert.IsNull(result);
+            Assert.Null(result);
 
         }
 
