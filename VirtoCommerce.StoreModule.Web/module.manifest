@@ -56,7 +56,7 @@
             <setting>
                 <name>Stores.SeoLinksType</name>
                 <valueType>string</valueType>
-                <defaultValue>Long</defaultValue>
+                <defaultValue>Collapsed</defaultValue>
                 <allowedValues>
                     <value>None</value>
                     <value>Short</value>
