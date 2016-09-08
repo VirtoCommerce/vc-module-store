@@ -48,6 +48,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         [HttpPost]
         [Route("search")]
+        [ResponseType(typeof(webModel.SearchResult))]
         [OverrideAuthorization]
         public webModel.SearchResult SearchStores(coreModel.SearchCriteria criteria)
         {
@@ -94,8 +95,6 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// Get store by id
         /// </summary>
         /// <param name="id">Store id</param>
-        /// <responce code="404">Store not found</responce>
-        /// <responce code="200">Store returned successfully OK</responce>
         [HttpGet]
         [Route("{id}")]
         [ResponseType(typeof(webModel.Store))]
@@ -159,7 +158,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         }
 
         /// <summary>
-        /// Send dynamic notification (contains custom list of properties) an store or adminsitrator email 
+        /// Send dynamic notification (contains custom list of properties) to store or administrator email 
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
