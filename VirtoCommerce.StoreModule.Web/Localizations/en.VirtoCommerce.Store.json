@@ -155,12 +155,12 @@
       "storeNotificationsLogWidget": {
         "title": "Notification log",
         "blade-subtitle": "Notifications log",
-        "blade-title": "'Store {{id}} notification sending log'"
+        "blade-title": "Store {{id}} notification sending log"
       },
       "storeNotificationsWidget": {
         "title": "Notification",
         "blade-subtitle": "Notifications service",
-        "blade-title": "'Store {{id}} notification types list'"
+        "blade-title": "Store {{id}} notification types list"
       },
       "storePaymentsWidget": {
         "title": "Payment methods",
