@@ -9,6 +9,7 @@ using VirtoCommerce.Domain.Payment.Services;
 using VirtoCommerce.Domain.Shipping.Services;
 using VirtoCommerce.Domain.Store.Services;
 using VirtoCommerce.Domain.Tax.Services;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Notifications;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Web.Security;
@@ -50,7 +51,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("search")]
         [ResponseType(typeof(webModel.SearchResult))]
         [OverrideAuthorization]
-        public webModel.SearchResult SearchStores(coreModel.SearchCriteria criteria)
+        public IHttpActionResult SearchStores(coreModel.SearchCriteria criteria)
         {
             //Filter resulting stores correspond to current user permissions
             //first check global permission
@@ -63,6 +64,11 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                                                       .OfType<StoreSelectedScope>()
                                                       .Select(x => x.Scope)
                                                       .ToArray();
+                //Do not return all stores if user don't have corresponding permission
+                if(criteria.StoreIds.IsNullOrEmpty())
+                {
+                    return Ok();
+                }
             }
             var result = _storeService.SearchStores(criteria);
             var retVal = new webModel.SearchResult
@@ -70,7 +76,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 TotalCount = result.TotalCount,
                 Stores = result.Stores.Select(x => x.ToWebModel()).ToArray()
             };
-            return retVal;
+            return Ok(retVal);
         }
 
         /// <summary>
@@ -87,8 +93,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 Skip = 0,
                 Take = int.MaxValue
             };
-            var retVal = SearchStores(criteria);
-            return Ok(retVal.Stores);
+            return SearchStores(criteria);
         }
 
         /// <summary>
