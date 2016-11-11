@@ -50,9 +50,9 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPost]
         [Route("search")]
         [ResponseType(typeof(webModel.SearchResult))]
-        [OverrideAuthorization]
-        public IHttpActionResult SearchStores(coreModel.SearchCriteria criteria)
+        public webModel.SearchResult SearchStores(coreModel.SearchCriteria criteria)
         {
+            var retVal = new webModel.SearchResult();
             //Filter resulting stores correspond to current user permissions
             //first check global permission
             if (!_securityService.UserHasAnyPermission(User.Identity.Name, null, StorePredefinedPermissions.Read))
@@ -67,16 +67,14 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 //Do not return all stores if user don't have corresponding permission
                 if(criteria.StoreIds.IsNullOrEmpty())
                 {
-                    return Ok();
+                    return retVal;
                 }
             }
+
             var result = _storeService.SearchStores(criteria);
-            var retVal = new webModel.SearchResult
-            {
-                TotalCount = result.TotalCount,
-                Stores = result.Stores.Select(x => x.ToWebModel()).ToArray()
-            };
-            return Ok(retVal);
+            retVal.TotalCount = result.TotalCount;
+            retVal.Stores = result.Stores.Select(x => x.ToWebModel()).ToArray();
+            return retVal;
         }
 
         /// <summary>
@@ -85,7 +83,6 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpGet]
         [Route("")]
         [ResponseType(typeof(webModel.Store[]))]
-        [OverrideAuthorization]
         public IHttpActionResult GetStores()
         {
             var criteria = new coreModel.SearchCriteria
@@ -93,7 +90,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 Skip = 0,
                 Take = int.MaxValue
             };
-            return SearchStores(criteria);
+            return Ok(SearchStores(criteria).Stores);
         }
 
         /// <summary>
