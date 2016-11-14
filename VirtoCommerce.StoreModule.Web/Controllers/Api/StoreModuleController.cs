@@ -67,7 +67,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 //Do not return all stores if user don't have corresponding permission
                 if(criteria.StoreIds.IsNullOrEmpty())
                 {
-                    return retVal;
+                    throw new HttpResponseException(HttpStatusCode.Unauthorized);
                 }
             }
 
