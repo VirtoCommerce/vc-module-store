@@ -11,7 +11,7 @@ Key features:
 ![stores UI](https://cloud.githubusercontent.com/assets/5801549/15567593/855799ac-2327-11e6-9c87-b0ff7811c48e.png)
 
 # Documentation
-User guide: <a href="http://docs.virtocommerce.com/x/9gDr" target="_blank">Virto Commerce Store module</a>
+User guide: <a href="https://virtocommerce.com/docs/vc2userguide/configuration/store" target="_blank">Virto Commerce Store module</a>
 
 # Installation
 Installing the module:
