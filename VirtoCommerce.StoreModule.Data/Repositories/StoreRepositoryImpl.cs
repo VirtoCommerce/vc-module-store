@@ -25,67 +25,67 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
             #region Store
-            modelBuilder.Entity<Store>().HasKey(x => x.Id)
+            modelBuilder.Entity<StoreEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<Store>().ToTable("Store");
+            modelBuilder.Entity<StoreEntity>().ToTable("Store");
             #endregion
 
             #region StoreCurrency
-            modelBuilder.Entity<StoreCurrency>().HasKey(x => x.Id)
+            modelBuilder.Entity<StoreCurrencyEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<StoreCurrency>().ToTable("StoreCurrency");
+            modelBuilder.Entity<StoreCurrencyEntity>().ToTable("StoreCurrency");
 
-            modelBuilder.Entity<StoreCurrency>().HasRequired(x => x.Store)
+            modelBuilder.Entity<StoreCurrencyEntity>().HasRequired(x => x.Store)
                                    .WithMany(x => x.Currencies)
                                    .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StoreLanguage
-            modelBuilder.Entity<StoreLanguage>().HasKey(x => x.Id)
+            modelBuilder.Entity<StoreLanguageEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<StoreLanguage>().ToTable("StoreLanguage");
+            modelBuilder.Entity<StoreLanguageEntity>().ToTable("StoreLanguage");
 
-            modelBuilder.Entity<StoreLanguage>().HasRequired(x => x.Store)
+            modelBuilder.Entity<StoreLanguageEntity>().HasRequired(x => x.Store)
                                    .WithMany(x => x.Languages)
                                    .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StoreTrustedGroups
-            modelBuilder.Entity<StoreTrustedGroup>().HasKey(x => x.Id)
+            modelBuilder.Entity<StoreTrustedGroupEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<StoreTrustedGroup>().ToTable("StoreTrustedGroup");
+            modelBuilder.Entity<StoreTrustedGroupEntity>().ToTable("StoreTrustedGroup");
 
-            modelBuilder.Entity<StoreTrustedGroup>().HasRequired(x => x.Store)
+            modelBuilder.Entity<StoreTrustedGroupEntity>().HasRequired(x => x.Store)
                                    .WithMany(x => x.TrustedGroups)
 								   .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StorePaymentMethod
-            modelBuilder.Entity<StorePaymentMethod>().HasKey(x => x.Id)
+            modelBuilder.Entity<StorePaymentMethodEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<StorePaymentMethod>().ToTable("StorePaymentMethod");
+            modelBuilder.Entity<StorePaymentMethodEntity>().ToTable("StorePaymentMethod");
 
-			modelBuilder.Entity<StorePaymentMethod>().HasRequired(x => x.Store)
+			modelBuilder.Entity<StorePaymentMethodEntity>().HasRequired(x => x.Store)
 							   .WithMany(x => x.PaymentMethods)
 							   .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StoreShippingMethod
-            modelBuilder.Entity<StoreShippingMethod>().HasKey(x => x.Id)
+            modelBuilder.Entity<StoreShippingMethodEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<StoreShippingMethod>().ToTable("StoreShippingMethod");
+            modelBuilder.Entity<StoreShippingMethodEntity>().ToTable("StoreShippingMethod");
 
-            modelBuilder.Entity<StoreShippingMethod>().HasRequired(x => x.Store)
+            modelBuilder.Entity<StoreShippingMethodEntity>().HasRequired(x => x.Store)
                                    .WithMany(x => x.ShippingMethods)
                                    .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StoreTaxProvider
-            modelBuilder.Entity<StoreTaxProvider>().HasKey(x => x.Id)
+            modelBuilder.Entity<StoreTaxProviderEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
-            modelBuilder.Entity<StoreTaxProvider>().ToTable("StoreTaxProvider");
+            modelBuilder.Entity<StoreTaxProviderEntity>().ToTable("StoreTaxProvider");
 
-            modelBuilder.Entity<StoreTaxProvider>().HasRequired(x => x.Store)
+            modelBuilder.Entity<StoreTaxProviderEntity>().HasRequired(x => x.Store)
                                  .WithMany(x => x.TaxProviders)
                                  .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
@@ -96,7 +96,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
 		#region IStoreRepository Members
 
-		public Store[] GetStoresByIds(string[] ids)
+		public StoreEntity[] GetStoresByIds(string[] ids)
 		{
             var retVal = Stores.Where(x => ids.Contains(x.Id))
                                .Include(x => x.Languages)
@@ -109,21 +109,21 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
             return retVal;
 		}
 
-		public IQueryable<Store> Stores
+		public IQueryable<StoreEntity> Stores
 		{
-			get { return GetAsQueryable<Store>(); }
+			get { return GetAsQueryable<StoreEntity>(); }
 		}
-        public IQueryable<StorePaymentMethod> StorePaymentMethods
+        public IQueryable<StorePaymentMethodEntity> StorePaymentMethods
         {
-            get { return GetAsQueryable<StorePaymentMethod>(); }
+            get { return GetAsQueryable<StorePaymentMethodEntity>(); }
         }
-        public IQueryable<StoreShippingMethod> StoreShippingMethods
+        public IQueryable<StoreShippingMethodEntity> StoreShippingMethods
         {
-            get { return GetAsQueryable<StoreShippingMethod>(); }
+            get { return GetAsQueryable<StoreShippingMethodEntity>(); }
         }
-        public IQueryable<StoreTaxProvider> StoreTaxProviders
+        public IQueryable<StoreTaxProviderEntity> StoreTaxProviders
         {
-            get { return GetAsQueryable<StoreTaxProvider>(); }
+            get { return GetAsQueryable<StoreTaxProviderEntity>(); }
         }
         #endregion
 

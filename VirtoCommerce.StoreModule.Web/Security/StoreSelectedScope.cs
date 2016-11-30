@@ -25,7 +25,7 @@ namespace VirtoCommerce.StoreModule.Web.Security
             }
             string storeId = null;
             var coreStore = obj as Store;
-            var webModelStore = obj as Model.Store;
+            var webModelStore = obj as Store;
             if(coreStore != null)
             {
                 storeId = coreStore.Id;

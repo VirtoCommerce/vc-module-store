@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Web.Http;
 using Microsoft.Practices.Unity;
 using VirtoCommerce.Domain.Store.Services;
 using VirtoCommerce.Platform.Core.ExportImport;
@@ -12,6 +14,7 @@ using VirtoCommerce.StoreModule.Data.Notifications;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Web.ExportImport;
+using VirtoCommerce.StoreModule.Web.JsonConverters;
 using VirtoCommerce.StoreModule.Web.Security;
 
 namespace VirtoCommerce.StoreModule.Web
@@ -63,6 +66,20 @@ namespace VirtoCommerce.StoreModule.Web
                     Subject = ""
                 }
             });
+
+            //Next lines allow to use polymorph types in API controller methods
+            var httpConfiguration = _container.Resolve<HttpConfiguration>();
+            var storeJsonConverter = _container.Resolve<PolymorphicStoreJsonConverter>();
+            httpConfiguration.Formatters.JsonFormatter.SerializerSettings.Converters.Add(storeJsonConverter);
+            //Temporary workaround
+            //Because Platform 2.12.2 version has default global converter StringEnumConverter(camelCase: true) 
+            //and current manager UI required settingValueType with capital letter.
+            //This converter used only to override global JSON enum policy (camelCase: true) -> camelCase: false
+            //And it may be removed when platform updated to new version witch  global camelCase: false enum serialization policy 
+            var converters = httpConfiguration.Formatters.JsonFormatter.SerializerSettings.Converters.ToArray();
+            httpConfiguration.Formatters.JsonFormatter.SerializerSettings.Converters.Clear();
+            httpConfiguration.Formatters.JsonFormatter.SerializerSettings.Converters = new []  { new SettingValueTypeEnumJsonConverter() }.Concat(converters).ToList(); 
+
         }
         #endregion
 

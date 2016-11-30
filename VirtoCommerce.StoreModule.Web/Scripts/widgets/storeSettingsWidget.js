@@ -10,7 +10,7 @@
 //            subtitle: 'stores.widgets.storeSettingsWidget.blade-subtitle',
 //            controller: 'virtoCommerce.storeModule.storeSettingsListController',
 //            template: 'Modules/$(VirtoCommerce.Store)/Scripts/blades/store-settings-list.tpl.html',
-//            securityScopes: blade.securityScopes
+//            securityScopes: blade.scopes
 //        };
 //        bladeNavigationService.showBlade(newBlade, blade);
 //    };

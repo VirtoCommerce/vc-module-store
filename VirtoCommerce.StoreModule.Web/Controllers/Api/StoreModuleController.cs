@@ -14,7 +14,6 @@ using VirtoCommerce.Platform.Core.Notifications;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Web.Security;
 using VirtoCommerce.StoreModule.Data.Notifications;
-using VirtoCommerce.StoreModule.Web.Converters;
 using VirtoCommerce.StoreModule.Web.Security;
 using coreModel = VirtoCommerce.Domain.Store.Model;
 using webModel = VirtoCommerce.StoreModule.Web.Model;
@@ -73,7 +72,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 
             var result = _storeService.SearchStores(criteria);
             retVal.TotalCount = result.TotalCount;
-            retVal.Stores = result.Stores.Select(x => x.ToWebModel()).ToArray();
+            retVal.Stores = result.Stores.ToArray();
             return retVal;
         }
 
@@ -82,7 +81,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         [HttpGet]
         [Route("")]
-        [ResponseType(typeof(webModel.Store[]))]
+        [ResponseType(typeof(coreModel.Store[]))]
         public IHttpActionResult GetStores()
         {
             var criteria = new coreModel.SearchCriteria
@@ -99,18 +98,13 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="id">Store id</param>
         [HttpGet]
         [Route("{id}")]
-        [ResponseType(typeof(webModel.Store))]
+        [ResponseType(typeof(coreModel.Store))]
         public IHttpActionResult GetStoreById(string id)
         {
-            var store = _storeService.GetById(id);
-            if (store == null)
-            {
-                return NotFound();
-            }
-            CheckCurrentUserHasPermissionForObjects(StorePredefinedPermissions.Read, store);
-            var retVal = store.ToWebModel();
-            retVal.SecurityScopes = _permissionScopeService.GetObjectPermissionScopeStrings(store).ToArray();
-            return Ok(retVal);
+            var result = _storeService.GetById(id);        
+            CheckCurrentUserHasPermissionForObjects(StorePredefinedPermissions.Read, result);
+            result.Scopes = _permissionScopeService.GetObjectPermissionScopeStrings(result).ToArray();
+            return Ok(result);
         }
 
 
@@ -120,13 +114,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="store">Store</param>
         [HttpPost]
         [Route("")]
-        [ResponseType(typeof(webModel.Store))]
+        [ResponseType(typeof(coreModel.Store))]
         [CheckPermission(Permission = StorePredefinedPermissions.Create)]
-        public IHttpActionResult Create(webModel.Store store)
-        {
-            var coreStore = store.ToCoreModel(_shippingService.GetAllShippingMethods(), _paymentService.GetAllPaymentMethods(), _taxService.GetAllTaxProviders());
-            var retVal = _storeService.Create(coreStore);
-            return Ok(retVal.ToWebModel());
+        public IHttpActionResult Create(coreModel.Store store)
+        {       
+            var retVal = _storeService.Create(store);
+            return Ok(store);
         }
 
         /// <summary>
@@ -136,11 +129,10 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPut]
         [Route("")]
         [ResponseType(typeof(void))]
-        public IHttpActionResult Update(webModel.Store store)
-        {
-            var coreStore = store.ToCoreModel(_shippingService.GetAllShippingMethods(), _paymentService.GetAllPaymentMethods(), _taxService.GetAllTaxProviders());
-            CheckCurrentUserHasPermissionForObjects(StorePredefinedPermissions.Update, coreStore);
-            _storeService.Update(new[] { coreStore });
+        public IHttpActionResult Update(coreModel.Store store)
+        {      
+            CheckCurrentUserHasPermissionForObjects(StorePredefinedPermissions.Update, store);
+            _storeService.Update(new[] { store });
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -224,15 +216,15 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <returns></returns>
         [HttpGet]
         [Route("allowed/{userId}")]
-        [ResponseType(typeof(webModel.Store[]))]
+        [ResponseType(typeof(coreModel.Store[]))]
         public async Task<IHttpActionResult> GetUserAllowedStores(string userId)
         {
-            var retVal = new List<webModel.Store>();
+            var retVal = new List<coreModel.Store>();
             var user = await _securityService.FindByIdAsync(userId, UserDetails.Reduced);
             if (user != null)
             {
                 var storeIds = _storeService.GetUserAllowedStoreIds(user);
-                retVal.AddRange(_storeService.GetByIds(storeIds.ToArray()).Select(x => x.ToWebModel()));
+                retVal.AddRange(_storeService.GetByIds(storeIds.ToArray()));
             }
             return Ok(retVal.ToArray());
         }

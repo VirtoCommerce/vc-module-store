@@ -11,11 +11,11 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 {
 	public interface IStoreRepository : IRepository
 	{
-        IQueryable<Store> Stores { get; }
-        IQueryable<StorePaymentMethod> StorePaymentMethods { get; }
-        IQueryable<StoreShippingMethod> StoreShippingMethods { get; }
-        IQueryable<StoreTaxProvider> StoreTaxProviders { get; }
+        IQueryable<StoreEntity> Stores { get; }
+        IQueryable<StorePaymentMethodEntity> StorePaymentMethods { get; }
+        IQueryable<StoreShippingMethodEntity> StoreShippingMethods { get; }
+        IQueryable<StoreTaxProviderEntity> StoreTaxProviders { get; }
 
-        dataModel.Store[] GetStoresByIds(string[] ids);
+        dataModel.StoreEntity[] GetStoresByIds(string[] ids);
     }
 }

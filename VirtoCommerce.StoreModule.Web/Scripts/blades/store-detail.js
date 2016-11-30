@@ -37,8 +37,8 @@
             blade.isLoading = false;
 
             //sets security scopes for scope bounded ACL
-            if (blade.currentEntity.securityScopes && angular.isArray(blade.currentEntity.securityScopes)) {
-                blade.securityScopes = blade.currentEntity.securityScopes;
+            if (blade.currentEntity.scopes && angular.isArray(blade.currentEntity.scopes)) {
+                blade.scopes = blade.currentEntity.scopes;
             }
         }
 

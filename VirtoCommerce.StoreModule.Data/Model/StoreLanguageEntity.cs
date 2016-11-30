@@ -9,20 +9,15 @@ using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.StoreModule.Data.Model
 {
-    public class StoreLanguage : Entity
+    public class StoreLanguageEntity : Entity
     {
-
 		[Required]
 		[StringLength(32)]
 		public string LanguageCode { get; set; }
 
         #region Navigation Properties
-        [ForeignKey("Store")]
-         [Required]
-        [StringLength(128)]
 		public string StoreId { get; set; }
-
-        public Store Store { get; set; }
+        public StoreEntity Store { get; set; }
 
         #endregion
     }

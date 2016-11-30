@@ -9,22 +9,16 @@ using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.StoreModule.Data.Model
 {
-    public class StoreCurrency : Entity
+    public class StoreTrustedGroupEntity : Entity
     {
-	
-		[Required]
-		[StringLength(32)]
-		public string CurrencyCode { get; set; }
+        [Required]
+        [StringLength(128)]
+        public string GroupName { get; set; }
 
-		#region Navigation Properties
+        #region Navigation Properties
+        public string StoreId { get; set; }
+        public StoreEntity Store { get; set; }
 
-		[Required]
-		[ForeignKey("Store")]
-		[StringLength(128)]
-		public string StoreId { get; set; }
-
-		public Store Store { get; set; }
-
-		#endregion
+        #endregion
     }
 }
