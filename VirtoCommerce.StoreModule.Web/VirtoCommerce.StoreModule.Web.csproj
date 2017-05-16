@@ -145,6 +145,7 @@
     </None>
     <Content Include="Content\logo.png" />
     <Content Include="Localizations\en.VirtoCommerce.Store.json" />
+    <Content Include="Localizations\de.VirtoCommerce.Store.json" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
