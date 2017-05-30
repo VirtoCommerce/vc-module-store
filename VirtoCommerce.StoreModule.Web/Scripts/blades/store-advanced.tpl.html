@@ -16,7 +16,7 @@
                             <div class="form-input">
                                 <ui-select ng-model="blade.currentEntity.country">
                                     <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.store-country' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="x.code as x in countries | filter: { name: $select.search }">
+                                    <ui-select-choices repeat="x.id as x in countries | filter: { name: $select.search }">
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
