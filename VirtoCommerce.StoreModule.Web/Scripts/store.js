@@ -31,8 +31,8 @@ angular.module(moduleName, [
   }]
 )
 .run(
-  ['platformWebApp.toolbarService', 'platformWebApp.bladeNavigationService', 'platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.permissionScopeResolver', 'virtoCommerce.storeModule.stores',
-	function (toolbarService, bladeNavigationService, mainMenuService, widgetService, $state, scopeResolver, stores) {
+  ['platformWebApp.toolbarService', 'platformWebApp.bladeNavigationService', 'platformWebApp.metaFormsService', '$templateRequest', 'platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.permissionScopeResolver', 'virtoCommerce.storeModule.stores',
+	function (toolbarService, bladeNavigationService, metaFormsService, $templateRequest, mainMenuService, widgetService, $state, scopeResolver, stores) {
 	    //Register module in main menu
 	    var menuItem = {
 	        path: 'browse/store',
@@ -43,6 +43,13 @@ angular.module(moduleName, [
 	        permission: 'store:access'
 	    };
 	    mainMenuService.addMenuItem(menuItem);
+
+	    metaFormsService.registerMetaFields('accountDetails', [
+	        {
+	            name: 'storeId',
+	            templateUrl: 'Modules/$(VirtoCommerce.Store)/Scripts/blades/templates/accountDetails/storeId.html'
+	        }
+	    ]);
 
 	    //Register widgets in store details
 	    widgetService.registerWidget({
