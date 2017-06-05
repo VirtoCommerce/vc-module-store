@@ -142,6 +142,11 @@
           "secure-url-missing": "Sichere URL fehlt. Klicken Sie auf Shopdetails zu öffnen.",
           "default-language-missing": "Standardsprache fehlt. Klicken Sie auf Shopdetails zu öffnen."
         }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Container (Shop) ID"
+        }
       }
     },
     "widgets": {
