@@ -47,7 +47,8 @@ angular.module(moduleName, [
 	    metaFormsService.registerMetaFields('accountDetails', [
 	        {
 	            name: 'storeId',
-	            templateUrl: 'Modules/$(VirtoCommerce.Store)/Scripts/blades/templates/accountDetails/storeId.html'
+	            templateUrl: 'Modules/$(VirtoCommerce.Store)/Scripts/blades/templates/accountDetails/storeId.html',
+	            priority: 100
 	        }
 	    ]);
 
