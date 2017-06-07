@@ -142,6 +142,11 @@
           "secure-url-missing": "Secure URL is missing. Click to open Store details.",
           "default-language-missing": "Default language is missing. Click to open Store details."
         }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Container (store)"
+        }
       }
     },
     "widgets": {

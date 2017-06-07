@@ -145,6 +145,7 @@
     </None>
     <Content Include="Content\logo.png" />
     <Content Include="Localizations\en.VirtoCommerce.Store.json" />
+    <Content Include="Localizations\de.VirtoCommerce.Store.json" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -176,6 +177,8 @@
     <Content Include="Scripts\blades\store-advanced.js" />
     <Content Include="Scripts\blades\store-detail.js" />
     <Content Include="Scripts\blades\store-advanced.tpl.html" />
+    <Content Include="Scripts\blades\templates\accountDetails\storeId.html" />
+    <Content Include="Scripts\blades\templates\accountDetails\storeId.js" />
     <Content Include="Scripts\widgets\assetsWidget.js" />
     <Content Include="Scripts\widgets\assetsWidget.tpl.html" />
     <Content Include="Scripts\widgets\storeNotificationsLogWidget.js" />

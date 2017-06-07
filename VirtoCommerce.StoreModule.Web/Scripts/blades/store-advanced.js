@@ -1,5 +1,5 @@
 ﻿angular.module('virtoCommerce.storeModule')
-.controller('virtoCommerce.storeModule.storeAdvancedController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.coreModule.fulfillment.fulfillments', 'virtoCommerce.coreModule.common.countries', function ($scope, bladeNavigationService, stores, fulfillments, countries) {
+.controller('virtoCommerce.storeModule.storeAdvancedController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.coreModule.fulfillment.fulfillments', 'platformWebApp.common.countries', 'platformWebApp.common.timeZones', function ($scope, bladeNavigationService, stores, fulfillments, countries, timeZones) {
     $scope.saveChanges = function () {
         angular.copy($scope.blade.currentEntity, $scope.blade.origEntity);
         $scope.bladeClose();
@@ -33,5 +33,5 @@
     $scope.blade.origEntity = $scope.blade.entity;
     $scope.fulfillmentCenters = fulfillments.query();
     $scope.countries = countries.query();
-    $scope.timeZones = countries.getTimeZones();
+    $scope.timeZones = timeZones.query();
 }]);
