@@ -145,7 +145,7 @@
       },
       "account-detail": {
         "labels": {
-          "container-id": "Container (store) ID"
+          "container-id": "Container (store)"
         }
       }
     },
