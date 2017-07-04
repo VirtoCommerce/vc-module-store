@@ -51,6 +51,13 @@
                 <title>Export/Import description</title>
                 <description>Module description in platform export/import wizard</description>
             </setting>
+            <setting>
+              <name>Stores.TaxCalculationEnabled</name>
+              <valueType>boolean</valueType>
+              <defaultValue>true</defaultValue>
+              <title>Enable Tax Calculation</title>
+              <description>Setting to off prevents tax calculation on storefront</description>
+            </setting>
         </group>
         <group name="Store|SEO">
             <setting>
