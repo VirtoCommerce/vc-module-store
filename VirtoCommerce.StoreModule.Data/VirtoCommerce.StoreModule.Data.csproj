@@ -74,13 +74,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VirtoCommerce.Domain, Version=2.19.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\VirtoCommerce.Domain.2.19.2\lib\net451\VirtoCommerce.Domain.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="VirtoCommerce.Domain, Version=2.24.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VirtoCommerce.Domain.2.24.2\lib\net461\VirtoCommerce.Domain.dll</HintPath>
     </Reference>
-    <Reference Include="VirtoCommerce.Platform.Core, Version=2.12.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\VirtoCommerce.Platform.Core.2.12.2\lib\net461\VirtoCommerce.Platform.Core.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="VirtoCommerce.Platform.Core, Version=2.13.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VirtoCommerce.Platform.Core.2.13.9\lib\net461\VirtoCommerce.Platform.Core.dll</HintPath>
     </Reference>
     <Reference Include="VirtoCommerce.Platform.Data, Version=2.12.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\VirtoCommerce.Platform.Data.2.12.2\lib\net461\VirtoCommerce.Platform.Data.dll</HintPath>
@@ -127,9 +125,15 @@
     <Compile Include="Migrations\201602191328025_TrustedGroups.Designer.cs">
       <DependentUpon>201602191328025_TrustedGroups.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201707191240055_StoreFulfillmentCenters.cs" />
+    <Compile Include="Migrations\201707191240055_StoreFulfillmentCenters.Designer.cs">
+      <DependentUpon>201707191240055_StoreFulfillmentCenters.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Model\FulfillmentCenterType.cs" />
     <Compile Include="Model\StoreEntity.cs" />
     <Compile Include="Model\StoreCurrencyEntity.cs" />
+    <Compile Include="Model\StoreFulfillmentCenterEntity.cs" />
     <Compile Include="Model\StoreLanguageEntity.cs" />
     <Compile Include="Model\StorePaymentMethodEntity.cs" />
     <Compile Include="Model\StoreShippingMethodEntity.cs" />
@@ -177,6 +181,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602191328025_TrustedGroups.resx">
       <DependentUpon>201602191328025_TrustedGroups.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201707191240055_StoreFulfillmentCenters.resx">
+      <DependentUpon>201707191240055_StoreFulfillmentCenters.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

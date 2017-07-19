@@ -78,6 +78,34 @@
                         </div>
                     </div>
                 </div>
+                <div class="columns clearfix">
+                    <div class="column">
+                        <div class="form-group">
+                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
+                            <div class="form-input" data-role="input-control">
+                                <ui-select multiple ng-model="blade.currentEntity.fulfillmentCenters">
+                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }}">{{ $item.name }}</ui-select-match>
+                                    <ui-select-choices repeat="x in fulfillmentCenters | filter: $select.search">
+                                        <span ng-bind-html="x.name | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="form-group">
+                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.additional-returns-fulfillment-centers' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
+                            <div class="form-input" data-role="input-control">
+                                <ui-select multiple ng-model="blade.currentEntity.returnsFulfillmentCenters">
+                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }}">{{ $item.name }}</ui-select-match>
+                                    <ui-select-choices repeat="x in fulfillmentCenters | filter: { name: $select.search }">
+                                        <span ng-bind-html="x.name | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="columns">
                     <div class="form-group">
                         <label class="form-label">{{ 'stores.blades.store-advanced.labels.operational-timezone' | translate }}</label>

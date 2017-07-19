@@ -1,91 +1,86 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using VirtoCommerce.Platform.Core.Common;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using VirtoCommerce.Domain.Store.Model;
-using VirtoCommerce.Domain.Shipping.Model;
-using VirtoCommerce.Domain.Payment.Model;
-using VirtoCommerce.Domain.Tax.Model;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.StoreModule.Data.Model
 {
-	public class StoreEntity : AuditableEntity
-	{
-		public StoreEntity()
-		{
-			Languages = new NullCollection<StoreLanguageEntity>();
-			Currencies = new NullCollection<StoreCurrencyEntity>();
-			PaymentMethods = new NullCollection<StorePaymentMethodEntity>();
-			ShippingMethods = new NullCollection<StoreShippingMethodEntity>();
+    public class StoreEntity : AuditableEntity
+    {
+        public StoreEntity()
+        {
+            Languages = new NullCollection<StoreLanguageEntity>();
+            Currencies = new NullCollection<StoreCurrencyEntity>();
+            PaymentMethods = new NullCollection<StorePaymentMethodEntity>();
+            ShippingMethods = new NullCollection<StoreShippingMethodEntity>();
             TaxProviders = new NullCollection<StoreTaxProviderEntity>();
             TrustedGroups = new NullCollection<StoreTrustedGroupEntity>();
+            FulfillmentCenters = new NullCollection<StoreFulfillmentCenterEntity>();
         }
 
-		[Required]
-		[StringLength(128)]
-		public string Name { get; set; }
+        [Required]
+        [StringLength(128)]
+        public string Name { get; set; }
 
-		[StringLength(256)]
-		public string Description { get; set; }
+        [StringLength(256)]
+        public string Description { get; set; }
 
-		[StringLength(256)]
-		public string Url { get; set; }
+        [StringLength(256)]
+        public string Url { get; set; }
 
-		public int StoreState { get; set; }
+        public int StoreState { get; set; }
 
-		[StringLength(128)]
-		public string TimeZone { get; set; }
+        [StringLength(128)]
+        public string TimeZone { get; set; }
 
-		[StringLength(128)]
-		public string Country { get; set; }
+        [StringLength(128)]
+        public string Country { get; set; }
 
-		[StringLength(128)]
-		public string Region { get; set; }
+        [StringLength(128)]
+        public string Region { get; set; }
 
-		[StringLength(128)]
-		public string DefaultLanguage { get; set; }
+        [StringLength(128)]
+        public string DefaultLanguage { get; set; }
 
-		[StringLength(64)]
-		public string DefaultCurrency { get; set; }
+        [StringLength(64)]
+        public string DefaultCurrency { get; set; }
 
-		[StringLength(128)]
-		[Required]
-		public string Catalog { get; set; }
+        [StringLength(128)]
+        [Required]
+        public string Catalog { get; set; }
 
-		public int CreditCardSavePolicy { get; set; }
+        public int CreditCardSavePolicy { get; set; }
 
-		[StringLength(128)]
-		public string SecureUrl { get; set; }
+        [StringLength(128)]
+        public string SecureUrl { get; set; }
 
-		[StringLength(128)]
-		public string Email { get; set; }
+        [StringLength(128)]
+        public string Email { get; set; }
 
-		[StringLength(128)]
-		public string AdminEmail { get; set; }
+        [StringLength(128)]
+        public string AdminEmail { get; set; }
 
-		public bool DisplayOutOfStock { get; set; }
+        public bool DisplayOutOfStock { get; set; }
 
-		[StringLength(128)]
-		public string FulfillmentCenterId { get; set; }
-		[StringLength(128)]
-		public string ReturnsFulfillmentCenterId { get; set; }
+        [StringLength(128)]
+        public string FulfillmentCenterId { get; set; }
+        [StringLength(128)]
+        public string ReturnsFulfillmentCenterId { get; set; }
 
-		#region Navigation Properties
+        #region Navigation Properties
 
-		public virtual ObservableCollection<StoreLanguageEntity> Languages { get; set; }
+        public virtual ObservableCollection<StoreLanguageEntity> Languages { get; set; }
 
-		public virtual ObservableCollection<StoreCurrencyEntity> Currencies { get; set; }
+        public virtual ObservableCollection<StoreCurrencyEntity> Currencies { get; set; }
         public virtual ObservableCollection<StoreTrustedGroupEntity> TrustedGroups { get; set; }
 
         public virtual ObservableCollection<StorePaymentMethodEntity> PaymentMethods { get; set; }
-		public virtual ObservableCollection<StoreShippingMethodEntity> ShippingMethods { get; set; }
+        public virtual ObservableCollection<StoreShippingMethodEntity> ShippingMethods { get; set; }
         public virtual ObservableCollection<StoreTaxProviderEntity> TaxProviders { get; set; }
 
+        public virtual ObservableCollection<StoreFulfillmentCenterEntity> FulfillmentCenters { get; set; }
         #endregion
 
         public virtual Store ToModel(Store store)
@@ -116,6 +111,16 @@ namespace VirtoCommerce.StoreModule.Data.Model
             store.Languages = this.Languages.Select(x => x.LanguageCode).ToList();
             store.Currencies = this.Currencies.Select(x => x.CurrencyCode).ToList();
             store.TrustedGroups = this.TrustedGroups.Select(x => x.GroupName).ToList();
+            store.FulfillmentCenters = this.FulfillmentCenters.Where(fc => fc.Type == FulfillmentCenterType.Main).Select(fc => new Domain.Commerce.Model.FulfillmentCenter
+            {
+                Id = fc.Id,
+                Name = fc.Name
+            }).ToList();
+            store.ReturnsFulfillmentCenters = this.FulfillmentCenters.Where(fc => fc.Type == FulfillmentCenterType.Return).Select(fc => new Domain.Commerce.Model.FulfillmentCenter
+            {
+                Id = fc.Id,
+                Name = fc.Name
+            }).ToList();
 
             return store;
         }
@@ -195,6 +200,28 @@ namespace VirtoCommerce.StoreModule.Data.Model
             {
                 this.TaxProviders = new ObservableCollection<StoreTaxProviderEntity>(store.TaxProviders.Select(x => AbstractTypeFactory<StoreTaxProviderEntity>.TryCreateInstance().FromModel(x, pkMap)));
             }
+
+            if (store.FulfillmentCenters != null || store.ReturnsFulfillmentCenters != null)
+            {
+                this.FulfillmentCenters = new ObservableCollection<StoreFulfillmentCenterEntity>();
+                if (store.FulfillmentCenters != null)
+                {
+                    this.FulfillmentCenters.AddRange(store.FulfillmentCenters.Select(fc => new StoreFulfillmentCenterEntity
+                    {
+                        Name = fc.Name,
+                        Type = FulfillmentCenterType.Main
+                    }));
+                }
+                if (store.ReturnsFulfillmentCenter != null)
+                {
+                    this.FulfillmentCenters.AddRange(store.ReturnsFulfillmentCenters.Select(fc => new StoreFulfillmentCenterEntity
+                    {
+                        Name = fc.Name,
+                        Type = FulfillmentCenterType.Return
+                    }));
+                }
+            }
+
             return this;
         }
 
@@ -257,25 +284,31 @@ namespace VirtoCommerce.StoreModule.Data.Model
                 this.TaxProviders.Patch(target.TaxProviders, shippingComparer,
                                       (sourceProvider, targetProvider) => sourceProvider.Patch(targetProvider));
             }
+            if (!this.FulfillmentCenters.IsNullCollection())
+            {
+                var fulfillmentCenterComparer = AnonymousComparer.Create((StoreFulfillmentCenterEntity fc) => fc.Name);
+                this.FulfillmentCenters.Patch(target.FulfillmentCenters, fulfillmentCenterComparer,
+                                      (sourceFulfillmentCenter, targetFulfillmentCenter) => targetFulfillmentCenter.Name = sourceFulfillmentCenter.Name);
+            }
         }
 
         public static ValidationResult ValidateStoreId(string value, ValidationContext context)
-		{
-			if (string.IsNullOrEmpty(value))
-			{
-				return new ValidationResult("Code can't be empty");
-			}
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return new ValidationResult("Code can't be empty");
+            }
 
-			const string invalidKeywordCharacters = @"$+;=%{}[]|\/@ ~#!^*&?:'<>,";
+            const string invalidKeywordCharacters = @"$+;=%{}[]|\/@ ~#!^*&?:'<>,";
 
-			if (value.IndexOfAny(invalidKeywordCharacters.ToCharArray()) > -1)
-			{
-				return new ValidationResult(@"Code must be valid");
-			}
-			else
-			{
-				return ValidationResult.Success;
-			}
-		}
-	}
+            if (value.IndexOfAny(invalidKeywordCharacters.ToCharArray()) > -1)
+            {
+                return new ValidationResult(@"Code must be valid");
+            }
+            else
+            {
+                return ValidationResult.Success;
+            }
+        }
+    }
 }
