@@ -17,6 +17,15 @@
         $scope.bladeClose();
     }
 
+    $scope.blade.refresh = function () {
+        $scope.blade.isLoading = true;
+        stores.get({ id: $scope.blade.currentEntity.id }, function (data) {
+            $scope.blade.currentEntity = data;
+            $scope.blade.isLoading = false;
+        });
+        $scope.fulfillmentCenters = fulfillments.query();
+    }
+
     $scope.openFulfillmentCentersList = function () {
         var newBlade = {
             id: 'fulfillmentCenterList',
