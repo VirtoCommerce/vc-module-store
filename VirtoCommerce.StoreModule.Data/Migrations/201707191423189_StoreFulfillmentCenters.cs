@@ -11,23 +11,20 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
                 "dbo.StoreFulfillmentCenter",
                 c => new
                     {
-                        Id = c.String(nullable: false, maxLength: 128),
+                        FulfillmentCenterId = c.String(nullable: false, maxLength: 128),
                         Name = c.String(nullable: false, maxLength: 128),
-                        Type = c.Int(nullable: false),
+                        Type = c.String(),
                         StoreId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(),
                     })
-                .PrimaryKey(t => t.Id)
+                .PrimaryKey(t => t.FulfillmentCenterId)
                 .ForeignKey("dbo.Store", t => t.StoreId, cascadeDelete: true)
                 .Index(t => t.StoreId);
             
-            DropColumn("dbo.Store", "OuterStoreId");
-            DropColumn("dbo.Store", "StoreType");
         }
         
         public override void Down()
         {
-            AddColumn("dbo.Store", "StoreType", c => c.String(maxLength: 128));
-            AddColumn("dbo.Store", "OuterStoreId", c => c.String(maxLength: 128));
             DropForeignKey("dbo.StoreFulfillmentCenter", "StoreId", "dbo.Store");
             DropIndex("dbo.StoreFulfillmentCenter", new[] { "StoreId" });
             DropTable("dbo.StoreFulfillmentCenter");

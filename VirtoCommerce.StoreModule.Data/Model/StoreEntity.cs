@@ -111,16 +111,6 @@ namespace VirtoCommerce.StoreModule.Data.Model
             store.Languages = this.Languages.Select(x => x.LanguageCode).ToList();
             store.Currencies = this.Currencies.Select(x => x.CurrencyCode).ToList();
             store.TrustedGroups = this.TrustedGroups.Select(x => x.GroupName).ToList();
-            store.FulfillmentCenters = this.FulfillmentCenters.Where(fc => fc.Type == FulfillmentCenterType.Main).Select(fc => new Domain.Commerce.Model.FulfillmentCenter
-            {
-                Id = fc.Id,
-                Name = fc.Name
-            }).ToList();
-            store.ReturnsFulfillmentCenters = this.FulfillmentCenters.Where(fc => fc.Type == FulfillmentCenterType.Return).Select(fc => new Domain.Commerce.Model.FulfillmentCenter
-            {
-                Id = fc.Id,
-                Name = fc.Name
-            }).ToList();
 
             return store;
         }
@@ -200,7 +190,6 @@ namespace VirtoCommerce.StoreModule.Data.Model
             {
                 this.TaxProviders = new ObservableCollection<StoreTaxProviderEntity>(store.TaxProviders.Select(x => AbstractTypeFactory<StoreTaxProviderEntity>.TryCreateInstance().FromModel(x, pkMap)));
             }
-
             if (store.FulfillmentCenters != null || store.ReturnsFulfillmentCenters != null)
             {
                 this.FulfillmentCenters = new ObservableCollection<StoreFulfillmentCenterEntity>();
@@ -208,16 +197,20 @@ namespace VirtoCommerce.StoreModule.Data.Model
                 {
                     this.FulfillmentCenters.AddRange(store.FulfillmentCenters.Select(fc => new StoreFulfillmentCenterEntity
                     {
+                        FulfillmentCenterId = fc.Id,
                         Name = fc.Name,
+                        StoreId = store.Id,
                         Type = FulfillmentCenterType.Main
                     }));
                 }
-                if (store.ReturnsFulfillmentCenter != null)
+                if (store.ReturnsFulfillmentCenters != null)
                 {
                     this.FulfillmentCenters.AddRange(store.ReturnsFulfillmentCenters.Select(fc => new StoreFulfillmentCenterEntity
                     {
+                        FulfillmentCenterId = fc.Id,
                         Name = fc.Name,
-                        Type = FulfillmentCenterType.Return
+                        StoreId = store.Id,
+                        Type = FulfillmentCenterType.Returns
                     }));
                 }
             }
@@ -246,6 +239,8 @@ namespace VirtoCommerce.StoreModule.Data.Model
             target.TimeZone = this.TimeZone;
             target.Url = this.Url;
             target.StoreState = (int)this.StoreState;
+            target.FulfillmentCenterId = this.FulfillmentCenterId;
+            target.ReturnsFulfillmentCenterId = this.ReturnsFulfillmentCenterId;
 
             if (!this.Languages.IsNullCollection())
             {
@@ -288,7 +283,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             {
                 var fulfillmentCenterComparer = AnonymousComparer.Create((StoreFulfillmentCenterEntity fc) => fc.Name);
                 this.FulfillmentCenters.Patch(target.FulfillmentCenters, fulfillmentCenterComparer,
-                                      (sourceFulfillmentCenter, targetFulfillmentCenter) => targetFulfillmentCenter.Name = sourceFulfillmentCenter.Name);
+                                      (sourceFulfillmentCenter, targetFulfillmentCenter) => sourceFulfillmentCenter.Patch(targetFulfillmentCenter));
             }
         }
 

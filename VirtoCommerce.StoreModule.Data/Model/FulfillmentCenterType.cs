@@ -1,8 +1,8 @@
 ﻿namespace VirtoCommerce.StoreModule.Data.Model
 {
-    public enum FulfillmentCenterType
+    public static class FulfillmentCenterType
     {
-        Main,
-        Return
+        public const string Main = "Main";
+        public const string Returns = "Returns";
     }
 }

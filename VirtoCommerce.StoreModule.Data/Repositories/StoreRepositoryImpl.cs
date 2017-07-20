@@ -94,6 +94,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
                 .WithMany(x => x.FulfillmentCenters)
                 .HasForeignKey(x => x.StoreId)
                 .WillCascadeOnDelete(true);
+            modelBuilder.Entity<StoreFulfillmentCenterEntity>().HasKey(x => x.FulfillmentCenterId);
             #endregion
 
             base.OnModelCreating(modelBuilder);
@@ -105,11 +106,14 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         {
             var retVal = Stores.Where(x => ids.Contains(x.Id))
                                .Include(x => x.Languages)
-                               .Include(x => x.Currencies).Include(x => x.TrustedGroups)
+                               .Include(x => x.Currencies)
+                               .Include(x => x.TrustedGroups)
+                               .Include(x => x.FulfillmentCenters)
                                .ToArray();
             var paymentMethods = StorePaymentMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
             var shipmentMethods = StoreShippingMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
             var taxProviders = StoreTaxProviders.Where(x => ids.Contains(x.StoreId)).ToArray();
+            //var fulfillmentCenters = StoreFulfillmentCenters.Where(x => ids.Contains(x.StoreId)).ToArray();
 
             return retVal;
         }
@@ -130,7 +134,10 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         {
             get { return GetAsQueryable<StoreTaxProviderEntity>(); }
         }
+        public IQueryable<StoreFulfillmentCenterEntity> StoreFulfillmentCenters
+        {
+            get { return GetAsQueryable<StoreFulfillmentCenterEntity>(); }
+        }
         #endregion
     }
-
 }

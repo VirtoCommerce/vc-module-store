@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using CacheManager.Core;
 using VirtoCommerce.Domain.Commerce.Model;
 using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Payment.Services;
@@ -30,8 +28,8 @@ namespace VirtoCommerce.StoreModule.Data.Services
         private readonly IPaymentMethodsService _paymentService;
         private readonly ITaxService _taxService;
 
-		public StoreServiceImpl(Func<IStoreRepository> repositoryFactory, ICommerceService commerceService, ISettingsManager settingManager, 
-							    IDynamicPropertyService dynamicPropertyService, IShippingMethodsService shippingService, IPaymentMethodsService paymentService, 
+        public StoreServiceImpl(Func<IStoreRepository> repositoryFactory, ICommerceService commerceService, ISettingsManager settingManager,
+                                IDynamicPropertyService dynamicPropertyService, IShippingMethodsService shippingService, IPaymentMethodsService paymentService,
                                 ITaxService taxService)
         {
             _repositoryFactory = repositoryFactory;
@@ -52,7 +50,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             {
                 var fulfillmentCenters = _commerceService.GetAllFulfillmentCenters().ToList();
                 var dbStores = repository.GetStoresByIds(ids);
-                foreach(var dbStore in dbStores)
+                foreach (var dbStore in dbStores)
                 {
                     var store = AbstractTypeFactory<Store>.TryCreateInstance();
                     dbStore.ToModel(store);
@@ -85,12 +83,30 @@ namespace VirtoCommerce.StoreModule.Data.Services
                             dbStoredTaxProvider.ToModel(taxProvider);
                         }
                     }
-              
+
                     store.ReturnsFulfillmentCenter = fulfillmentCenters.FirstOrDefault(x => x.Id == dbStore.ReturnsFulfillmentCenterId);
                     store.FulfillmentCenter = fulfillmentCenters.FirstOrDefault(x => x.Id == dbStore.FulfillmentCenterId);
+
+                    store.FulfillmentCenters = new List<FulfillmentCenter>();
+                    store.ReturnsFulfillmentCenters = new List<FulfillmentCenter>();
+                    foreach (var fulfillmentCenterEntity in dbStore.FulfillmentCenters)
+                    {
+                        var fulfillmentCenter = fulfillmentCenters.FirstOrDefault(fc => fc.Id == fulfillmentCenterEntity.FulfillmentCenterId);
+                        if (fulfillmentCenter != null)
+                        {
+                            if (fulfillmentCenterEntity.Type == FulfillmentCenterType.Main)
+                            {
+                                store.FulfillmentCenters.Add(fulfillmentCenter);
+                            }
+                            else if (fulfillmentCenterEntity.Type == FulfillmentCenterType.Returns)
+                            {
+                                store.ReturnsFulfillmentCenters.Add(fulfillmentCenter);
+                            }
+                        }
+                    }
                     //Set default settings for store it can be override by store instance setting in LoadEntitySettingsValues
                     store.Settings = _settingManager.GetModuleSettings("VirtoCommerce.Store");
-                    _settingManager.LoadEntitySettingsValues(store);               
+                    _settingManager.LoadEntitySettingsValues(store);
                     stores.Add(store);
                 }
             }
@@ -142,7 +158,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                 foreach (var store in stores)
                 {
                     var sourceEntity = AbstractTypeFactory<StoreEntity>.TryCreateInstance().FromModel(store, pkMap);
-                    var targetEntity = dbStores.First(x=>x.Id == store.Id);
+                    var targetEntity = dbStores.First(x => x.Id == store.Id);
 
                     if (targetEntity != null)
                     {
@@ -192,11 +208,11 @@ namespace VirtoCommerce.StoreModule.Data.Services
             using (var repository = _repositoryFactory())
             {
                 var query = repository.Stores;
-                if(!string.IsNullOrEmpty(criteria.Keyword))
+                if (!string.IsNullOrEmpty(criteria.Keyword))
                 {
                     query = query.Where(x => x.Name.Contains(criteria.Keyword) || x.Id.Contains(criteria.Keyword));
                 }
-                if(!criteria.StoreIds.IsNullOrEmpty())
+                if (!criteria.StoreIds.IsNullOrEmpty())
                 {
                     query = query.Where(x => criteria.StoreIds.Contains(x.Id));
                 }
@@ -205,7 +221,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                 {
                     sortInfos = new[] { new SortInfo { SortColumn = "Name" } };
                 }
-              
+
                 query = query.OrderBySortInfos(sortInfos);
 
                 retVal.TotalCount = query.Count();
@@ -214,7 +230,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                                  .Select(x => x.Id)
                                  .ToArray();
 
-                retVal.Stores = GetByIds(storeIds).AsQueryable().OrderBySortInfos(sortInfos).ToList(); 
+                retVal.Stores = GetByIds(storeIds).AsQueryable().OrderBySortInfos(sortInfos).ToList();
             }
             return retVal;
         }
@@ -227,20 +243,20 @@ namespace VirtoCommerce.StoreModule.Data.Services
         /// <returns></returns>
         public IEnumerable<string> GetUserAllowedStoreIds(ApplicationUserExtended user)
         {
-            if(user == null)
+            if (user == null)
             {
                 throw new ArgumentNullException("user");
             }
 
             var retVal = new List<string>();
 
-            if(user.StoreId != null)
+            if (user.StoreId != null)
             {
                 var store = GetById(user.StoreId);
-                if(store != null)
+                if (store != null)
                 {
                     retVal.Add(store.Id);
-                    if(!store.TrustedGroups.IsNullOrEmpty())
+                    if (!store.TrustedGroups.IsNullOrEmpty())
                     {
                         retVal.AddRange(store.TrustedGroups);
                     }
