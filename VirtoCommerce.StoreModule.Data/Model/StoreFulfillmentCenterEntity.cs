@@ -10,13 +10,16 @@ namespace VirtoCommerce.StoreModule.Data.Model
         [StringLength(128)]
         public string Name { get; set; }
 
+        [Required]
+        [StringLength(32)]
         public string Type { get; set; }
 
+        [Required]
+        [StringLength(128)]
         public string FulfillmentCenterId { get; set; }
 
         #region Navigation Properties
         public string StoreId { get; set; }
-
         public StoreEntity Store { get; set; }
         #endregion
 
@@ -26,13 +29,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             {
                 throw new ArgumentNullException("target");
             }
-
-            target.FulfillmentCenterId = target.FulfillmentCenterId;
-            target.Id = this.Id;
             target.Name = this.Name;
-            target.StoreId = this.StoreId;
-            target.Name = this.Name;
-            target.Type = this.Type;
         }
     }
 }

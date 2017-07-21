@@ -7,13 +7,13 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class StoreFulfillmentCenters : IMigrationMetadata
+    public sealed partial class StoreFulfilmentCenters : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(StoreFulfillmentCenters));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(StoreFulfilmentCenters));
         
         string IMigrationMetadata.Id
         {
-            get { return "201707191423189_StoreFulfillmentCenters"; }
+            get { return "201707210641438_StoreFulfilmentCenters"; }
         }
         
         string IMigrationMetadata.Source
