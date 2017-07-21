@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.Entity;
 using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.Platform.Data.Infrastructure.Interceptors;
 using VirtoCommerce.StoreModule.Data.Model;
 
 namespace VirtoCommerce.StoreModule.Data.Repositories
 {
-	public class StoreRepositoryImpl : EFRepositoryBase, IStoreRepository
-	{
-		public StoreRepositoryImpl()
-		{
-		}
+    public class StoreRepositoryImpl : EFRepositoryBase, IStoreRepository
+    {
+        public StoreRepositoryImpl()
+        {
+        }
 
-		public StoreRepositoryImpl(string nameOrConnectionString, params IInterceptor[] interceptors)
-			: base(nameOrConnectionString, null, interceptors)
-		{
-			Configuration.LazyLoadingEnabled = false;
-		}
+        public StoreRepositoryImpl(string nameOrConnectionString, params IInterceptor[] interceptors)
+            : base(nameOrConnectionString, null, interceptors)
+        {
+            Configuration.LazyLoadingEnabled = false;
+        }
 
-		protected override void OnModelCreating(DbModelBuilder modelBuilder)
-		{
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
             #region Store
             modelBuilder.Entity<StoreEntity>().HasKey(x => x.Id)
                 .Property(x => x.Id);
@@ -57,7 +53,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
             modelBuilder.Entity<StoreTrustedGroupEntity>().HasRequired(x => x.Store)
                                    .WithMany(x => x.TrustedGroups)
-								   .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
+                                   .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StorePaymentMethod
@@ -65,9 +61,9 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
                 .Property(x => x.Id);
             modelBuilder.Entity<StorePaymentMethodEntity>().ToTable("StorePaymentMethod");
 
-			modelBuilder.Entity<StorePaymentMethodEntity>().HasRequired(x => x.Store)
-							   .WithMany(x => x.PaymentMethods)
-							   .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
+            modelBuilder.Entity<StorePaymentMethodEntity>().HasRequired(x => x.Store)
+                               .WithMany(x => x.PaymentMethods)
+                               .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
             #region StoreShippingMethod
@@ -90,29 +86,40 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
                                  .HasForeignKey(x => x.StoreId).WillCascadeOnDelete(true);
             #endregion
 
+            #region FulfillmentCenters
+            modelBuilder.Entity<StoreFulfillmentCenterEntity>().HasKey(x => x.Id).Property(x => x.Id);
+            modelBuilder.Entity<StoreFulfillmentCenterEntity>().ToTable("StoreFulfillmentCenter");
+            modelBuilder.Entity<StoreFulfillmentCenterEntity>()
+                .HasRequired(x => x.Store)
+                .WithMany(x => x.FulfillmentCenters)
+                .HasForeignKey(x => x.StoreId)
+                .WillCascadeOnDelete(true);
+            #endregion
 
             base.OnModelCreating(modelBuilder);
-		}
+        }
 
-		#region IStoreRepository Members
+        #region IStoreRepository Members
 
-		public StoreEntity[] GetStoresByIds(string[] ids)
-		{
+        public StoreEntity[] GetStoresByIds(string[] ids)
+        {
             var retVal = Stores.Where(x => ids.Contains(x.Id))
                                .Include(x => x.Languages)
-                               .Include(x => x.Currencies).Include(x => x.TrustedGroups)
+                               .Include(x => x.Currencies)
+                               .Include(x => x.TrustedGroups)
                                .ToArray();
             var paymentMethods = StorePaymentMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
             var shipmentMethods = StoreShippingMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
             var taxProviders = StoreTaxProviders.Where(x => ids.Contains(x.StoreId)).ToArray();
-                           
-            return retVal;
-		}
+            var fulfillmentCenters = StoreFulfillmentCenters.Where(x => ids.Contains(x.StoreId)).ToArray();
 
-		public IQueryable<StoreEntity> Stores
-		{
-			get { return GetAsQueryable<StoreEntity>(); }
-		}
+            return retVal;
+        }
+
+        public IQueryable<StoreEntity> Stores
+        {
+            get { return GetAsQueryable<StoreEntity>(); }
+        }
         public IQueryable<StorePaymentMethodEntity> StorePaymentMethods
         {
             get { return GetAsQueryable<StorePaymentMethodEntity>(); }
@@ -125,9 +132,10 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         {
             get { return GetAsQueryable<StoreTaxProviderEntity>(); }
         }
+        public IQueryable<StoreFulfillmentCenterEntity> StoreFulfillmentCenters
+        {
+            get { return GetAsQueryable<StoreFulfillmentCenterEntity>(); }
+        }
         #endregion
-
-
     }
-
 }

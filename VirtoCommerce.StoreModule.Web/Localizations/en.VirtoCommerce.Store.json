@@ -69,6 +69,8 @@
           "store-admin-email": "Store admin email",
           "fulfillment-center": "Fulfillment center",
           "returns-fulfillment-center": "Returns Fulfillment center",
+          "additional-fulfillment-centers": "Fulfillment centers",
+          "additional-returns-fulfillment-centers": "Returns fulfillment centers",
           "operational-timezone": "Operational timezone"
         },
         "placeholders": {
