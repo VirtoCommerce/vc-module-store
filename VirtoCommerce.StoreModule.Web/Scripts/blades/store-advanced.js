@@ -37,10 +37,24 @@
 
     $scope.blade.headIcon = 'fa-archive';
 
+    $scope.setAdditionalFulfillmentCentersList = function (fulfillmentCenters) {
+        var defaultFulfillmentCenter = _.find(fulfillmentCenters, function (fc) { return angular.equals(fc, $scope.blade.currentEntity.fulfillmentCenter); });
+        $scope.additionalFulfillmentCenters = _.without(fulfillmentCenters, defaultFulfillmentCenter);
+    }
+
+    $scope.setAdditionalReturnsFulfillmentCentersList = function (fulfillmentCenters) {
+        var defaultReturnsFulfillmentCenter = _.find(fulfillmentCenters, function (fc) { return angular.equals(fc, $scope.blade.currentEntity.returnsFulfillmentCenter); });
+        $scope.additionalReturnsFulfillmentCenters = _.without(fulfillmentCenters, defaultReturnsFulfillmentCenter);
+    }
+
+    fulfillments.query(function (response) {
+        $scope.fulfillmentCenters = response;
+        $scope.setAdditionalFulfillmentCentersList(response);
+    });
+
     $scope.blade.isLoading = false;
     $scope.blade.currentEntity = angular.copy($scope.blade.entity);
     $scope.blade.origEntity = $scope.blade.entity;
-    $scope.fulfillmentCenters = fulfillments.query();
     $scope.countries = countries.query();
     $scope.timeZones = timeZones.query();
 }]);

@@ -55,8 +55,8 @@
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.fulfillment-center' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
                             <div class="form-input">
-                                <ui-select ng-model="blade.currentEntity.fulfillmentCenter">
-                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.fulfillment-center' | translate }}">{{$select.selected.name}}</ui-select-match>
+                                <ui-select ng-model="blade.currentEntity.fulfillmentCenter" on-select="setAdditionalFulfillmentCentersList(fulfillmentCenters)">
+                                    <ui-select-match allow-clear="true" placeholder="{{ 'stores.blades.store-advanced.placeholders.fulfillment-center' | translate }}">{{$select.selected.name}}</ui-select-match>
                                     <ui-select-choices repeat="x in fulfillmentCenters | filter: { name: $select.search }">
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
@@ -66,11 +66,11 @@
                     </div>
                     <div class="column">
                         <div class="form-group">
-                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.returns-fulfillment-center' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
-                            <div class="form-input">
-                                <ui-select ng-model="blade.currentEntity.returnsFulfillmentCenter">
-                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.returns-fulfillment-center' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="x as x in fulfillmentCenters | filter: { name: $select.search }">
+                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
+                            <div class="form-input" data-role="input-control">
+                                <ui-select multiple ng-model="blade.currentEntity.fulfillmentCenters">
+                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }}">{{ $item.name }}</ui-select-match>
+                                    <ui-select-choices repeat="x in additionalFulfillmentCenters | filter: $select.search">
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
@@ -81,11 +81,11 @@
                 <div class="columns clearfix">
                     <div class="column">
                         <div class="form-group">
-                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
-                            <div class="form-input" data-role="input-control">
-                                <ui-select multiple ng-model="blade.currentEntity.fulfillmentCenters">
-                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }}">{{ $item.name }}</ui-select-match>
-                                    <ui-select-choices repeat="x in fulfillmentCenters | filter: $select.search">
+                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.returns-fulfillment-center' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
+                            <div class="form-input">
+                                <ui-select ng-model="blade.currentEntity.returnsFulfillmentCenter" on-select="setAdditionalReturnsFulfillmentCentersList(fulfillmentCenters)">
+                                    <ui-select-match allow-clear="true" placeholder="{{ 'stores.blades.store-advanced.placeholders.returns-fulfillment-center' | translate }}">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="x as x in fulfillmentCenters | filter: { name: $select.search }">
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
@@ -98,7 +98,7 @@
                             <div class="form-input" data-role="input-control">
                                 <ui-select multiple ng-model="blade.currentEntity.returnsFulfillmentCenters">
                                     <ui-select-match placeholder="{{ 'stores.blades.store-advanced.labels.additional-fulfillment-centers' | translate }}">{{ $item.name }}</ui-select-match>
-                                    <ui-select-choices repeat="x in fulfillmentCenters | filter: { name: $select.search }">
+                                    <ui-select-choices repeat="x in additionalReturnsFulfillmentCenters | filter: { name: $select.search }">
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
