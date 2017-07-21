@@ -23,7 +23,7 @@
             $scope.blade.currentEntity = data;
             $scope.blade.isLoading = false;
         });
-        $scope.fulfillmentCenters = fulfillments.query();
+        getFulfillmentCenters();
     }
 
     $scope.openFulfillmentCentersList = function () {
@@ -52,9 +52,19 @@
         $scope.setAdditionalFulfillmentCentersList(response);
     });
 
+    getFulfillmentCenters();
+
     $scope.blade.isLoading = false;
     $scope.blade.currentEntity = angular.copy($scope.blade.entity);
     $scope.blade.origEntity = $scope.blade.entity;
     $scope.countries = countries.query();
     $scope.timeZones = timeZones.query();
+
+    function getFulfillmentCenters() {
+        fulfillments.query(function (response) {
+            $scope.fulfillmentCenters = response;
+            $scope.setAdditionalFulfillmentCentersList(response);
+            $scope.setAdditionalReturnsFulfillmentCentersList(response);
+        });
+    }
 }]);
