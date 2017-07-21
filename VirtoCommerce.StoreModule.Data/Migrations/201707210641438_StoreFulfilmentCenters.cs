@@ -3,7 +3,7 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class StoreFulfillmentCenters : DbMigration
+    public partial class StoreFulfilmentCenters : DbMigration
     {
         public override void Up()
         {
@@ -11,13 +11,13 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
                 "dbo.StoreFulfillmentCenter",
                 c => new
                     {
-                        FulfillmentCenterId = c.String(nullable: false, maxLength: 128),
+                        Id = c.String(nullable: false, maxLength: 128),
                         Name = c.String(nullable: false, maxLength: 128),
-                        Type = c.String(),
+                        Type = c.String(nullable: false, maxLength: 32),
+                        FulfillmentCenterId = c.String(nullable: false, maxLength: 128),
                         StoreId = c.String(nullable: false, maxLength: 128),
-                        Id = c.String(),
                     })
-                .PrimaryKey(t => t.FulfillmentCenterId)
+                .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Store", t => t.StoreId, cascadeDelete: true)
                 .Index(t => t.StoreId);
             

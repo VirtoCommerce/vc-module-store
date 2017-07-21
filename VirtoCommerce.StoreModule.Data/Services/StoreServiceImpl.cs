@@ -46,9 +46,10 @@ namespace VirtoCommerce.StoreModule.Data.Services
         public Store[] GetByIds(string[] ids)
         {
             var stores = new List<Store>();
+
+            var fulfillmentCenters = _commerceService.GetAllFulfillmentCenters().ToList();
             using (var repository = _repositoryFactory())
-            {
-                var fulfillmentCenters = _commerceService.GetAllFulfillmentCenters().ToList();
+            {               
                 var dbStores = repository.GetStoresByIds(ids);
                 foreach (var dbStore in dbStores)
                 {

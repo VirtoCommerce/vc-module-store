@@ -281,7 +281,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             }
             if (!this.FulfillmentCenters.IsNullCollection())
             {
-                var fulfillmentCenterComparer = AnonymousComparer.Create((StoreFulfillmentCenterEntity fc) => fc.Name);
+                var fulfillmentCenterComparer = AnonymousComparer.Create((StoreFulfillmentCenterEntity fc) => $"{fc.FulfillmentCenterId}-{fc.Type}");
                 this.FulfillmentCenters.Patch(target.FulfillmentCenters, fulfillmentCenterComparer,
                                       (sourceFulfillmentCenter, targetFulfillmentCenter) => sourceFulfillmentCenter.Patch(targetFulfillmentCenter));
             }
