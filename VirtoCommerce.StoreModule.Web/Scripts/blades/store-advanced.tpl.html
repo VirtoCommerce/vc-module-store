@@ -9,7 +9,7 @@
                         <textarea class="form-control" cols="30" rows="2" ng-model="blade.currentEntity.description" placeholder="{{ 'stores.blades.store-advanced.placeholders.description' | translate }}"></textarea>
                     </div>
                 </div>
-                <div class="columns">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-country' | translate }}</label>
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-email' | translate }}</label>
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns clearfix">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.fulfillment-center' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns clearfix">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.returns-fulfillment-center' | translate }} <a href="" ng-click="openFulfillmentCentersList()" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
@@ -106,20 +106,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns">
-                    <div class="form-group">
-                        <label class="form-label">{{ 'stores.blades.store-advanced.labels.operational-timezone' | translate }}</label>
-                        <div class="form-input">
-                            <ui-select ng-model="blade.currentEntity.timeZone">
-                                <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.operational-timezone' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                <ui-select-choices repeat="x.id as x in timeZones | filter: { name: $select.search }">
-                                    <span ng-bind-html="x.name | highlight: $select.search"></span>
-                                </ui-select-choices>
-                            </ui-select>
-                        </div>
+                <div class="form-group clearfix">
+                    <label class="form-label">{{ 'stores.blades.store-advanced.labels.operational-timezone' | translate }}</label>
+                    <div class="form-input">
+                        <ui-select ng-model="blade.currentEntity.timeZone">
+                            <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.operational-timezone' | translate }}">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="x.id as x in timeZones | filter: { name: $select.search }">
+                                <span ng-bind-html="x.name | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
                     </div>
                 </div>
-
             </form>
         </div>
     </div>

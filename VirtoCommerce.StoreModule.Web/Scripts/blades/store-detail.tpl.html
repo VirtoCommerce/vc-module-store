@@ -2,7 +2,7 @@
     <div class="blade-inner">
         <div class="inner-block">
             <form class="form" name="detailForm">
-                <div class="columns" ng-init="setForm(detailForm)">
+                <div class="form-group clearfix" ng-init="setForm(detailForm)">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-detail.labels.name' | translate }}</label>
@@ -20,7 +20,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-detail.labels.catalog' | translate }}</label>
@@ -48,7 +48,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-url' | translate }}</label>
@@ -66,7 +66,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-detail.labels.default-language' | translate }} <a href="" ng-click="openLanguagesDictionarySettingManagement()" class="form-edit" va-permission="platform:setting:update"><i class="form-ico fa fa-pencil"></i></a></label>
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="columns clearfix">
+                <div class="form-group clearfix">
                     <div class="column">
                         <div class="form-group">
                             <label class="form-label">{{ 'stores.blades.store-detail.labels.default-currency' | translate }} <a href="" ng-click="currencyUtils.editCurrencies(blade)" class="form-edit"><i class="form-ico fa fa-pencil"></i></a></label>
