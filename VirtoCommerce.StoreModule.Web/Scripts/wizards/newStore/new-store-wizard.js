@@ -51,12 +51,7 @@
             };
             bladeNavigationService.showBlade(newBlade, blade);
         };
-
-        $scope.codeValidator = function (value) {
-            var pattern = /[$+;=%{}[\]|\\\/@ ~!^*&()?:'<>,]/;
-            return !pattern.test(value);
-        };
-
+        
         $scope.catalogs = catalogs.getCatalogs();
         $scope.languages = settings.getValues({ id: 'VirtoCommerce.Core.General.Languages' });
         $scope.currencyUtils = currencyUtils;
