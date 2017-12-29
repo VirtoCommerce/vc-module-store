@@ -60,45 +60,7 @@ namespace VirtoCommerce.StoreModule.Test
             var result = controller.Create(store) as OkNegotiatedContentResult<Store>;
             Assert.NotNull(result.Content);
         }
-
-        [Fact]
-        public void CreateNewStoreWithInvalidCode_ThrowsValidationException()
-        {
-            var controller = GetStoreController();
-            var store = new Store
-            {
-                Id = "!@#$%^&*()_+test Store",
-                Name = "testStore",
-                Catalog = "catalog",
-                Currencies = new[] { "USD", "RUB" },
-                DefaultCurrency = "USD",
-                Languages = new[] { "ru-ru", "en-us" },
-                DefaultLanguage = "ru-ru",
-                FulfillmentCenter = new FulfillmentCenter
-                {
-                    City = "New York",
-                    CountryCode = "USA",
-                    Line1 = "line1",
-                    DaytimePhoneNumber = "+821291921",
-                    CountryName = "USA",
-                    Name = "Name",
-                    StateProvince = "State",
-                    PostalCode = "code"
-                },
-                //PaymentGateways = new string[] { "PayPal", "Clarna" },
-                StoreState = Domain.Store.Model.StoreState.Open,
-
-
-            };
-
-            Action act = () =>
-            {
-                var result = controller.Create(store) as OkNegotiatedContentResult<Store>;
-            };
-
-            Assert.Throws<FluentValidation.ValidationException>(act);
-        }
-
+        
         [Fact]
         public void UpdateStore()
         {
