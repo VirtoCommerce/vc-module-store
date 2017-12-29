@@ -10,7 +10,13 @@
                 <div ng-init="setForm(detailForm)">
                     <label class="form-label">{{ 'stores.blades.store-detail.labels.code' | translate }}</label>
                     <div class="form-input">
-                        <input ng-model="blade.currentEntity.id" type="text" placeholder="{{ 'stores.blades.store-detail.placeholders.code' | translate }}" required focus-on="">
+                        <input ng-model="blade.currentEntity.id" 
+                               type="text" 
+                               placeholder="{{ 'stores.blades.store-detail.placeholders.code' | translate }}" 
+                               required 
+                               focus-on=""
+                               ng-pattern = "blade.currentEntity.validationRuleCodePattern";
+                               >
                     </div>
                 </div>
                 <div class="form-group">

@@ -9,6 +9,7 @@
             blade.currentEntity = angular.copy(data);
             blade.origEntity = data;
             blade.isLoading = false;
+            blade.currentEntity.validationRuleCodePattern = "^[a-zA-Z0-9_]*$" ;
         };
 
         $scope.saveChanges = function () {
@@ -49,6 +50,11 @@
                 template: '$(Platform)/Scripts/app/settings/blades/setting-dictionary.tpl.html'
             };
             bladeNavigationService.showBlade(newBlade, blade);
+        };
+
+        $scope.codeValidator = function (value) {
+            var pattern = /[$+;=%{}[\]|\\\/@ ~!^*&()?:'<>,]/;
+            return !pattern.test(value);
         };
 
         $scope.catalogs = catalogs.getCatalogs();

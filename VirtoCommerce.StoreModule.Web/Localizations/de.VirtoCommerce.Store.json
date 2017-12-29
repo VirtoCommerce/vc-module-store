@@ -98,13 +98,13 @@
           "linked-stores": "Verbundene Geschäfte (Kunden können Ihre Anmeldeinformationen hier verwenden)"
         },
         "placeholders": {
-          "code": "Code eingeben",
-          "name": "Namen eingeben",
-          "catalog": "Wählen Sie aus...",
-          "state": "Wählen Sie aus...",
-          "default-language": "Wählen Sie aus...",
+          "code": "wird als Store-Primärschlüssel und in Storefront als Teil der URL für die Store-Auswahl verwendet",
+          "name": "Anzeigename für Store im Manager darstellen",
+          "catalog": "ein physischer oder virtueller Katalog, der diesem Geschäft zugeordnet ist",
+          "state": "aktueller Geschäftszustand",
+          "default-language": "Primärsprache für diesen Laden",
           "additional-languages": "Wählen Sie aus...",
-          "default-currency": "Wählen Sie aus...",
+          "default-currency": "Hauptwährung für diesen Laden",
           "additional-currencies": "Wählen Sie aus...",
           "linked-stores": "Dieser Shop hat keine verknüpften Shop"
         }
