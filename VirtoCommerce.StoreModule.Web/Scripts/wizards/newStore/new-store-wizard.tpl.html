@@ -15,14 +15,15 @@
                                placeholder="{{ 'stores.blades.store-detail.placeholders.code' | translate }}" 
                                required 
                                focus-on=""
-                               ng-pattern = "blade.currentEntity.validationRuleCodePattern";
-                               >
+                               ng-pattern = "blade.currentEntity.validationRuleCodePattern">
+                        <span class="table-descr">{{ 'stores.blades.store-detail.descriptions.code' | translate }}</span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">{{ 'stores.blades.store-detail.labels.name' | translate }}</label>
                     <div class="form-input">
                         <input ng-model="blade.currentEntity.name" type="text" placeholder="{{ 'stores.blades.store-detail.placeholders.name' | translate }}" required>
+                        <span class="table-descr">{{ 'stores.blades.store-detail.descriptions.name' | translate }}</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -34,6 +35,7 @@
                                 <span ng-bind-html="x.name | highlight: $select.search"></span>
                             </ui-select-choices>
                         </ui-select>
+                        <span class="table-descr">{{ 'stores.blades.store-detail.descriptions.catalog' | translate }}</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -45,6 +47,7 @@
                                 <span ng-bind-html="x | highlight: $select.search"></span>
                             </ui-select-choices>
                         </ui-select>
+                        <span class="table-descr">{{ 'stores.blades.store-detail.descriptions.default-language' | translate }}</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -56,6 +59,7 @@
                                 <span ng-bind-html="x.code | highlight: $select.search"></span>
                             </ui-select-choices>
                         </ui-select>
+                        <span class="table-descr">{{ 'stores.blades.store-detail.descriptions.default-currency' | translate }}</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -67,6 +71,7 @@
                                 <span ng-bind-html="x | highlight: $select.search"></span>
                             </ui-select-choices>
                         </ui-select>
+                        <span class="table-descr">{{ 'stores.blades.store-detail.descriptions.state' | translate }}</span>
                     </div>
                 </div>
             </form>

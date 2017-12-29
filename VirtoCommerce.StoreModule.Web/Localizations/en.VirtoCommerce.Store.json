@@ -100,16 +100,24 @@
           "linked-stores": "Linked stores (Customers can use theirs credentials here)"
         },
         "placeholders": {
+          "code": "Enter code",
+          "name": "Enter name",
+          "catalog": "Select...",
+          "state": "Select...",
+          "default-language": "Select...",
+          "additional-languages": "Select...",
+          "default-currency": "Select...",
+          "additional-currencies": "Select...",
+          "linked-stores": "This store has no linked stores"
+        },
+        "descriptions": {
           "code": "will use as Store primary key and in storefront as part of url for store selection",
           "name": "display name for store to represent in manager",
           "catalog": "a physical or virtual catalog associated with this store",
           "state": "current store state",
           "default-language": "primary language for this store",
-          "additional-languages": "Select...",
-          "default-currency": "primary currency for this store",
-          "additional-currencies": "Select...",
-          "linked-stores": "This store has no linked stores"
-        }
+          "default-currency": "primary currency for this store"
+        } 
       },
       "new-store-wizard": {
         "title": "New Store",
