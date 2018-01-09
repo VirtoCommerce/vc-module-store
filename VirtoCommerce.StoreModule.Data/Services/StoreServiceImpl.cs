@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentValidation;
 using VirtoCommerce.Domain.Commerce.Model;
 using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Payment.Services;
@@ -15,6 +16,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.StoreModule.Data.Model;
 using VirtoCommerce.StoreModule.Data.Repositories;
+using VirtoCommerce.StoreModule.Data.Services.Validation;
 
 namespace VirtoCommerce.StoreModule.Data.Services
 {
@@ -126,6 +128,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
         public Store Create(Store store)
         {
             var pkMap = new PrimaryKeyResolvingMap();
+
+            ValidateStoreProperties(store);
+
             var dbStore = AbstractTypeFactory<StoreEntity>.TryCreateInstance();
             dbStore = dbStore.FromModel(store, pkMap);
 
@@ -264,6 +269,17 @@ namespace VirtoCommerce.StoreModule.Data.Services
                 }
             }
             return retVal;
+        }
+
+        private void ValidateStoreProperties(Store store)
+        {
+            if (store == null)
+            {
+                throw new ArgumentNullException(nameof(store));
+            }
+
+            var validator = new StoreValidator();
+            validator.ValidateAndThrow(store);
         }
 
         #endregion

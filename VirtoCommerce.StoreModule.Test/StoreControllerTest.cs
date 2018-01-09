@@ -60,7 +60,7 @@ namespace VirtoCommerce.StoreModule.Test
             var result = controller.Create(store) as OkNegotiatedContentResult<Store>;
             Assert.NotNull(result.Content);
         }
-
+        
         [Fact]
         public void UpdateStore()
         {

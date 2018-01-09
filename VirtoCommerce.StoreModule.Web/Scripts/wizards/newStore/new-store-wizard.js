@@ -9,6 +9,7 @@
             blade.currentEntity = angular.copy(data);
             blade.origEntity = data;
             blade.isLoading = false;
+            blade.currentEntity.validationRuleCodePattern = "^[a-zA-Z0-9_]*$" ;
         };
 
         $scope.saveChanges = function () {
@@ -50,7 +51,7 @@
             };
             bladeNavigationService.showBlade(newBlade, blade);
         };
-
+        
         $scope.catalogs = catalogs.getCatalogs();
         $scope.languages = settings.getValues({ id: 'VirtoCommerce.Core.General.Languages' });
         $scope.currencyUtils = currencyUtils;
