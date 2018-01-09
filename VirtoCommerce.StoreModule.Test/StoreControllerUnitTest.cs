@@ -41,6 +41,13 @@ namespace VirtoCommerce.StoreModule.Test
         [Theory]
         [InlineData("test Store")]
         [InlineData("!@#$%^&*()")]
+        [InlineData("TestCode!")]
+        [InlineData("Test@Code")]
+        [InlineData("TestCode123 ")]
+        [InlineData("TestCode 123")]
+        [InlineData("TestCode 123!!!")]
+        [InlineData("TestCode 1 2 3 !!!")]
+        [InlineData("$$TestCode$$$")]
         public virtual void CanTryCreateNewStoreWithInvalidCode_ThrowsValidationException(string code)
         {
             var controller = GetStoreController();
@@ -79,6 +86,11 @@ namespace VirtoCommerce.StoreModule.Test
         [CLSCompliant(false)]
         [Theory]
         [InlineData("test_Store1")]
+        [InlineData("TestCode123")]
+        [InlineData("testcode")]
+        [InlineData("test_code")]
+        [InlineData("test1code1")]
+        [InlineData("1test1code1")]
         public virtual void CanTryCreateNewStoreWithValidCode(string code)
         {
             var controller = GetStoreController();
