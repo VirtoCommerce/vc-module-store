@@ -7,7 +7,7 @@ namespace VirtoCommerce.StoreModule.Data.Services.Validation
     {
         public StoreValidator()
         {
-            RuleFor(store => store.Id).NotEmpty().Matches("^[a-zA-Z0-9_]*$");
+            RuleFor(store => store.Id).NotEmpty().Matches(@"^[a-zA-Z0-9_\-]*$");
         }
     }
 }

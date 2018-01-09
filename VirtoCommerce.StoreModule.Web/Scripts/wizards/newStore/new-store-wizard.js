@@ -9,7 +9,7 @@
             blade.currentEntity = angular.copy(data);
             blade.origEntity = data;
             blade.isLoading = false;
-            blade.currentEntity.validationRuleCodePattern = "^[a-zA-Z0-9_]*$" ;
+            blade.currentEntity.validationRuleCodePattern = "^[a-zA-Z0-9_\-]*$" ;
         };
 
         $scope.saveChanges = function () {
