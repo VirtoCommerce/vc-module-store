@@ -3,6 +3,7 @@ using System.Linq;
 using System.Web.Http;
 using Microsoft.Practices.Unity;
 using VirtoCommerce.Domain.Store.Services;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.ExportImport;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Notifications;
@@ -21,7 +22,7 @@ namespace VirtoCommerce.StoreModule.Web
 {
     public class Module : ModuleBase, ISupportExportImportModule
     {
-        private const string _connectionStringName = "VirtoCommerce";
+        private readonly string _connectionStringName = ConfigurationHelper.GetConnectionStringValue("{{ModuleId}}") ?? ConfigurationHelper.GetConnectionStringValue("VirtoCommerce");
         private readonly IUnityContainer _container;
 
         public Module(IUnityContainer container)
