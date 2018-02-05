@@ -22,7 +22,7 @@ namespace VirtoCommerce.StoreModule.Web
 {
     public class Module : ModuleBase, ISupportExportImportModule
     {
-        private readonly string _connectionStringName = ConfigurationHelper.GetConnectionStringValue("{{ModuleId}}") ?? ConfigurationHelper.GetConnectionStringValue("VirtoCommerce");
+        private readonly string _connectionStringName = ConfigurationHelper.GetConnectionStringValue("VirtoCommerce.Store") ?? ConfigurationHelper.GetConnectionStringValue("VirtoCommerce");
         private readonly IUnityContainer _container; 
 
         public Module(IUnityContainer container)
