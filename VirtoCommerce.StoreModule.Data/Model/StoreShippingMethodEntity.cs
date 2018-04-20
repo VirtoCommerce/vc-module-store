@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
@@ -43,15 +43,15 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual ShippingMethod ToModel(ShippingMethod shippingMethod)
         {
             if (shippingMethod == null)
-                throw new ArgumentNullException("shippingMethod");
+                throw new ArgumentNullException(nameof(shippingMethod));
 
-            shippingMethod.IsActive = this.IsActive;
-            shippingMethod.Code = this.Code;
-            shippingMethod.Description = this.Description;
-            shippingMethod.TaxType = this.TaxType;
-            shippingMethod.LogoUrl = this.LogoUrl;
-            shippingMethod.Name = this.Name;
-            shippingMethod.Priority = this.Priority;
+            shippingMethod.IsActive = IsActive;
+            shippingMethod.Code = Code;
+            shippingMethod.Description = Description;
+            shippingMethod.TaxType = TaxType;
+            shippingMethod.LogoUrl = LogoUrl;
+            shippingMethod.Name = Name;
+            shippingMethod.Priority = Priority;
 
             return shippingMethod;
         }
@@ -59,17 +59,17 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual StoreShippingMethodEntity FromModel(ShippingMethod shippingMethod, PrimaryKeyResolvingMap pkMap)
         {
             if (shippingMethod == null)
-                throw new ArgumentNullException("shippingMethod");
+                throw new ArgumentNullException(nameof(shippingMethod));
 
             pkMap.AddPair(shippingMethod, this);
 
-            this.IsActive = shippingMethod.IsActive;
-            this.Code = shippingMethod.Code;
-            this.Description = shippingMethod.Description;
-            this.TaxType = shippingMethod.TaxType;
-            this.LogoUrl = shippingMethod.LogoUrl;
-            this.Name = shippingMethod.Name;
-            this.Priority = shippingMethod.Priority;
+            IsActive = shippingMethod.IsActive;
+            Code = shippingMethod.Code;
+            Description = shippingMethod.Description;
+            TaxType = shippingMethod.TaxType;
+            LogoUrl = shippingMethod.LogoUrl;
+            Name = shippingMethod.Name;
+            Priority = shippingMethod.Priority;
 
             return this;
         }
@@ -77,15 +77,15 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual void Patch(StoreShippingMethodEntity target)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
-            target.IsActive = this.IsActive;
-            target.Code = this.Code;
-            target.Description = this.Description;
-            target.TaxType = this.TaxType;
-            target.LogoUrl = this.LogoUrl;
-            target.Name = this.Name;
-            target.Priority = this.Priority;
+            target.IsActive = IsActive;
+            target.Code = Code;
+            target.Description = Description;
+            target.TaxType = TaxType;
+            target.LogoUrl = LogoUrl;
+            target.Name = Name;
+            target.Priority = Priority;
         }
     }
 }

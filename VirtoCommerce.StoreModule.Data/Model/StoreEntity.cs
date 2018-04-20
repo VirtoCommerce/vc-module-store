@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -86,77 +86,80 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual Store ToModel(Store store)
         {
             if (store == null)
-                throw new ArgumentNullException("store");
+                throw new ArgumentNullException(nameof(store));
 
-            store.Id = this.Id;
-            store.AdminEmail = this.AdminEmail;
-            store.Catalog = this.Catalog;
-            store.Country = this.Country;
-            store.CreatedBy = this.CreatedBy;
-            store.CreatedDate = this.CreatedDate;
-            store.DefaultCurrency = this.DefaultCurrency;
-            store.DefaultLanguage = this.DefaultLanguage;
-            store.Description = this.Description;
-            store.DisplayOutOfStock = this.DisplayOutOfStock;
-            store.Email = this.Email;
-            store.ModifiedBy = this.ModifiedBy;
-            store.ModifiedDate = this.ModifiedDate;
-            store.Name = this.Name;
-            store.Region = this.Region;
-            store.SecureUrl = this.SecureUrl;
-            store.TimeZone = this.TimeZone;
-            store.Url = this.Url;
+            store.Id = Id;
+            store.AdminEmail = AdminEmail;
+            store.Catalog = Catalog;
+            store.Country = Country;
+            store.CreatedBy = CreatedBy;
+            store.CreatedDate = CreatedDate;
+            store.DefaultCurrency = DefaultCurrency;
+            store.DefaultLanguage = DefaultLanguage;
+            store.Description = Description;
+            store.DisplayOutOfStock = DisplayOutOfStock;
+            store.Email = Email;
+            store.ModifiedBy = ModifiedBy;
+            store.ModifiedDate = ModifiedDate;
+            store.Name = Name;
+            store.Region = Region;
+            store.SecureUrl = SecureUrl;
+            store.TimeZone = TimeZone;
+            store.Url = Url;
+            store.MainFulfillmentCenterId = FulfillmentCenterId;
+            store.MainReturnsFulfillmentCenterId = ReturnsFulfillmentCenterId;
 
-            store.StoreState = EnumUtility.SafeParse<StoreState>(this.StoreState.ToString(), Domain.Store.Model.StoreState.Open);
-            store.Languages = this.Languages.Select(x => x.LanguageCode).ToList();
-            store.Currencies = this.Currencies.Select(x => x.CurrencyCode).ToList();
-            store.TrustedGroups = this.TrustedGroups.Select(x => x.GroupName).ToList();
-
+            store.StoreState = EnumUtility.SafeParse<StoreState>(StoreState.ToString(), Domain.Store.Model.StoreState.Open);
+            store.Languages = Languages.Select(x => x.LanguageCode).ToList();
+            store.Currencies = Currencies.Select(x => x.CurrencyCode).ToList();
+            store.TrustedGroups = TrustedGroups.Select(x => x.GroupName).ToList();
+            store.AdditionalFulfillmentCenterIds = FulfillmentCenters.Where(x => x.Type == FulfillmentCenterType.Main).Select(x => x.FulfillmentCenterId).ToList();
+            store.ReturnsFulfillmentCenterIds = FulfillmentCenters.Where(x => x.Type == FulfillmentCenterType.Returns).Select(x => x.FulfillmentCenterId).ToList();
             return store;
         }
 
         public virtual StoreEntity FromModel(Store store, PrimaryKeyResolvingMap pkMap)
         {
             if (store == null)
-                throw new ArgumentNullException("store");
+                throw new ArgumentNullException(nameof(store));
 
             pkMap.AddPair(store, this);
 
-            this.Id = store.Id;
-            this.AdminEmail = store.AdminEmail;
-            this.Catalog = store.Catalog;
-            this.Country = store.Country;
-            this.CreatedBy = store.CreatedBy;
-            this.CreatedDate = store.CreatedDate;
-            this.DefaultCurrency = store.DefaultCurrency;
-            this.DefaultLanguage = store.DefaultLanguage;
-            this.Description = store.Description;
-            this.DisplayOutOfStock = store.DisplayOutOfStock;
-            this.Email = store.Email;
-            this.ModifiedBy = store.ModifiedBy;
-            this.ModifiedDate = store.ModifiedDate;
-            this.Name = store.Name;
-            this.Region = store.Region;
-            this.SecureUrl = store.SecureUrl;
-            this.TimeZone = store.TimeZone;
-            this.Url = store.Url;
-            this.StoreState = (int)store.StoreState;
+            Id = store.Id;
+            AdminEmail = store.AdminEmail;
+            Catalog = store.Catalog;
+            Country = store.Country;
+            CreatedBy = store.CreatedBy;
+            CreatedDate = store.CreatedDate;
+            DefaultCurrency = store.DefaultCurrency;
+            DefaultLanguage = store.DefaultLanguage;
+            Description = store.Description;
+            DisplayOutOfStock = store.DisplayOutOfStock;
+            Email = store.Email;
+            ModifiedBy = store.ModifiedBy;
+            ModifiedDate = store.ModifiedDate;
+            Name = store.Name;
+            Region = store.Region;
+            SecureUrl = store.SecureUrl;
+            TimeZone = store.TimeZone;
+            Url = store.Url;
+            StoreState = (int)store.StoreState;
 
             if (store.DefaultCurrency != null)
             {
-                this.DefaultCurrency = store.DefaultCurrency.ToString();
+                DefaultCurrency = store.DefaultCurrency.ToString();
             }
-            if (store.FulfillmentCenter != null)
+            if (store.MainFulfillmentCenterId != null)
             {
-                this.FulfillmentCenterId = store.FulfillmentCenter.Id;
+                FulfillmentCenterId = store.MainFulfillmentCenterId;
             }
-            if (store.ReturnsFulfillmentCenter != null)
+            if (store.MainReturnsFulfillmentCenterId != null)
             {
-                this.ReturnsFulfillmentCenterId = store.ReturnsFulfillmentCenter.Id;
+                ReturnsFulfillmentCenterId = store.MainReturnsFulfillmentCenterId;
             }
             if (store.Languages != null)
             {
-                this.Languages = new ObservableCollection<StoreLanguageEntity>(store.Languages.Select(x => new StoreLanguageEntity
+                Languages = new ObservableCollection<StoreLanguageEntity>(store.Languages.Select(x => new StoreLanguageEntity
                 {
                     LanguageCode = x
                 }));
@@ -164,7 +167,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
 
             if (store.Currencies != null)
             {
-                this.Currencies = new ObservableCollection<StoreCurrencyEntity>(store.Currencies.Select(x => new StoreCurrencyEntity
+                Currencies = new ObservableCollection<StoreCurrencyEntity>(store.Currencies.Select(x => new StoreCurrencyEntity
                 {
                     CurrencyCode = x.ToString()
                 }));
@@ -172,7 +175,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
 
             if (store.TrustedGroups != null)
             {
-                this.TrustedGroups = new ObservableCollection<StoreTrustedGroupEntity>(store.TrustedGroups.Select(x => new StoreTrustedGroupEntity
+                TrustedGroups = new ObservableCollection<StoreTrustedGroupEntity>(store.TrustedGroups.Select(x => new StoreTrustedGroupEntity
                 {
                     GroupName = x
                 }));
@@ -180,39 +183,38 @@ namespace VirtoCommerce.StoreModule.Data.Model
 
             if (store.ShippingMethods != null)
             {
-                this.ShippingMethods = new ObservableCollection<StoreShippingMethodEntity>(store.ShippingMethods.Select(x => AbstractTypeFactory<StoreShippingMethodEntity>.TryCreateInstance().FromModel(x, pkMap)));
+                ShippingMethods = new ObservableCollection<StoreShippingMethodEntity>(store.ShippingMethods.Select(x => AbstractTypeFactory<StoreShippingMethodEntity>.TryCreateInstance().FromModel(x, pkMap)));
             }
             if (store.PaymentMethods != null)
             {
-                this.PaymentMethods = new ObservableCollection<StorePaymentMethodEntity>(store.PaymentMethods.Select(x => AbstractTypeFactory<StorePaymentMethodEntity>.TryCreateInstance().FromModel(x, pkMap)));
+                PaymentMethods = new ObservableCollection<StorePaymentMethodEntity>(store.PaymentMethods.Select(x => AbstractTypeFactory<StorePaymentMethodEntity>.TryCreateInstance().FromModel(x, pkMap)));
             }
             if (store.TaxProviders != null)
             {
-                this.TaxProviders = new ObservableCollection<StoreTaxProviderEntity>(store.TaxProviders.Select(x => AbstractTypeFactory<StoreTaxProviderEntity>.TryCreateInstance().FromModel(x, pkMap)));
+                TaxProviders = new ObservableCollection<StoreTaxProviderEntity>(store.TaxProviders.Select(x => AbstractTypeFactory<StoreTaxProviderEntity>.TryCreateInstance().FromModel(x, pkMap)));
             }
-            if (store.FulfillmentCenters != null || store.ReturnsFulfillmentCenters != null)
+
+            FulfillmentCenters = new ObservableCollection<StoreFulfillmentCenterEntity>();
+            if (store.AdditionalFulfillmentCenterIds != null)
             {
-                this.FulfillmentCenters = new ObservableCollection<StoreFulfillmentCenterEntity>();
-                if (store.FulfillmentCenters != null)
+
+                FulfillmentCenters.AddRange(store.AdditionalFulfillmentCenterIds.Select(fc => new StoreFulfillmentCenterEntity
                 {
-                    this.FulfillmentCenters.AddRange(store.FulfillmentCenters.Select(fc => new StoreFulfillmentCenterEntity
-                    {
-                        FulfillmentCenterId = fc.Id,
-                        Name = fc.Name,
-                        StoreId = store.Id,
-                        Type = FulfillmentCenterType.Main
-                    }));
-                }
-                if (store.ReturnsFulfillmentCenters != null)
+                    FulfillmentCenterId = fc,
+                    Name = fc,
+                    StoreId = store.Id,
+                    Type = FulfillmentCenterType.Main
+                }));
+            }
+            if (store.ReturnsFulfillmentCenterIds != null)
+            {
+                FulfillmentCenters.AddRange(store.ReturnsFulfillmentCenterIds.Select(fc => new StoreFulfillmentCenterEntity
                 {
-                    this.FulfillmentCenters.AddRange(store.ReturnsFulfillmentCenters.Select(fc => new StoreFulfillmentCenterEntity
-                    {
-                        FulfillmentCenterId = fc.Id,
-                        Name = fc.Name,
-                        StoreId = store.Id,
-                        Type = FulfillmentCenterType.Returns
-                    }));
-                }
+                    FulfillmentCenterId = fc,
+                    Name = fc,
+                    StoreId = store.Id,
+                    Type = FulfillmentCenterType.Returns
+                }));
             }
 
             return this;
@@ -221,68 +223,68 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual void Patch(StoreEntity target)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
-            target.AdminEmail = this.AdminEmail;
-            target.Catalog = this.Catalog;
-            target.Country = this.Country;
-            target.DefaultCurrency = this.DefaultCurrency;
-            target.DefaultLanguage = this.DefaultLanguage;
-            target.Description = this.Description;
-            target.DisplayOutOfStock = this.DisplayOutOfStock;
-            target.Email = this.Email;
-            target.ModifiedBy = this.ModifiedBy;
-            target.ModifiedDate = this.ModifiedDate;
-            target.Name = this.Name;
-            target.Region = this.Region;
-            target.SecureUrl = this.SecureUrl;
-            target.TimeZone = this.TimeZone;
-            target.Url = this.Url;
-            target.StoreState = (int)this.StoreState;
-            target.FulfillmentCenterId = this.FulfillmentCenterId;
-            target.ReturnsFulfillmentCenterId = this.ReturnsFulfillmentCenterId;
+            target.AdminEmail = AdminEmail;
+            target.Catalog = Catalog;
+            target.Country = Country;
+            target.DefaultCurrency = DefaultCurrency;
+            target.DefaultLanguage = DefaultLanguage;
+            target.Description = Description;
+            target.DisplayOutOfStock = DisplayOutOfStock;
+            target.Email = Email;
+            target.ModifiedBy = ModifiedBy;
+            target.ModifiedDate = ModifiedDate;
+            target.Name = Name;
+            target.Region = Region;
+            target.SecureUrl = SecureUrl;
+            target.TimeZone = TimeZone;
+            target.Url = Url;
+            target.StoreState = (int)StoreState;
+            target.FulfillmentCenterId = FulfillmentCenterId;
+            target.ReturnsFulfillmentCenterId = ReturnsFulfillmentCenterId;
 
-            if (!this.Languages.IsNullCollection())
+            if (!Languages.IsNullCollection())
             {
                 var languageComparer = AnonymousComparer.Create((StoreLanguageEntity x) => x.LanguageCode);
-                this.Languages.Patch(target.Languages, languageComparer,
+                Languages.Patch(target.Languages, languageComparer,
                                       (sourceLang, targetLang) => targetLang.LanguageCode = sourceLang.LanguageCode);
             }
-            if (!this.Currencies.IsNullCollection())
+            if (!Currencies.IsNullCollection())
             {
                 var currencyComparer = AnonymousComparer.Create((StoreCurrencyEntity x) => x.CurrencyCode);
-                this.Currencies.Patch(target.Currencies, currencyComparer,
+                Currencies.Patch(target.Currencies, currencyComparer,
                                       (sourceCurrency, targetCurrency) => targetCurrency.CurrencyCode = sourceCurrency.CurrencyCode);
             }
-            if (!this.TrustedGroups.IsNullCollection())
+            if (!TrustedGroups.IsNullCollection())
             {
                 var trustedGroupComparer = AnonymousComparer.Create((StoreTrustedGroupEntity x) => x.GroupName);
-                this.TrustedGroups.Patch(target.TrustedGroups, trustedGroupComparer,
+                TrustedGroups.Patch(target.TrustedGroups, trustedGroupComparer,
                                       (sourceGroup, targetGroup) => sourceGroup.GroupName = targetGroup.GroupName);
             }
 
-            if (!this.PaymentMethods.IsNullCollection())
+            if (!PaymentMethods.IsNullCollection())
             {
                 var paymentComparer = AnonymousComparer.Create((StorePaymentMethodEntity x) => x.Code);
-                this.PaymentMethods.Patch(target.PaymentMethods, paymentComparer,
+                PaymentMethods.Patch(target.PaymentMethods, paymentComparer,
                                       (sourceMethod, targetMethod) => sourceMethod.Patch(targetMethod));
             }
-            if (!this.ShippingMethods.IsNullCollection())
+            if (!ShippingMethods.IsNullCollection())
             {
                 var shippingComparer = AnonymousComparer.Create((StoreShippingMethodEntity x) => x.Code);
-                this.ShippingMethods.Patch(target.ShippingMethods, shippingComparer,
+                ShippingMethods.Patch(target.ShippingMethods, shippingComparer,
                                       (sourceMethod, targetMethod) => sourceMethod.Patch(targetMethod));
             }
-            if (!this.TaxProviders.IsNullCollection())
+            if (!TaxProviders.IsNullCollection())
             {
                 var shippingComparer = AnonymousComparer.Create((StoreTaxProviderEntity x) => x.Code);
-                this.TaxProviders.Patch(target.TaxProviders, shippingComparer,
+                TaxProviders.Patch(target.TaxProviders, shippingComparer,
                                       (sourceProvider, targetProvider) => sourceProvider.Patch(targetProvider));
             }
-            if (!this.FulfillmentCenters.IsNullCollection())
+            if (!FulfillmentCenters.IsNullCollection())
             {
                 var fulfillmentCenterComparer = AnonymousComparer.Create((StoreFulfillmentCenterEntity fc) => $"{fc.FulfillmentCenterId}-{fc.Type}");
-                this.FulfillmentCenters.Patch(target.FulfillmentCenters, fulfillmentCenterComparer,
+                FulfillmentCenters.Patch(target.FulfillmentCenters, fulfillmentCenterComparer,
                                       (sourceFulfillmentCenter, targetFulfillmentCenter) => sourceFulfillmentCenter.Patch(targetFulfillmentCenter));
             }
         }
