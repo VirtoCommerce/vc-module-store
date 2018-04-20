@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using VirtoCommerce.Platform.Core.Common;
 
@@ -27,9 +27,9 @@ namespace VirtoCommerce.StoreModule.Data.Model
         {
             if (target == null)
             {
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             }
-            target.Name = this.Name;
+            target.Name = Name;
         }
     }
 }

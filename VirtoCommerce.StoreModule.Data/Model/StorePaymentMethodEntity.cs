@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Domain.Payment.Model;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.StoreModule.Data.Model
 {
@@ -41,15 +36,15 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual PaymentMethod ToModel(PaymentMethod paymentMethod)
         {
             if (paymentMethod == null)
-                throw new ArgumentNullException("paymentMethod");
+                throw new ArgumentNullException(nameof(paymentMethod));
 
-            paymentMethod.IsActive = this.IsActive;
-            paymentMethod.Code = this.Code;
-            paymentMethod.Description = this.Description;
-            paymentMethod.IsAvailableForPartial = this.IsAvailableForPartial;
-            paymentMethod.LogoUrl = this.LogoUrl;
-            paymentMethod.Name = this.Name;
-            paymentMethod.Priority = this.Priority;
+            paymentMethod.IsActive = IsActive;
+            paymentMethod.Code = Code;
+            paymentMethod.Description = Description;
+            paymentMethod.IsAvailableForPartial = IsAvailableForPartial;
+            paymentMethod.LogoUrl = LogoUrl;
+            paymentMethod.Name = Name;
+            paymentMethod.Priority = Priority;
 
             return paymentMethod;
         }
@@ -57,17 +52,17 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual StorePaymentMethodEntity FromModel(PaymentMethod paymentMethod, PrimaryKeyResolvingMap pkMap)
         {
             if (paymentMethod == null)
-                throw new ArgumentNullException("paymentMethod");
+                throw new ArgumentNullException(nameof(paymentMethod));
 
             pkMap.AddPair(paymentMethod, this);
 
-            this.IsActive = paymentMethod.IsActive;
-            this.Code = paymentMethod.Code;
-            this.Description = paymentMethod.Description;
-            this.IsAvailableForPartial = paymentMethod.IsAvailableForPartial;
-            this.LogoUrl = paymentMethod.LogoUrl;
-            this.Name = paymentMethod.Name;
-            this.Priority = paymentMethod.Priority;
+            IsActive = paymentMethod.IsActive;
+            Code = paymentMethod.Code;
+            Description = paymentMethod.Description;
+            IsAvailableForPartial = paymentMethod.IsAvailableForPartial;
+            LogoUrl = paymentMethod.LogoUrl;
+            Name = paymentMethod.Name;
+            Priority = paymentMethod.Priority;
 
             return this;
         }
@@ -75,15 +70,15 @@ namespace VirtoCommerce.StoreModule.Data.Model
         public virtual void Patch(StorePaymentMethodEntity target)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
-            target.IsActive = this.IsActive;
-            target.Code = this.Code;
-            target.Description = this.Description;
-            target.IsAvailableForPartial = this.IsAvailableForPartial;
-            target.LogoUrl = this.LogoUrl;
-            target.Name = this.Name;
-            target.Priority = this.Priority;
+            target.IsActive = IsActive;
+            target.Code = Code;
+            target.Description = Description;
+            target.IsAvailableForPartial = IsAvailableForPartial;
+            target.LogoUrl = LogoUrl;
+            target.Name = Name;
+            target.Priority = Priority;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿angular.module('virtoCommerce.storeModule')
+angular.module('virtoCommerce.storeModule')
 .controller('virtoCommerce.storeModule.storesListController', ['$scope', 'virtoCommerce.storeModule.stores', 'platformWebApp.bladeUtils', 'platformWebApp.authService', 'uiGridConstants', 'platformWebApp.uiGridHelper',
     function ($scope, stores, bladeUtils, authService, uiGridConstants, uiGridHelper) {
         $scope.uiGridConstants = uiGridConstants;

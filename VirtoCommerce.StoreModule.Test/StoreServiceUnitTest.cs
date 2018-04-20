@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http.Results;
-using VirtoCommerce.Domain.Commerce.Model;
+using System;
+using Moq;
+using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Store.Model;
+using VirtoCommerce.Domain.Store.Services;
+using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.DynamicProperties;
-using VirtoCommerce.Platform.Data.Infrastructure.Interceptors;
 using VirtoCommerce.Platform.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
-using VirtoCommerce.StoreModule.Web.Controllers.Api;
 using Xunit;
-using Moq;
-using VirtoCommerce.Domain.Commerce.Services;
-using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.StoreModule.Test
 {
-    public class StoreControllerUnitTest
+    public class StoreServiceUnitTest
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<IStoreRepository> _mockStoreRepository;
@@ -28,7 +21,7 @@ namespace VirtoCommerce.StoreModule.Test
         private readonly Mock<ICommerceService> _mockCommerceService;
         private readonly Mock<ISettingsManager> _mockSettingsManager;
 
-        public StoreControllerUnitTest()
+        public StoreServiceUnitTest()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockStoreRepository = new Mock<IStoreRepository>();
@@ -50,7 +43,7 @@ namespace VirtoCommerce.StoreModule.Test
         [InlineData("$$TestCode$$$")]
         public virtual void CanTryCreateNewStoreWithInvalidCode_ThrowsValidationException(string code)
         {
-            var controller = GetStoreController();
+            var service = GetStoreService();
             var store = new Store
             {
                 Id = code,
@@ -60,24 +53,14 @@ namespace VirtoCommerce.StoreModule.Test
                 DefaultCurrency = "USD",
                 Languages = new[] { "ru-ru", "en-us" },
                 DefaultLanguage = "ru-ru",
-                FulfillmentCenter = new FulfillmentCenter
-                {
-                    City = "New York",
-                    CountryCode = "USA",
-                    Line1 = "line1",
-                    DaytimePhoneNumber = "+821291921",
-                    CountryName = "USA",
-                    Name = "Name",
-                    StateProvince = "State",
-                    PostalCode = "code"
-                },
+                MainFulfillmentCenterId = "center",
                 //PaymentGateways = new string[] { "PayPal", "Clarna" },
                 StoreState = Domain.Store.Model.StoreState.Open,
             };
 
             Action act = () =>
             {
-                var result = controller.Create(store) as OkNegotiatedContentResult<Store>;
+                var result = service.Create(store);
             };
 
             Assert.Throws<FluentValidation.ValidationException>(act);
@@ -93,7 +76,7 @@ namespace VirtoCommerce.StoreModule.Test
         [InlineData("1test1code1")]
         public virtual void CanTryCreateNewStoreWithValidCode(string code)
         {
-            var controller = GetStoreController();
+            var service = GetStoreService();
             var store = new Store
             {
                 Id = code,
@@ -103,40 +86,28 @@ namespace VirtoCommerce.StoreModule.Test
                 DefaultCurrency = "USD",
                 Languages = new[] { "ru-ru", "en-us" },
                 DefaultLanguage = "ru-ru",
-                FulfillmentCenter = new FulfillmentCenter
-                {
-                    City = "New York",
-                    CountryCode = "USA",
-                    Line1 = "line1",
-                    DaytimePhoneNumber = "+821291921",
-                    CountryName = "USA",
-                    Name = "Name",
-                    StateProvince = "State",
-                    PostalCode = "code"
-                },
-                //PaymentGateways = new string[] { "PayPal", "Clarna" },
+                MainFulfillmentCenterId = "center",
                 StoreState = Domain.Store.Model.StoreState.Open,
             };
 
-            var result = controller.Create(store) as OkNegotiatedContentResult<Store>;
+            var result = service.Create(store);
 
-            Assert.NotNull(result.Content);
+            Assert.NotNull(result);
         }
 
-        private StoreModuleController GetStoreController()
+        private IStoreService GetStoreService()
         {
             _mockStoreRepository.Setup(ss => ss.UnitOfWork).Returns(_mockUnitOfWork.Object);
             _mockPlatformRepository.Setup(ss => ss.UnitOfWork).Returns(_mockUnitOfWork.Object);
-            
-            Func<IPlatformRepository> platformRepositoryFactory = () => _mockPlatformRepository.Object;
-            Func<IStoreRepository> repositoryFactory = () => _mockStoreRepository.Object;
+
+            IPlatformRepository platformRepositoryFactory() => _mockPlatformRepository.Object;
+            IStoreRepository repositoryFactory() => _mockStoreRepository.Object;
 
             var dynamicPropertyService = new DynamicPropertyService(platformRepositoryFactory);
 
             var storeService = new StoreServiceImpl(repositoryFactory, _mockCommerceService.Object, _mockSettingsManager.Object, dynamicPropertyService, null, null, null);
-
-            var controller = new StoreModuleController(storeService, null, null, null, null, null, null);
-            return controller;
+            return storeService;
+          
         }
     }
 }

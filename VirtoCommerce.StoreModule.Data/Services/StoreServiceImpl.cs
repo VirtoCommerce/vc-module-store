@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
@@ -87,26 +87,6 @@ namespace VirtoCommerce.StoreModule.Data.Services
                         }
                     }
 
-                    store.ReturnsFulfillmentCenter = fulfillmentCenters.FirstOrDefault(x => x.Id == dbStore.ReturnsFulfillmentCenterId);
-                    store.FulfillmentCenter = fulfillmentCenters.FirstOrDefault(x => x.Id == dbStore.FulfillmentCenterId);
-
-                    store.FulfillmentCenters = new List<FulfillmentCenter>();
-                    store.ReturnsFulfillmentCenters = new List<FulfillmentCenter>();
-                    foreach (var fulfillmentCenterEntity in dbStore.FulfillmentCenters)
-                    {
-                        var fulfillmentCenter = fulfillmentCenters.FirstOrDefault(fc => fc.Id == fulfillmentCenterEntity.FulfillmentCenterId);
-                        if (fulfillmentCenter != null)
-                        {
-                            if (fulfillmentCenterEntity.Type == FulfillmentCenterType.Main)
-                            {
-                                store.FulfillmentCenters.Add(fulfillmentCenter);
-                            }
-                            else if (fulfillmentCenterEntity.Type == FulfillmentCenterType.Returns)
-                            {
-                                store.ReturnsFulfillmentCenters.Add(fulfillmentCenter);
-                            }
-                        }
-                    }
                     //Set default settings for store it can be override by store instance setting in LoadEntitySettingsValues
                     store.Settings = _settingManager.GetModuleSettings("VirtoCommerce.Store");
                     _settingManager.LoadEntitySettingsValues(store);
