@@ -1,4 +1,4 @@
-﻿angular.module('virtoCommerce.storeModule')
+angular.module('virtoCommerce.storeModule')
 .controller('virtoCommerce.storeModule.loginOnBehalfListController', ['$scope', '$window', 'virtoCommerce.storeModule.stores', 'platformWebApp.bladeNavigationService', function ($scope, $window, stores, bladeNavigationService) {
     var blade = $scope.blade;
     $scope.selectedNodeId = null;
@@ -29,7 +29,7 @@
             }
         } else {
             // {store_secure_url}/account/login?UserId={customer_id}
-            var url = store.secureUrl + '/account/login?UserId=' + blade.currentEntityId;
+            var url = store.secureUrl + '/account/impersonate/' + blade.currentEntityId;
             $window.open(url, '_blank');
         }
     }
