@@ -67,10 +67,10 @@
           "store-region": "Store region",
           "store-email": "Store email",
           "store-admin-email": "Store admin email",
-          "fulfillment-center": "Fulfillment center",
-          "returns-fulfillment-center": "Returns Fulfillment center",
-          "additional-fulfillment-centers": "Fulfillment centers",
-          "additional-returns-fulfillment-centers": "Returns fulfillment centers",
+          "fulfillment-center": "Default fulfillment center",
+          "returns-fulfillment-center": "Default returns fulfillment center",
+          "additional-fulfillment-centers": "Available fulfillment centers",
+          "additional-returns-fulfillment-centers": "Avail. returns fulfillment centers",
           "operational-timezone": "Operational timezone"
         },
         "placeholders": {
