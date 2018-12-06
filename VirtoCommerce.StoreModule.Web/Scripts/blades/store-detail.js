@@ -16,7 +16,9 @@ angular.module('virtoCommerce.storeModule')
                     function (error) { bladeNavigationService.setError('Error ' + error.status, blade); });
             };
 
-            blade.metaFields = blade.metaFields ? blade.metaFields : metaFormsService.getMetaFields('storeDetail');
+            blade.metaFields = blade.metaFields
+                ? blade.metaFields.concat(metaFormsService.getMetaFields('storeDetail'))
+                : metaFormsService.getMetaFields('storeDetail');
 
             function initializeBlade(data) {
                 data.additionalLanguages = _.without(data.languages, data.defaultLanguage);
