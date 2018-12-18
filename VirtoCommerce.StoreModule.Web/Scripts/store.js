@@ -1,4 +1,4 @@
-﻿//Call this to register our module to main application
+//Call this to register our module to main application
 var moduleName = "virtoCommerce.storeModule";
 
 if (AppDependencies != undefined) {
@@ -6,7 +6,6 @@ if (AppDependencies != undefined) {
 }
 
 angular.module(moduleName, [
-    // 'catalogModule.resources.catalogs'
     'ngSanitize'
 ])
 .config(
@@ -74,8 +73,6 @@ angular.module(moduleName, [
 	        template: '$(Platform)/Scripts/app/dynamicProperties/widgets/dynamicPropertyWidget.tpl.html'
 	    }, 'storeDetail');
 	    widgetService.registerWidget({
-	        //controller: 'virtoCommerce.storeModule.storeSettingsWidgetController',
-	        //template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/storeSettingsWidget.tpl.html'
 	        controller: 'platformWebApp.entitySettingsWidgetController',
 	        template: '$(Platform)/Scripts/app/settings/widgets/entitySettingsWidget.tpl.html'
 	    }, 'storeDetail');
