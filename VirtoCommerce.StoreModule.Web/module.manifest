@@ -59,6 +59,13 @@
               <title>Enable Tax Calculation</title>
               <description>Setting to off prevents tax calculation on storefront</description>
             </setting>
+            <setting>
+                <name>Stores.AllowAnonymousUsers</name>
+                <valueType>boolean</valueType>
+                <defaultValue>true</defaultValue>
+                <title>Allow anonymous user for store</title>
+                <description>Set to false to prevent anonymous user access to store</description>
+            </setting>
         </group>
         <group name="Store|SEO">
             <setting>
