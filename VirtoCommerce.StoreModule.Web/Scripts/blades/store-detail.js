@@ -7,6 +7,8 @@ angular.module('virtoCommerce.storeModule')
 
             blade.refresh = function (parentRefresh) {
                 blade.isLoading = true;
+                blade.parentBlade.refresh();
+
                 stores.get({ id: blade.currentEntityId }, function (data) {
                         initializeBlade(data);
                         if (parentRefresh) {
