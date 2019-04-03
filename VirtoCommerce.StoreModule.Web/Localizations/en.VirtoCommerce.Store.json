@@ -1,4 +1,4 @@
-﻿{
+{
   "stores": {
     "main-menu-title": "Stores",
     "blades": {
@@ -149,8 +149,8 @@
           "no-stores": "No Stores yet"
         },
         "validations": {
-          "secure-url-missing": "Secure URL is missing. Click to open Store details.",
-          "default-language-missing": "Default language is missing. Click to open Store details."
+          "secure-url-missing": "Secure URL is missing. Click to enter Store secure URL manually.",
+          "default-language-missing": "Default language is missing. Click to enter Store secure URL manually."
         }
       },
       "account-detail": {
@@ -202,6 +202,15 @@
       "store-save": {
         "title": "Save changes",
         "message": "The Store has been modified. Do you want to save changes?"
+      },
+      "enter-store-url": {
+        "title": "Login on behalf",
+        "labels": {
+          "enter-store-url": "Please enter store secure URL"
+        },
+        "placeholders": {
+          "secure-url": "https://vcshop.com"
+        }
       }
     },
     "commands": {
