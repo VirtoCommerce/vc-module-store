@@ -1,8 +1,8 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <package>
     <metadata>
         <id>$id$</id>
-        <version>2.13.5</version>
+        <version>$version$</version>
         <title>$title$</title>
         <authors>VirtoCommerce</authors>
         <owners>VirtoCommerce</owners>
