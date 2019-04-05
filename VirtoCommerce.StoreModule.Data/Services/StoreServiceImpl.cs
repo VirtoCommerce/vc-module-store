@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
-using VirtoCommerce.Domain.Commerce.Model;
 using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Payment.Services;
 using VirtoCommerce.Domain.Shipping.Services;
@@ -51,7 +50,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
             var fulfillmentCenters = _commerceService.GetAllFulfillmentCenters().ToList();
             using (var repository = _repositoryFactory())
-            {               
+            {
                 var dbStores = repository.GetStoresByIds(ids);
                 foreach (var dbStore in dbStores)
                 {
@@ -208,7 +207,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     sortInfos = new[] { new SortInfo { SortColumn = "Name" } };
                 }
 
-                query = query.OrderBySortInfos(sortInfos);
+                query = query.OrderBySortInfos(sortInfos).ThenBy(x => x.Id);
 
                 retVal.TotalCount = query.Count();
                 var storeIds = query.Skip(criteria.Skip)
@@ -216,7 +215,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                                  .Select(x => x.Id)
                                  .ToArray();
 
-                retVal.Stores = GetByIds(storeIds).AsQueryable().OrderBySortInfos(sortInfos).ToList();
+                retVal.Stores = GetByIds(storeIds).AsQueryable().OrderBySortInfos(sortInfos).ThenBy(x => x.Id).ToList();
             }
             return retVal;
         }
