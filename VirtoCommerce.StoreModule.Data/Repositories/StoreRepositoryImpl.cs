@@ -105,7 +105,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
         public StoreEntity[] GetStoresByIds(string[] ids)
         {
-            StoreEntity[] result = Array.Empty<StoreEntity>();
+            var result = Array.Empty<StoreEntity>();
 
             if (!ids.IsNullOrEmpty())
             {
