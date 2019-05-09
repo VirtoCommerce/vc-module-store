@@ -1,5 +1,7 @@
-﻿using System.Data.Entity;
+using System;
+using System.Data.Entity;
 using System.Linq;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Data.Infrastructure;
 using VirtoCommerce.Platform.Data.Infrastructure.Interceptors;
 using VirtoCommerce.StoreModule.Data.Model;
@@ -103,17 +105,27 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
         public StoreEntity[] GetStoresByIds(string[] ids)
         {
-            var retVal = Stores.Where(x => ids.Contains(x.Id))
-                               .Include(x => x.Languages)
-                               .Include(x => x.Currencies)
-                               .Include(x => x.TrustedGroups)
-                               .ToArray();
-            var paymentMethods = StorePaymentMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
-            var shipmentMethods = StoreShippingMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
-            var taxProviders = StoreTaxProviders.Where(x => ids.Contains(x.StoreId)).ToArray();
-            var fulfillmentCenters = StoreFulfillmentCenters.Where(x => ids.Contains(x.StoreId)).ToArray();
+            var result = Array.Empty<StoreEntity>();
 
-            return retVal;
+            if (!ids.IsNullOrEmpty())
+            {
+                result = Stores.Where(x => ids.Contains(x.Id))
+                    .Include(x => x.Languages)
+                    .Include(x => x.Currencies)
+                    .Include(x => x.TrustedGroups)
+                    .ToArray();
+
+                if (result.Any())
+                {
+                    ids = result.Select(x => x.Id).ToArray();
+                    var paymentMethods = StorePaymentMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
+                    var shipmentMethods = StoreShippingMethods.Where(x => ids.Contains(x.StoreId)).ToArray();
+                    var taxProviders = StoreTaxProviders.Where(x => ids.Contains(x.StoreId)).ToArray();
+                    var fulfillmentCenters = StoreFulfillmentCenters.Where(x => ids.Contains(x.StoreId)).ToArray();
+                }
+            }
+
+            return result;
         }
 
         public IQueryable<StoreEntity> Stores
