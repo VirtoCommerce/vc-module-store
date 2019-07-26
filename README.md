@@ -9,7 +9,8 @@ VirtoCommerce.Store module represents stores management system.
 1. Individual payment and shipping methods;
 1. Tax providers management;
 1. Individual settings for each store;
-1. customer account linking between stores store asset management.
+1. Customer account linking between stores;
+1. Store asset management.
 
 A store in VirtoCommerce represents the collection of settings for the web page (storefront) to function correctly. That includes item catalog to showcase, available currencies, languages, payment methods, even UI themes, pages and much more. A default storefront as well as sample stores are provided by the VirtoCommerce team.
 

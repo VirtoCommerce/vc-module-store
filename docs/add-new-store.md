@@ -1,15 +1,15 @@
 # Add New Store
 
-The user can add as many new stores as necessary using. In order to add a new store using VirtoCommerce platform, the user should go through the following steps:
+The user can add as many new stores as necessary. In order to add a new store using VirtoCommerce platform, the user should go through the following steps:
 
 1. The user opens the ‘Stores’ Module and clicks the ‘Add’ button;
 1. The system will display the ‘New Store/create new store’ blade:
      1. ‘Code’ - required field. This code is used as store primary key and on storefront as a part of the URL for store selection;
-     1. ‘Name’- required field. The Store name is displayed fore representing the Store in Manager;
+     1. ‘Name' - required field. The Store name is displayed for representing the Store in Manager;
      1. ‘Catalog’ drop down – required. Physical or virtual catalog associated with this store;
-     1. ‘Default Language’ drop down- required. Primary language for the store;
+     1. ‘Default Language’ drop down - required. Primary language for the store;
      1. ‘Default currency’ drop down – required. Primary currency for this store;
-     1. ‘State’ drop down- required. Describes the current store state;
+     1. ‘State’ drop down - required. Describes the current store state;
      1. ‘Create’ button is disabled by default.
 1. The user fills out the form and clicks the ‘Create’ button;
 1. The system will create the new store and display it on the ‘Stores’ blade.
@@ -18,12 +18,12 @@ The user can add as many new stores as necessary using. In order to add a new st
 
 ## Add State
 
-The system displays three states in the drop down that the user can selects: Restricted Access, open, closed. These are default values provided out-of-the-box. If the user wants to add a new state, he should go through the following steps:
+The system displays three states in the drop down that the user can select: Restricted Access, Open, Closed. These are default values provided out-of-the-box. If the user wants to add a new state, he should go through the following steps:
 
 1. Select ‘State’ and click on the ‘Edit’ icon;
 1. The ‘Manage dictionary values’ screen will be displayed:  
 
-     1. ‘Please enter value’ field- required;
+     1. ‘Please enter value’ field - required;
      1. ‘Add’ button is disabled until the value is added;
      1. List of current values.
 1. The user enters the value name and clicks the ‘Add’ button;
@@ -40,7 +40,7 @@ The system displays three states in the drop down that the user can selects: Res
 1. Select ‘Default language’ and click on the ‘Edit’ icon;
 1. The ‘Manage dictionary values’ screen will be displayed:  
 
-     1. ‘Please enter value’ field- required;
+     1. ‘Please enter value’ field - required;
      1. ‘Add’ button is disabled until the value is added;
      1. List of current values;
      1. The user enters the value name and clicks the ‘Add’ button;
@@ -63,8 +63,8 @@ In order to add a default currency to the list, the user should do the following
 1. The user clicks the ‘Add’ button to add one more currency;
 1. The system will open the ‘New currency’ blade:
 
-     1. ‘Code’ field- required. The user should enter the currency code;
-     1. ‘Name’ field- required. The user should enter the currency name;
+     1. ‘Code’ field - required. The user should enter the currency code;
+     1. ‘Name’ field - required. The user should enter the currency name;
      1. ‘Is primary’ button;
      1. ‘Exchange rate’ field;
      1. ‘Symbol’ field;
