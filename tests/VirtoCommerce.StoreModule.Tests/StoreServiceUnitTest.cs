@@ -40,7 +40,6 @@ namespace VirtoCommerce.StoreModule.Tests
             _cacheEntryMock = new Mock<ICacheEntry>();
         }
 
-        [CLSCompliant(false)]
         [Theory]
         [InlineData("test Store")]
         [InlineData("!@#$%^&*()")]
@@ -79,7 +78,6 @@ namespace VirtoCommerce.StoreModule.Tests
             Assert.ThrowsAsync<FluentValidation.ValidationException>(act);
         }
 
-        [CLSCompliant(false)]
         [Theory]
         [InlineData("test_Store1")]
         [InlineData("TestCode123")]
