@@ -70,8 +70,8 @@
                 <name>Stores.IsSpa</name>
                 <valueType>boolean</valueType>
                 <defaultValue>false</defaultValue>
-                <title>Flag indicates that store is SPA application</title>
-                <description>Activates the SPA fallback routes on storefront (works only in VC storefront)</description>
+                <title>Is SPA</title>
+                <description>Flag indicates that store is SPA application and need to use SPA fallback routes on storefront (works only in VC storefront)</description>
             </setting>
         </group>
         <group name="Store|SEO">
