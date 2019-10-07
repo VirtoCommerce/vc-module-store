@@ -66,6 +66,13 @@
                 <title>Allow anonymous user for store</title>
                 <description>Set to false to prevent anonymous user access to store</description>
             </setting>
+            <setting>
+                <name>Stores.IsSpa</name>
+                <valueType>boolean</valueType>
+                <defaultValue>false</defaultValue>
+                <title>Flag indicates that store is SPA application</title>
+                <description>Activates the SPA fallback routes on storefront (works only in VC storefront)</description>
+            </setting>
         </group>
         <group name="Store|SEO">
             <setting>
