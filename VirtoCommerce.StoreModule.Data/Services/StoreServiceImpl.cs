@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
-using VirtoCommerce.Domain.Commerce.Model;
 using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Payment.Services;
 using VirtoCommerce.Domain.Shipping.Services;
@@ -45,13 +44,13 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
         #region IStoreService Members
 
-        public Store[] GetByIds(string[] ids)
+        public virtual Store[] GetByIds(string[] ids)
         {
             var stores = new List<Store>();
 
             var fulfillmentCenters = _commerceService.GetAllFulfillmentCenters().ToList();
             using (var repository = _repositoryFactory())
-            {               
+            {
                 var dbStores = repository.GetStoresByIds(ids);
                 foreach (var dbStore in dbStores)
                 {
@@ -100,12 +99,12 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return result;
         }
 
-        public Store GetById(string id)
+        public virtual Store GetById(string id)
         {
             return GetByIds(new[] { id }).FirstOrDefault();
         }
 
-        public Store Create(Store store)
+        public virtual Store Create(Store store)
         {
             var pkMap = new PrimaryKeyResolvingMap();
 
@@ -133,7 +132,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return retVal;
         }
 
-        public void Update(Store[] stores)
+        public virtual void Update(Store[] stores)
         {
             var pkMap = new PrimaryKeyResolvingMap();
 
@@ -164,7 +163,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             }
         }
 
-        public void Delete(string[] ids)
+        public virtual void Delete(string[] ids)
         {
             using (var repository = _repositoryFactory())
             {
@@ -188,27 +187,20 @@ namespace VirtoCommerce.StoreModule.Data.Services
             }
         }
 
-        public SearchResult SearchStores(SearchCriteria criteria)
+        public virtual SearchResult SearchStores(SearchCriteria criteria)
         {
             var retVal = new SearchResult();
             using (var repository = _repositoryFactory())
             {
-                var query = repository.Stores;
-                if (!string.IsNullOrEmpty(criteria.Keyword))
-                {
-                    query = query.Where(x => x.Name.Contains(criteria.Keyword) || x.Id.Contains(criteria.Keyword));
-                }
-                if (!criteria.StoreIds.IsNullOrEmpty())
-                {
-                    query = query.Where(x => criteria.StoreIds.Contains(x.Id));
-                }
+                var query = GetStoresQuery(repository, criteria);
+
                 var sortInfos = criteria.SortInfos;
                 if (sortInfos.IsNullOrEmpty())
                 {
                     sortInfos = new[] { new SortInfo { SortColumn = "Name" } };
                 }
 
-                query = query.OrderBySortInfos(sortInfos);
+                query = query.OrderBySortInfos(sortInfos).ThenBy(x => x.Id);
 
                 retVal.TotalCount = query.Count();
                 var storeIds = query.Skip(criteria.Skip)
@@ -216,7 +208,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                                  .Select(x => x.Id)
                                  .ToArray();
 
-                retVal.Stores = GetByIds(storeIds).AsQueryable().OrderBySortInfos(sortInfos).ToList();
+                retVal.Stores = GetByIds(storeIds).AsQueryable().OrderBySortInfos(sortInfos).ThenBy(x => x.Id).ToList();
             }
             return retVal;
         }
@@ -227,7 +219,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public IEnumerable<string> GetUserAllowedStoreIds(ApplicationUserExtended user)
+        public virtual IEnumerable<string> GetUserAllowedStoreIds(ApplicationUserExtended user)
         {
             if (user == null)
             {
@@ -251,7 +243,36 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return retVal;
         }
 
-        private void ValidateStoreProperties(Store store)
+
+        protected virtual IQueryable<StoreEntity> GetStoresQuery(IStoreRepository repository, SearchCriteria criteria)
+        {
+            var query = repository.Stores;
+
+            if (!string.IsNullOrEmpty(criteria.Keyword))
+            {
+                query = query.Where(x => x.Name.Contains(criteria.Keyword) || x.Id.Contains(criteria.Keyword));
+            }
+
+            if (!criteria.StoreIds.IsNullOrEmpty())
+            {
+                query = query.Where(x => criteria.StoreIds.Contains(x.Id));
+            }
+
+            if (!criteria.StoreStates.IsNullOrEmpty())
+            {
+                query = query.Where(x => criteria.StoreStates.Contains((StoreState)x.StoreState));
+            }
+
+            if (!criteria.FulfillmentCenterIds.IsNullOrEmpty())
+            {
+                query = query.Where(x => criteria.FulfillmentCenterIds.Contains(x.FulfillmentCenterId) ||
+                                         x.FulfillmentCenters.Any(y => criteria.FulfillmentCenterIds.Contains(y.Id)));
+            }
+
+            return query;
+        }
+
+        protected virtual void ValidateStoreProperties(Store store)
         {
             if (store == null)
             {

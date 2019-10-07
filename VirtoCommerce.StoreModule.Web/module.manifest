@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <module>
     <id>VirtoCommerce.Store</id>
-    <version>2.13.8</version>
-    <platformVersion>2.13.26</platformVersion>
+    <version>2.13.9</version>
+    <platformVersion>2.13.42</platformVersion>
     <dependencies>
-        <dependency id="VirtoCommerce.Core" version="2.25.0" />
+        <dependency id="VirtoCommerce.Core" version="2.25.25" />
         <dependency id="VirtoCommerce.Inventory" version="2.13.0" />
         <dependency id="VirtoCommerce.Catalog" version="2.11.0" />
     </dependencies>
@@ -65,6 +65,13 @@
                 <defaultValue>true</defaultValue>
                 <title>Allow anonymous user for store</title>
                 <description>Set to false to prevent anonymous user access to store</description>
+            </setting>
+            <setting>
+                <name>Stores.IsSpa</name>
+                <valueType>boolean</valueType>
+                <defaultValue>false</defaultValue>
+                <title>Is SPA</title>
+                <description>Flag indicates that store is a SPA application</description>
             </setting>
         </group>
         <group name="Store|SEO">
