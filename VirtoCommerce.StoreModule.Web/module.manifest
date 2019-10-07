@@ -71,7 +71,7 @@
                 <valueType>boolean</valueType>
                 <defaultValue>false</defaultValue>
                 <title>Is SPA</title>
-                <description>Flag indicates that store is SPA application and need to use SPA fallback routes on storefront (works only in VC storefront)</description>
+                <description>Flag indicates that store is a SPA application</description>
             </setting>
         </group>
         <group name="Store|SEO">
