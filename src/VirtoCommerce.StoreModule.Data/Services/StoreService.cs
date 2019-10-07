@@ -6,7 +6,6 @@ using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
@@ -58,7 +57,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     {
                         var store = AbstractTypeFactory<Store>.TryCreateInstance();
                         dbStore.ToModel(store);
-
+                        //TODO: replace to bulk operation when it  will be added
                         await _settingManager.DeepLoadSettingsAsync(store);
                         stores.Add(store);
                     }
@@ -104,6 +103,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
                 await repository.UnitOfWork.CommitAsync();
                 pkMap.ResolvePrimaryKeys();
+                await _settingManager.DeepSaveSettingsAsync(stores);
                 await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
             }
 
@@ -128,6 +128,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     }
                 }
                 await repository.UnitOfWork.CommitAsync();
+                await _settingManager.DeepRemoveSettingsAsync(stores);
                 await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
 
                 ClearCache(stores);

@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using VirtoCommerce.CoreModule.Core.Seo;
-using VirtoCommerce.NotificationsModule.Core.Services;
-using VirtoCommerce.Platform.Core.Bus;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.ExportImport;
@@ -20,13 +18,11 @@ using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.Extensions;
 using VirtoCommerce.StoreModule.Core;
-using VirtoCommerce.StoreModule.Core.Events;
 using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Notifications;
+using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.ExportImport;
-using VirtoCommerce.StoreModule.Data.Handlers;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Web.Authorization;
@@ -49,7 +45,6 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreService, StoreService>();
             serviceCollection.AddTransient<IStoreSearchService, StoreSearchService>();
             serviceCollection.AddTransient<StoreExportImport>();
-            serviceCollection.AddTransient<StoreChangedEventHandler>();
             serviceCollection.AddTransient<ISeoBySlugResolver, SeoBySlugResolver>();
 
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
@@ -95,16 +90,13 @@ namespace VirtoCommerce.StoreModule.Web
 
             var mvcJsonOptions = appBuilder.ApplicationServices.GetService<IOptions<MvcJsonOptions>>();
             mvcJsonOptions.Value.SerializerSettings.Converters.Add(new PolymorphicStoreJsonConverter());
-
-            var inProcessBus = appBuilder.ApplicationServices.GetService<IHandlerRegistrar>();
-            inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<StoreChangedEventHandler>().Handle(message));
-
             var registrar = appBuilder.ApplicationServices.GetService<INotificationRegistrar>();
             registrar.RegisterNotification<StoreDynamicEmailNotification>();
         }
 
         public void Uninstall()
         {
+            //Nothing do here
         }
 
         public async Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
