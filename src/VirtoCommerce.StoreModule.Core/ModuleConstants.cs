@@ -51,6 +51,13 @@ namespace VirtoCommerce.StoreModule.Core
                     DefaultValue = true,
                 };
 
+                public static SettingDescriptor IsSpa = new SettingDescriptor
+                {
+                    Name = "Stores.IsSpa",
+                    GroupName = "Store|General",
+                    ValueType = SettingValueType.Boolean,
+                    DefaultValue = false,
+                };
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -58,6 +65,7 @@ namespace VirtoCommerce.StoreModule.Core
                         yield return States;
                         yield return TaxCalculationEnabled;
                         yield return AllowAnonymousUsers;
+                        yield return IsSpa;
                     }
                 }
             }
