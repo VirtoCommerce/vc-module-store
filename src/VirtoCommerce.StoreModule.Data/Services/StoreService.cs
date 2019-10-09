@@ -167,6 +167,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
         protected virtual void ClearCache(IEnumerable<Store> stores)
         {
             StoreCacheRegion.ExpireRegion();
+            StoreSeoInfoCacheRegion.ExpireRegion();
         }
 
         protected virtual void ValidateStoresProperties(IEnumerable<Store> stores)
