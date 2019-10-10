@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.StoreModule.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.StoreModule.Web", "src\VirtoCommerce.StoreModule.Web\VirtoCommerce.StoreModule.Web.csproj", "{D1428B3A-FFAD-4DC3-AF40-728155BCF262}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{1D50D745-2CD6-4D96-9D94-C875C994BD93}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F7140677-73A7-44E9-8635-A9527DBFD52B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.StoreModule.Tests", "tests\VirtoCommerce.StoreModule.Tests\VirtoCommerce.StoreModule.Tests.csproj", "{92FBAD89-BE42-4571-B053-BA0FFE34471C}"
@@ -35,8 +33,6 @@ Global
 		{D1428B3A-FFAD-4DC3-AF40-728155BCF262}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1428B3A-FFAD-4DC3-AF40-728155BCF262}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1428B3A-FFAD-4DC3-AF40-728155BCF262}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1D50D745-2CD6-4D96-9D94-C875C994BD93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D50D745-2CD6-4D96-9D94-C875C994BD93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92FBAD89-BE42-4571-B053-BA0FFE34471C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{92FBAD89-BE42-4571-B053-BA0FFE34471C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92FBAD89-BE42-4571-B053-BA0FFE34471C}.Release|Any CPU.ActiveCfg = Release|Any CPU
