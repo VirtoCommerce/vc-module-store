@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -23,12 +23,12 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
+        <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.0.0-v3-feature-vp-7-0001" />
+        <PackageReference Include="VirtoCommerce.Platform.Data" Version="3.0.0-v3-feature-vp-7-0001" />
+        <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.0.0-v3-feature-vp-7-0001" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\vc-platform\src\VirtoCommerce.Platform.Core\VirtoCommerce.Platform.Core.csproj" />
-        <ProjectReference Include="..\..\..\..\vc-platform\src\VirtoCommerce.Platform.Data\VirtoCommerce.Platform.Data.csproj" />
-        <ProjectReference Include="..\..\..\..\vc-platform\src\VirtoCommerce.Platform.Security\VirtoCommerce.Platform.Security.csproj" />
         <ProjectReference Include="..\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
     </ItemGroup>
 
