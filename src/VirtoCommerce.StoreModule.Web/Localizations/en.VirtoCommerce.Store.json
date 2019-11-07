@@ -193,5 +193,11 @@
     "VirtoCommerce.Store": {
       "description": "Export/Import stores with all related informations"
     }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Sending custom form from storefront",
+      "description": "This notification sends by email to client when he complete some form on storefront, for example contact us form"
+    }
   }
 }
