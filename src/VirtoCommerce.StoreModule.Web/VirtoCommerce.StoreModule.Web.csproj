@@ -4,7 +4,6 @@
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <noWarn>1591</noWarn>
-        <IsPackable>False</IsPackable>
         <ApplicationIcon />
         <OutputType>Library</OutputType>
         <StartupObject />
@@ -40,9 +39,4 @@
         <ProjectReference Include="..\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
         <ProjectReference Include="..\VirtoCommerce.StoreModule.Data\VirtoCommerce.StoreModule.Data.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
-
 </Project>
