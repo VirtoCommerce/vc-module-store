@@ -28,17 +28,17 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
             if (storeResponseGroup.HasFlag(StoreResponseGroup.StoreFulfillmentCenters))
             {
-                var fulfillmentCenters = await StoreFulfillmentCenters.Where(x => ids.Contains(x.StoreId)).ToArrayAsync();
+                await StoreFulfillmentCenters.Where(x => ids.Contains(x.StoreId)).LoadAsync();
             }
 
             if (storeResponseGroup.HasFlag(StoreResponseGroup.StoreSeoInfos))
             {
-                var seoInfos = await SeoInfos.Where(x => ids.Contains(x.StoreId)).ToArrayAsync();
+                await SeoInfos.Where(x => ids.Contains(x.StoreId)).LoadAsync();
             }
 
             if (storeResponseGroup.HasFlag(StoreResponseGroup.DynamicProperties))
             {
-                var dynamicPropertyValues = await DynamicPropertyObjectValues.Where(x => ids.Contains(x.ObjectId)).ToArrayAsync();
+                await DynamicPropertyObjectValues.Where(x => ids.Contains(x.ObjectId)).LoadAsync();
             }
 
             return retVal;
