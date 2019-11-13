@@ -45,4 +45,10 @@ angular.module('virtoCommerce.storeModule')
                 $scope.fulfillmentCenters = response.results;
             });
         }
+
+        $scope.refreshFulfillmentCenters = function(searchKey) {
+            fulfillments.search({ take: 100, searchPhrase: searchKey }, function (response) {
+                $scope.fulfillmentCenters = response.results;
+            });
+        }
     }]);
