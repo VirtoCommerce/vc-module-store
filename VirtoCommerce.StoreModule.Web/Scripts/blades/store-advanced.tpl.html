@@ -57,7 +57,7 @@
                             <div class="form-input">
                                 <ui-select ng-model="blade.currentEntity.mainFulfillmentCenterId">
                                     <ui-select-match allow-clear="true" placeholder="{{ 'stores.blades.store-advanced.placeholders.fulfillment-center' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)">
+                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)" minimum-input-length=1>
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
@@ -70,7 +70,7 @@
                             <div class="form-input" data-role="input-control">
                                 <ui-select multiple ng-model="blade.currentEntity.additionalFulfillmentCenterIds">
                                     <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.fulfillment-center' | translate }}">{{ $item.name }}</ui-select-match>
-                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)">
+                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)" minimum-input-length=1>
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
@@ -85,7 +85,7 @@
                             <div class="form-input">
                                 <ui-select ng-model="blade.currentEntity.mainReturnsFulfillmentCenterId" on-select="setAdditionalReturnsFulfillmentCentersList(fulfillmentCenters)">
                                     <ui-select-match allow-clear="true" placeholder="{{ 'stores.blades.store-advanced.placeholders.fulfillment-center' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)">
+                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)" minimum-input-length=1>
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
@@ -98,7 +98,7 @@
                             <div class="form-input" data-role="input-control">
                                 <ui-select multiple ng-model="blade.currentEntity.returnsFulfillmentCenterIds">
                                     <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.fulfillment-center' | translate }}">{{ $item.name }}</ui-select-match>
-                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)">
+                                    <ui-select-choices repeat="x.id as x in fulfillmentCenters" refresh="refreshFulfillmentCenters($select.search)" minimum-input-length=1>
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
