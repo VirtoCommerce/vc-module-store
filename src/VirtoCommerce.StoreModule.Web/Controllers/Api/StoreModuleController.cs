@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VirtoCommerce.NotificationsModule.Core.Services;
@@ -127,6 +128,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="store">Store</param>
         [HttpPut]
         [Route("")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> UpdateStore([FromBody]Store store)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
@@ -144,6 +146,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="ids">Ids of store that needed to delete</param>
         [HttpDelete]
         [Route("")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteStore([FromQuery] string[] ids)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete ));
@@ -162,6 +165,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <returns></returns>
         [HttpPost]
         [Route("send/dynamicnotification")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody]SendDynamicNotificationRequest request)
         {
             var store = await _storeService.GetByIdAsync(request.StoreId);
