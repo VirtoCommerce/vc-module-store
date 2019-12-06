@@ -17,8 +17,8 @@ angular.module('virtoCommerce.storeModule')
             $scope.bladeClose();
         }
 
-        $scope.blade.refresh = function () {
-            getFulfillmentCenters();
+        $scope.blade.refresh = function () {            
+            initialize();
         }
 
         $scope.openFulfillmentCentersList = function () {
@@ -28,27 +28,55 @@ angular.module('virtoCommerce.storeModule')
                 template: 'Modules/$(VirtoCommerce.Inventory)/Scripts/blades/fulfillment-center-list.tpl.html'
             };
             bladeNavigationService.showBlade(newBlade, $scope.blade);
-        }
+        }        
 
         $scope.blade.headIcon = 'fa-archive';
-
-        getFulfillmentCenters();
+        $scope.pageSize = 50;                
 
         $scope.blade.isLoading = false;
         $scope.blade.currentEntity = angular.copy($scope.blade.entity);
         $scope.blade.origEntity = $scope.blade.entity;
         $scope.countries = countries.query();
-        $scope.timeZones = timeZones.query();
+        $scope.timeZones = timeZones.query();        
 
-        function getFulfillmentCenters() {
-            fulfillments.search({ take: 100 }, function (response) {
-                $scope.fulfillmentCenters = response.results;
+        function initialize() {
+            $scope.fulfillmentCenters = [];
+            loadFulfillmentCenters();
+            fulfillments.search({take: $scope.pageSize}, function (data) {
+                joinFulfillmentCenters(data.results);                
             });
         }
 
-        $scope.refreshFulfillmentCenters = function (searchPhrase) {
-            fulfillments.search({ take: 100, searchPhrase: searchPhrase }, function (response) {
-                $scope.fulfillmentCenters = response.results;
-            });
+        $scope.refreshFulfillmentCenters = function ($select) {                      
+            $scope.fetchNextFulfillmentCenters($select);
         }
+
+        $scope.fetchNextFulfillmentCenters = function ($select) {            
+            fulfillments.search({ searchPhrase: $select.search, take: $scope.pageSize, skip: $scope.fulfillmentCenters.length }, function (data) {
+                joinFulfillmentCenters(data.results);
+                console.log($scope.fulfillmentCenters.length);                
+            }); 
+        }        
+
+        function loadFulfillmentCenters() {            
+            $scope.fulfillmentsIds = [];
+            $scope.fulfillmentsIds = _.uniq($scope.fulfillmentsIds.concat($scope.blade.currentEntity.mainFulfillmentCenterId, $scope.blade.currentEntity.mainReturnsFulfillmentCenterId, $scope.blade.currentEntity.additionalFulfillmentCenterIds, $scope.blade.currentEntity.returnsFulfillmentCenterIds));
+            $scope.fulfillmentsIds = _.filter($scope.fulfillmentsIds, function (value) {
+                return value != undefined;
+            });
+            if ($scope.fulfillmentsIds.length > 0) {
+                    angular.forEach($scope.fulfillmentsIds, function (id) {
+                    fulfillments.get({ id: id }, function (data) {
+                        joinFulfillmentCenters(data);
+                    });
+                 });
+            }            
+        }
+
+        function joinFulfillmentCenters(centers) {            
+            $scope.fulfillmentCenters = _.uniq($scope.fulfillmentCenters.concat(centers), 'id');                                       
+        }
+
+        initialize();
+        
     }]);
