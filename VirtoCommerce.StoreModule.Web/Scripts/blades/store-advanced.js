@@ -37,12 +37,13 @@ angular.module('virtoCommerce.storeModule')
         $scope.blade.currentEntity = angular.copy($scope.blade.entity);
         $scope.blade.origEntity = $scope.blade.entity;
         $scope.countries = countries.query();
-        $scope.timeZones = timeZones.query();        
-
+        $scope.timeZones = timeZones.query();
+        
         function initialize() {
             $scope.fulfillmentCenters = [];
+            $scope.fulfillmentsIds = [];            
             loadFulfillmentCenters();
-            fulfillments.search({take: $scope.pageSize}, function (data) {
+            fulfillments.search({ take: $scope.pageSize }, function (data) {
                 joinFulfillmentCenters(data.results);                
             });
         }
@@ -58,18 +59,15 @@ angular.module('virtoCommerce.storeModule')
             }); 
         }        
 
-        function loadFulfillmentCenters() {            
-            $scope.fulfillmentsIds = [];
+        function loadFulfillmentCenters() {                        
             $scope.fulfillmentsIds = _.uniq($scope.fulfillmentsIds.concat($scope.blade.currentEntity.mainFulfillmentCenterId, $scope.blade.currentEntity.mainReturnsFulfillmentCenterId, $scope.blade.currentEntity.additionalFulfillmentCenterIds, $scope.blade.currentEntity.returnsFulfillmentCenterIds));
             $scope.fulfillmentsIds = _.filter($scope.fulfillmentsIds, function (value) {
                 return value != undefined;
             });
             if ($scope.fulfillmentsIds.length > 0) {
-                    angular.forEach($scope.fulfillmentsIds, function (id) {
-                    fulfillments.get({ id: id }, function (data) {
-                        joinFulfillmentCenters(data);
-                    });
-                 });
+                fulfillments.getByIds($scope.fulfillmentsIds, function (data) {
+                    joinFulfillmentCenters(data);
+                });                 
             }            
         }
 
