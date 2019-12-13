@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -53,10 +53,14 @@ namespace VirtoCommerce.StoreModule.Web.JsonConverters
                 var paymentGatewayCode = obj["code"].Value<string>();
                 retVal = _paymentMethodsService.GetAllPaymentMethods().FirstOrDefault(x => x.Code.EqualsInvariant(paymentGatewayCode));
             }
-            else if (objectType == typeof(ShippingMethod))
+            else if (typeof(ShippingMethod).IsAssignableFrom(objectType))
             {
                 var shippingGatewayCode = obj["code"].Value<string>();
-                retVal = _shippingMethodsService.GetAllShippingMethods().FirstOrDefault(x => x.Code.EqualsInvariant(shippingGatewayCode));
+                var shippingMethod = _shippingMethodsService.GetAllShippingMethods().FirstOrDefault(x => x.Code.EqualsInvariant(shippingGatewayCode));
+                if (shippingMethod != null && objectType.IsAssignableFrom(shippingMethod.GetType()))
+                {
+                    retVal = shippingMethod;
+                }
             }
             else if (objectType == typeof(TaxProvider))
             {
