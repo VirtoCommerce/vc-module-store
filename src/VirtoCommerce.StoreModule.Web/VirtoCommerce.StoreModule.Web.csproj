@@ -25,13 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="GitVersionTask" Version="5.0.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>        
-    </ItemGroup>
-
-    <ItemGroup>
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
     </ItemGroup>
 
