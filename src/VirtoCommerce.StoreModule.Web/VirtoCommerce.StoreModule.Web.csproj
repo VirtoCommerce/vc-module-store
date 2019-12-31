@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.0.0-rc2-0128" />
+        <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.0.0-rc2-0134" />
     </ItemGroup>
     <ItemGroup>
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
