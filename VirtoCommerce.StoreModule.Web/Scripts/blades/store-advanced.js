@@ -61,8 +61,7 @@ angular.module('virtoCommerce.storeModule')
 
         $scope.fetchNextFulfillmentCenters = function ($select) {
             fulfillments.search({ searchPhrase: $select.search, take: $scope.pageSize, skip: $scope.fulfillmentCenters.length }, function (data) {
-                joinFulfillmentCenters(data.results);
-                console.log($scope.fulfillmentCenters.length);
+                joinFulfillmentCenters(data.results);                
             });
         }
 
