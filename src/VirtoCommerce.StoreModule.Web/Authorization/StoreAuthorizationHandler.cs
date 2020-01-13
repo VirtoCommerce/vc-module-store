@@ -13,8 +13,8 @@ namespace VirtoCommerce.StoreModule.Web.Authorization
 {
     public sealed class StoreAuthorizationHandler : PermissionAuthorizationHandlerBase<StoreAuthorizationRequirement>
     {
-        private readonly MvcJsonOptions _jsonOptions;
-        public StoreAuthorizationHandler(IOptions<MvcJsonOptions> jsonOptions)
+        private readonly MvcNewtonsoftJsonOptions _jsonOptions;
+        public StoreAuthorizationHandler(IOptions<MvcNewtonsoftJsonOptions> jsonOptions)
         {
             _jsonOptions = jsonOptions.Value;
         }

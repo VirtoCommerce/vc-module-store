@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <noWarn>1591</noWarn>
+        <OutputType>Library</OutputType>
         <IsPackable>False</IsPackable>
         <!--This line is necessary to copy all dependencies in the bin folder-->
         <!--<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>-->
@@ -23,15 +24,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
-        <PackageReference Include="VirtoCommerce.NotificationsModule.Core" Version="3.0.0-rc.1" />
-        <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.0.0-rc2-0109" />
-        <PackageReference Include="VirtoCommerce.Platform.Data" Version="3.0.0-rc2-0109" />
-        <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.0.0-rc1-update0001" />
+        <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.0.0-rc2-0134" />
     </ItemGroup>
-
     <ItemGroup>
         <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
     </ItemGroup>
@@ -40,5 +34,4 @@
         <ProjectReference Include="..\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
         <ProjectReference Include="..\VirtoCommerce.StoreModule.Data\VirtoCommerce.StoreModule.Data.csproj" />
     </ItemGroup>
-
 </Project>
