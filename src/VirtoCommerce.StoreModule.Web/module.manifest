@@ -2,7 +2,7 @@
 <module>
     <id>VirtoCommerce.Store</id>
     <version>3.0.0</version>
-	<version-tag>rc.2</version-tag>
+	<version-tag>rc.3</version-tag>
     <platformVersion>3.0.0</platformVersion>
     <dependencies>
         <dependency id="VirtoCommerce.Core" version="3.0.0" />
@@ -26,7 +26,7 @@
     <projectUrl>https://virtocommerce.com/apps/extensions/virto-store-module</projectUrl>
     <iconUrl>https://github.com/VirtoCommerce/vc-module-store/raw/master/VirtoCommerce.StoreModule.Web/Content/logo.png</iconUrl>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright © 2011-2019 Virto Commerce. All rights reserved</copyright>
+    <copyright>Copyright © 2011-2020 Virto Commerce. All rights reserved</copyright>
     <tags>stores</tags>
 
     <assemblyFile>VirtoCommerce.StoreModule.Web.dll</assemblyFile>
