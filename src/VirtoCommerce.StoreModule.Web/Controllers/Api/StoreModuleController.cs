@@ -80,7 +80,6 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 return Unauthorized();
             }
-            criteria.ResponseGroup = StoreResponseGroup.StoreInfo.ToString();
             var result = await _storeSearchService.SearchStoresAsync(criteria);
             return result.Stores.ToArray();
         }
