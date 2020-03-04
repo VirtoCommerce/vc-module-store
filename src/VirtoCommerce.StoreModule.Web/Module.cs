@@ -27,6 +27,9 @@ using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Web.Authorization;
 using VirtoCommerce.StoreModule.Web.JsonConverters;
+using VirtoCommerce.StoreModule.Data.Handlers;
+using VirtoCommerce.StoreModule.Core.Events;
+using VirtoCommerce.Platform.Core.Bus;
 
 namespace VirtoCommerce.StoreModule.Web
 {
@@ -39,6 +42,8 @@ namespace VirtoCommerce.StoreModule.Web
             var snapshot = serviceCollection.BuildServiceProvider();
             var configuration = snapshot.GetService<IConfiguration>();
             var connectionString = configuration.GetConnectionString("VirtoCommerce.Store") ?? configuration.GetConnectionString("VirtoCommerce");
+
+            serviceCollection.AddTransient<LogChangesChangedEventHandler>();
             serviceCollection.AddDbContext<StoreDbContext>(options => options.UseSqlServer(connectionString));
             serviceCollection.AddTransient<IStoreRepository, StoreRepository>();
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
@@ -78,6 +83,10 @@ namespace VirtoCommerce.StoreModule.Web
                                                                         ModuleConstants.Security.Permissions.Update,
                                                                         ModuleConstants.Security.Permissions.Delete,
                                                                         ModuleConstants.Security.Permissions.LoginOnBehalf }, new StoreSelectedScope());
+
+            //Events handlers registration
+            var inProcessBus = appBuilder.ApplicationServices.GetService<IHandlerRegistrar>();
+            inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<LogChangesChangedEventHandler>().Handle(message));
 
 
             using (var serviceScope = appBuilder.ApplicationServices.CreateScope())
