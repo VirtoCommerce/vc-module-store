@@ -89,7 +89,12 @@
           "is-active": "Is active",
           "tax-provider": "Tax provider"
         }
-      }
+      },
+		"account-detail": {
+			"labels": {
+			  "container-id": "Container (store)"
+			}
+		}
 	},
     "widgets": {
       "assetsWidget": {
