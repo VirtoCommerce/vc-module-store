@@ -89,7 +89,8 @@
           "is-active": "Is active",
           "tax-provider": "Tax provider"
         }
-      },
+      }
+	},
     "widgets": {
       "assetsWidget": {
         "title": "Assets"
