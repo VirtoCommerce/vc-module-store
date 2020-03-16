@@ -39,24 +39,20 @@ angular.module('virtoCommerce.storeModule')
         $scope.countries = countries.query();
         $scope.timeZones = timeZones.query();
 
-
         $scope.fullFillmentCenters = {
             common: [],
             default: [],
             defaultReturn:[],
             available: [],
             availableReturn:[]
-
         };
 
         function initialize() {
-
-            loadSelectedFulfillmentCenter();
+            loadSelectedFulfillmentCenters();
 
             fulfillments.search({ searchPhrase: '', skip: 0, take: $scope.pageSize }, function (data) {
                 $scope.fullFillmentCenters.common = data.results;
             });
-
         }
 
         $scope.fetchFirstFulfillmentCenters = function($select, listName) {
@@ -85,19 +81,16 @@ angular.module('virtoCommerce.storeModule')
                     }
                 });
             }
-
         };
 
-
-        function loadSelectedFulfillmentCenter() {
+        function loadSelectedFulfillmentCenters() {
             var selectedIds = _.flatten ([$scope.blade.currentEntity.mainFulfillmentCenterId,
                 $scope.blade.currentEntity.mainReturnsFulfillmentCenterId,
                 $scope.blade.currentEntity.additionalFulfillmentCenterIds,
                 $scope.blade.currentEntity.returnsFulfillmentCenterIds]);
             selectedIds = _.uniq(selectedIds);
-            selectedIds = _.filter(selectedIds, function (value) {
-                   return value !== undefined;
-                });
+            selectedIds = _.filter(selectedIds, function (value) { return value !== undefined; });
+
             if (selectedIds.length > 0) {
                 fulfillments.getByIds(selectedIds, function (data) {
                     const selectedItems = _.uniq($scope.fullFillmentCenters.common.concat(data), 'id');
@@ -105,7 +98,6 @@ angular.module('virtoCommerce.storeModule')
                     $scope.fullFillmentCenters.defaultReturn = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.mainReturnsFulfillmentCenterId === item.id; });
                     $scope.fullFillmentCenters.available = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.additionalFulfillmentCenterIds.includes(item.id); });
                     $scope.fullFillmentCenters.availableReturn = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.returnsFulfillmentCenterIds.includes(item.id); });
-
                 });
             }
         }
