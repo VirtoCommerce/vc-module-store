@@ -5,35 +5,33 @@ angular.module('virtoCommerce.storeModule')
             $scope.bladeClose();
         };
 
-        $scope.setForm = function (form) {
+        $scope.setForm = function(form) {
             $scope.formScope = form;
-        }
+        };
 
-        $scope.isValid = function () {
+        $scope.isValid = function() {
             return $scope.formScope && $scope.formScope.$valid;
-        }
+        };
 
-        $scope.cancelChanges = function () {
+        $scope.cancelChanges = function() {
             $scope.bladeClose();
-        }
+        };
 
-        $scope.blade.refresh = function () {
+        $scope.blade.refresh = function() {
             initialize();
-        }
+        };
 
-        $scope.openFulfillmentCentersList = function () {
+        $scope.openFulfillmentCentersList = function() {
             var newBlade = {
                 id: 'fulfillmentCenterList',
                 controller: 'virtoCommerce.inventoryModule.fulfillmentListController',
                 template: 'Modules/$(VirtoCommerce.Inventory)/Scripts/blades/fulfillment-center-list.tpl.html'
             };
             bladeNavigationService.showBlade(newBlade, $scope.blade);
-        }
+        };
 
         $scope.blade.headIcon = 'fa-archive';
-        // pageSize amount must be enough to show scrollbar in dropdown list counter.
-        // If scrollbar doesn't appear then auto loading won't work.
-        $scope.pageSize = 50;
+        $scope.pageSize = 20;
 
         $scope.blade.isLoading = false;
         $scope.blade.currentEntity = angular.copy($scope.blade.entity);
@@ -41,49 +39,75 @@ angular.module('virtoCommerce.storeModule')
         $scope.countries = countries.query();
         $scope.timeZones = timeZones.query();
 
+
+        $scope.fullFillmentCenters = {
+            common: [],
+            default: [],
+            defaultReturn:[],
+            available: [],
+            availableReturn:[]
+
+        };
+
         function initialize() {
-            $scope.fulfillmentCenters = [];
-            $scope.fulfillmentsIds = [];
-            loadFulfillmentCenters();
-            fulfillments.search({ take: $scope.pageSize }, function (data) {
-                // Redefine pageSize based on totalCount of fulfillment centers count so scroll will work correctly
-                $scope.pageSize = Math.round(data.totalCount * 0.65);
-                joinFulfillmentCenters(data.results);
+
+            loadSelectedFulfillmentCenter();
+
+            fulfillments.search({ searchPhrase: '', skip: 0, take: $scope.pageSize }, function (data) {
+                $scope.fullFillmentCenters.common = data.results;
             });
+
         }
 
-        $scope.refreshFulfillmentCenters = function ($select) {
-            $scope.fulfillmentCenters = [];
-            $scope.fulfillmentsIds = [];
-            loadFulfillmentCenters();
-            $scope.fetchNextFulfillmentCenters($select);
-        }
+        $scope.fetchFirstFulfillmentCenters = function($select, listName) {
+            $select.page = 0;
+            $scope.fullFillmentCenters[listName] = [];
 
-        $scope.fetchNextFulfillmentCenters = function ($select) {
-            fulfillments.search({ searchPhrase: $select.search, take: $scope.pageSize, skip: $scope.fulfillmentCenters.length }, function (data) {
-                joinFulfillmentCenters(data.results);                
-            });
-        }
+            return $scope.fetchNextFulfillmentCenters($select, listName);
+        };
 
-        function loadFulfillmentCenters() {
-            var mainFulfillmentCenterId = $scope.blade.currentEntity.mainFulfillmentCenterId;
-            var mainReturnsFulfillmentCenterId = $scope.blade.currentEntity.mainReturnsFulfillmentCenterId;
-            var additionalFulfillmentCenterIds = $scope.blade.currentEntity.additionalFulfillmentCenterIds;
-            var returnsFulfillmentCenterIds = $scope.blade.currentEntity.returnsFulfillmentCenterIds;
-            $scope.fulfillmentsIds = $scope.fulfillmentsIds.concat(mainFulfillmentCenterId, mainReturnsFulfillmentCenterId, additionalFulfillmentCenterIds, returnsFulfillmentCenterIds);
-            $scope.fulfillmentsIds = _.uniq($scope.fulfillmentsIds);
-            $scope.fulfillmentsIds = _.filter($scope.fulfillmentsIds, function (value) {
-                return value != undefined;
-            });
-            if ($scope.fulfillmentsIds.length > 0) {
-                fulfillments.getByIds($scope.fulfillmentsIds, function (data) {
-                    joinFulfillmentCenters(data);
+        $scope.fetchNextFulfillmentCenters = function ($select, listName) {
+            const countToSkip = $select.page * $scope.pageSize;
+            const countToTake = $scope.pageSize;
+
+            if ($select.page === 0 && $select.search === '') {
+                $scope.fullFillmentCenters[listName] = _.uniq($scope.fullFillmentCenters[listName].concat($scope.fullFillmentCenters.common), 'id');
+                $select.page++;
+                $scope.$broadcast('scrollCompleted');
+            } else {
+                fulfillments.search({ searchPhrase: $select.search, skip: countToSkip, take: countToTake }, function (data) {
+                    $select.page++;
+                    $scope.fullFillmentCenters[listName] = _.uniq($scope.fullFillmentCenters[listName].concat(data.results), 'id');
+
+                    if ($scope.fullFillmentCenters[listName].length < data.totalCount) {
+                        // Reset scrolling for the when-scrolled directive, so it could trigger this method for next page.
+                        $scope.$broadcast('scrollCompleted');
+                    }
                 });
             }
-        }
 
-        function joinFulfillmentCenters(centers) {
-            $scope.fulfillmentCenters = _.uniq($scope.fulfillmentCenters.concat(centers), 'id');
+        };
+
+
+        function loadSelectedFulfillmentCenter() {
+            var selectedIds = _.flatten ([$scope.blade.currentEntity.mainFulfillmentCenterId,
+                $scope.blade.currentEntity.mainReturnsFulfillmentCenterId,
+                $scope.blade.currentEntity.additionalFulfillmentCenterIds,
+                $scope.blade.currentEntity.returnsFulfillmentCenterIds]);
+            selectedIds = _.uniq(selectedIds);
+            selectedIds = _.filter(selectedIds, function (value) {
+                   return value !== undefined;
+                });
+            if (selectedIds.length > 0) {
+                fulfillments.getByIds(selectedIds, function (data) {
+                    const selectedItems = _.uniq($scope.fullFillmentCenters.common.concat(data), 'id');
+                    $scope.fullFillmentCenters.default = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.mainFulfillmentCenterId === item.id; });
+                    $scope.fullFillmentCenters.defaultReturn = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.mainReturnsFulfillmentCenterId === item.id; });
+                    $scope.fullFillmentCenters.available = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.additionalFulfillmentCenterIds.includes(item.id); });
+                    $scope.fullFillmentCenters.availableReturn = _.filter(selectedItems, function (item) { return $scope.blade.currentEntity.returnsFulfillmentCenterIds.includes(item.id); });
+
+                });
+            }
         }
 
         initialize();
