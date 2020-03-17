@@ -30,8 +30,8 @@ angular.module(moduleName, [
   }]
 )
 .run(
-  ['platformWebApp.toolbarService', 'platformWebApp.bladeNavigationService', 'platformWebApp.metaFormsService', '$templateRequest', 'platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.permissionScopeResolver', 'virtoCommerce.storeModule.stores',
-    function (toolbarService, bladeNavigationService, metaFormsService, $templateRequest, mainMenuService, widgetService, $state, scopeResolver, stores) {
+  ['platformWebApp.bladeNavigationService', 'platformWebApp.metaFormsService', '$templateRequest', 'platformWebApp.mainMenuService', 'platformWebApp.widgetService', '$state', 'platformWebApp.permissionScopeResolver', 'virtoCommerce.storeModule.stores',
+    function (bladeNavigationService, metaFormsService, $templateRequest, mainMenuService, widgetService, $state, scopeResolver, stores) {
         //Register module in main menu
         var menuItem = {
             path: 'browse/store',
@@ -87,30 +87,7 @@ angular.module(moduleName, [
             controller: 'virtoCommerce.storeModule.storeNotificationsLogWidgetController',
             template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/storeNotificationsLogWidget.tpl.html'
         }, 'storeDetail');
-
-      
-
-        // register login-on-behalf command in platform account blade
-        var loginOnBehalfCommand = {
-            name: "stores.commands.login-on-behalf",
-            icon: 'fa fa-key',
-            executeMethod: function (blade) {
-                var newBlade = {
-                    id: 'memberDetailChild',
-                    currentEntityId: blade.currentEntity.id,
-                    title: 'stores.blades.loginOnBehalf-list.title',
-                    titleValues: { name: blade.currentEntity.userName },
-                    controller: 'virtoCommerce.storeModule.loginOnBehalfListController',
-                    template: 'Modules/$(VirtoCommerce.Store)/Scripts/blades/loginOnBehalf/loginOnBehalf-list.tpl.html'
-                };
-                bladeNavigationService.showBlade(newBlade, blade);
-            },
-            canExecuteMethod: function () { return true; },
-            permission: 'store:loginOnBehalf',
-            index: 4
-        };
-        toolbarService.register(loginOnBehalfCommand, 'platformWebApp.accountDetailController');
-
+                      
         //Register permission scopes templates used for scope bounded definition in role management ui
         var selectedStoreScope = {
             type: 'StoreSelectedScope',

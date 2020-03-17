@@ -90,23 +90,12 @@
           "tax-provider": "Tax provider"
         }
       },
-      "loginOnBehalf-list": {
-        "title": "Login as {{name}}",
-        "labels": {
-          "pick-store-to-login": "Pick a Store to login",
-          "no-stores": "No Stores yet"
-        },
-        "validations": {
-          "secure-url-missing": "Secure URL is missing. Click to enter Store secure URL manually.",
-          "default-language-missing": "Default language is missing. Click to enter Store secure URL manually."
-        }
-      },
-      "account-detail": {
-        "labels": {
-          "container-id": "Container (store)"
-        }
-      }
-    },
+		"account-detail": {
+			"labels": {
+			  "container-id": "Container (store)"
+			}
+		}
+	},
     "widgets": {
       "assetsWidget": {
         "title": "Assets"
@@ -142,19 +131,7 @@
       "store-save": {
         "title": "Save changes",
         "message": "The Store has been modified. Do you want to save changes?"
-      },
-      "enter-store-url": {
-        "title": "Login on behalf",
-        "labels": {
-          "enter-store-url": "Please enter store secure URL"
-        },
-        "placeholders": {
-          "secure-url": "https://vcshop.com"
-        }
       }
-    },
-    "commands": {
-      "login-on-behalf": "Login on behalf"
     }
   },
   "permissions": {
@@ -162,8 +139,7 @@
     "store:create": "Create store related data",
     "store:read": "View store related data",
     "store:update": "Update store related data",
-    "store:delete": "Delete store related data",
-    "store:loginOnBehalf": "Login on behalf of a customer"
+    "store:delete": "Delete store related data"
   },
   "settings": {
     "Stores": {
