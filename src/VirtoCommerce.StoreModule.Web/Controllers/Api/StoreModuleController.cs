@@ -48,6 +48,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         [HttpPost]
         [Route("search")]
+        [Authorize(ModuleConstants.Security.Permissions.Access)]
         public async Task<ActionResult<StoreSearchResult>> SearchStores([FromBody]StoreSearchCriteria criteria)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read ));
