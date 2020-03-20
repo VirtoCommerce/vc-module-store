@@ -115,8 +115,6 @@ namespace VirtoCommerce.StoreModule.Tests
             IPlatformRepository platformRepositoryFactory() => _mockPlatformRepository.Object;
             Func<IStoreRepository> factory = () => _mockStoreRepository.Object;
 
-            var dynamicPropertyService = new DynamicPropertyService(platformRepositoryFactory, null);
-
             var storeService = new StoreService(factory, _mockSettingsManager.Object, _eventPublisherMock.Object, _platformMemoryCacheMock.Object);
             return storeService;
           

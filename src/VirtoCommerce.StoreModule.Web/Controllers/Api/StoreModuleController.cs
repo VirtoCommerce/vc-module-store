@@ -19,6 +19,7 @@ using VirtoCommerce.StoreModule.Web.Model;
 namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 {
     [Route("api/stores")]
+    
     public class StoreModuleController : Controller
     {
         private readonly IStoreService _storeService;
@@ -67,6 +68,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         [HttpGet]
         [Route("")]
+        [Authorize(ModuleConstants.Security.Permissions.Read)]
         public async Task<ActionResult<Store[]>> GetStores()
         {
             var criteria = new StoreSearchCriteria
@@ -90,6 +92,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <param name="id">Store id</param>
         [HttpGet]
         [Route("{id}")]
+        [Authorize(ModuleConstants.Security.Permissions.Read)]
         public async Task<ActionResult<Store>> GetStoreById(string id)
         {
             var criteria = new StoreSearchCriteria
@@ -128,6 +131,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPut]
         [Route("")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [Authorize(ModuleConstants.Security.Permissions.Update)]
         public async Task<ActionResult> UpdateStore([FromBody]Store store)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
@@ -146,6 +150,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpDelete]
         [Route("")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [Authorize(ModuleConstants.Security.Permissions.Delete)]
         public async Task<ActionResult> DeleteStore([FromQuery] string[] ids)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete ));
@@ -165,6 +170,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPost]
         [Route("send/dynamicnotification")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        [Authorize(ModuleConstants.Security.Permissions.Access)]
         public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody]SendDynamicNotificationRequest request)
         {
             var store = await _storeService.GetByIdAsync(request.StoreId);
@@ -198,6 +204,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <returns></returns>
         [HttpGet]
         [Route("{storeId}/accounts/{id}/loginonbehalf")]
+        [Authorize(ModuleConstants.Security.Permissions.Access)]
         public async Task<ActionResult<LoginOnBehalfInfo>> GetLoginOnBehalfInfo(string storeId, string id)
         {
             var result = new LoginOnBehalfInfo
@@ -225,6 +232,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// <returns></returns>
         [HttpGet]
         [Route("allowed/{userId}")]
+        [Authorize(ModuleConstants.Security.Permissions.Access)]
         public async Task<ActionResult<Store[]>> GetUserAllowedStores(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
