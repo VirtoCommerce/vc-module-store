@@ -131,6 +131,10 @@
       "store-save": {
         "title": "Save changes",
         "message": "The Store has been modified. Do you want to save changes?"
+      },
+      "tax-provider-save": {
+          "title": "Save changes",
+          "message": "The Tax provider has been modified. Do you want to save changes?"
       }
     }
   },
