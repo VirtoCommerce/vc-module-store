@@ -116,6 +116,17 @@
                     </div>
                 </div>
 
+                <div class="form-group clearfix">
+                    <div class="column">
+                        <div class="form-group">
+                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-url' | translate }}</label>
+                            <div class="form-input">
+                                <input ng-model="blade.currentEntity.url" type="url" placeholder="{{ 'stores.blades.store-advanced.placeholders.store-url' | translate }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <va-metaform blade="blade" registered-inputs="blade.metaFields" column-count="2"></va-metaform>
 
                 <div class="form-group">
