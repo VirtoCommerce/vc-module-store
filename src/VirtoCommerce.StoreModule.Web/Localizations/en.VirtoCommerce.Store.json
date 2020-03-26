@@ -21,7 +21,8 @@
           "returns-fulfillment-center": "Default returns fulfillment center",
           "additional-fulfillment-centers": "Available fulfillment centers",
           "additional-returns-fulfillment-centers": "Avail. returns fulfillment centers",
-          "operational-timezone": "Operational timezone"
+          "operational-timezone": "Operational timezone",
+          "store-url": "Store URL (use only for notifications!)"
         },
         "placeholders": {
           "description": "Enter description",
@@ -31,7 +32,8 @@
           "store-admin-email": "Enter value",
           "fulfillment-center": "Select...",
           "returns-fulfillment-center": "Select...",
-          "operational-timezone": "Select..."
+          "operational-timezone": "Select...",
+          "store-url": "Enter URL"
         }
       },
       "store-detail": {
@@ -131,6 +133,10 @@
       "store-save": {
         "title": "Save changes",
         "message": "The Store has been modified. Do you want to save changes?"
+      },
+      "tax-provider-save": {
+          "title": "Save changes",
+          "message": "The Tax provider has been modified. Do you want to save changes?"
       }
     }
   },
