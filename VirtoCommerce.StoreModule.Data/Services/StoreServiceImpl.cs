@@ -48,7 +48,6 @@ namespace VirtoCommerce.StoreModule.Data.Services
         {
             var stores = new List<Store>();
 
-            var fulfillmentCenters = _commerceService.GetAllFulfillmentCenters().ToList();
             using (var repository = _repositoryFactory())
             {
                 var dbStores = repository.GetStoresByIds(ids);
@@ -194,6 +193,8 @@ namespace VirtoCommerce.StoreModule.Data.Services
             {
                 var query = GetStoresQuery(repository, criteria);
 
+                retVal.TotalCount = query.Count();
+
                 var sortInfos = criteria.SortInfos;
                 if (sortInfos.IsNullOrEmpty())
                 {
@@ -202,7 +203,6 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
                 query = query.OrderBySortInfos(sortInfos).ThenBy(x => x.Id);
 
-                retVal.TotalCount = query.Count();
                 var storeIds = query.Skip(criteria.Skip)
                                  .Take(criteria.Take)
                                  .Select(x => x.Id)
@@ -213,17 +213,16 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return retVal;
         }
 
-
         /// <summary>
         /// Returns list of stores ids which passed user can signIn
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
         public virtual IEnumerable<string> GetUserAllowedStoreIds(ApplicationUserExtended user)
         {
             if (user == null)
             {
-                throw new ArgumentNullException("user");
+                throw new ArgumentNullException(nameof(user));
             }
 
             var retVal = new List<string>();
