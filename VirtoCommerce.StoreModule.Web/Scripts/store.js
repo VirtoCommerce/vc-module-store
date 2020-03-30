@@ -95,7 +95,11 @@ angular.module(moduleName, [
 	    widgetService.registerWidget({
 	        controller: 'virtoCommerce.storeModule.storeNotificationsLogWidgetController',
 	        template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/storeNotificationsLogWidget.tpl.html'
-	    }, 'storeDetail');
+        }, 'storeDetail');
+        widgetService.registerWidget({
+            controller: 'virtoCommerce.storeModule.storePaymentReminderWidgetController',
+            template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/storePaymentReminderWidget.tpl.html'
+        }, 'storeDetail');
 
 	    var resetCommand = {
 	        name: "platform.commands.reset",

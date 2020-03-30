@@ -182,6 +182,8 @@
     <Content Include="Scripts\widgets\storeNotificationsLogWidget.tpl.html" />
     <Content Include="Scripts\widgets\storeNotificationsWidget.js" />
     <Content Include="Scripts\widgets\storeNotificationsWidget.tpl.html" />
+    <Content Include="Scripts\widgets\storePaymentReminderWidget.js" />
+    <Content Include="Scripts\widgets\storePaymentReminderWidget.tpl.html" />
     <Content Include="Scripts\widgets\storePaymentsWidget.js" />
     <Content Include="Scripts\widgets\storeSettingsWidget.js" />
     <Content Include="Scripts\widgets\storeAdvancedWidget.js" />

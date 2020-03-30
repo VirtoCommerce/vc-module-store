@@ -192,6 +192,11 @@
       "storeTaxingWidget": {
         "title": "Tax providers",
         "blade-subtitle": "Tax providers"
+      },
+      "storePaymentReminderWidget": {
+        "title": "Payment Reminders",
+        "blade-title": "Payment Reminders",
+        "blade-subtitle": "Payment Reminders sub"
       }
     },
     "dialogs": {
