@@ -129,7 +129,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
                 property.Name = x.FirstOrDefault()?.PropertyName;
                 property.Values = x.Select(v => v.ToModel(AbstractTypeFactory<DynamicPropertyObjectValue>.TryCreateInstance())).ToArray();
                 return property;
-            }).ToArray();
+            }).ToList();
 
             return store;
         }
