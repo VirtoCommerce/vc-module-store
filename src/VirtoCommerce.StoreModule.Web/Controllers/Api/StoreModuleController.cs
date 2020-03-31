@@ -19,6 +19,7 @@ using VirtoCommerce.StoreModule.Web.Model;
 namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 {
     [Route("api/stores")]
+    [Authorize]
     public class StoreModuleController : Controller
     {
         private readonly IStoreService _storeService;
