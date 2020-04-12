@@ -10,7 +10,7 @@
 			title: 'stores.widgets.storeNotificationsLogWidget.blade-title',
 			titleValues: { id: blade.currentEntity.id },
 			objectId: objectId,
-			objectTypeId: objectTypeId,
+			objectType: objectTypeId,
 			subtitle: 'stores.widgets.storeNotificationsLogWidget.blade-subtitle',
 			controller: 'virtoCommerce.notificationsModule.notificationsJournalController',
 			template: 'Modules/$(VirtoCommerce.Notifications)/Scripts/blades/notifications-journal.tpl.html'
