@@ -25,7 +25,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         private readonly IStoreSearchService _storeSearchService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
-        private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         private readonly INotificationSender _notificationSender;
 
@@ -34,14 +34,14 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             IStoreSearchService storeSearchService,
             UserManager<ApplicationUser> userManager,
             INotificationSender notificationSender,
-            IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
+            SignInManager<ApplicationUser> signInManager,
             IAuthorizationService authorizationService)
         {
             _storeService = storeService;
             _storeSearchService = storeSearchService;
             _userManager = userManager;
             _notificationSender = notificationSender;
-            _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
+            _signInManager = signInManager;
             _authorizationService = authorizationService;
         }
 
@@ -213,7 +213,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    var userPrincipal = await _userClaimsPrincipalFactory.CreateAsync(user);
+                    var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
                     var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.LoginOnBehalf));
                     result.CanLoginOnBehalf = authorizationResult.Succeeded;
                 }
