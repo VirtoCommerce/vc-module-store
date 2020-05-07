@@ -13,7 +13,6 @@ using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Notifications;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.Authorization;
-using VirtoCommerce.StoreModule.Web.Authorization;
 using VirtoCommerce.StoreModule.Web.Model;
 
 namespace VirtoCommerce.StoreModule.Web.Controllers.Api
@@ -26,6 +25,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         private readonly IStoreSearchService _storeSearchService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
 
         private readonly INotificationSender _notificationSender;
 
@@ -34,12 +34,14 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             IStoreSearchService storeSearchService,
             UserManager<ApplicationUser> userManager,
             INotificationSender notificationSender,
+            IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
             IAuthorizationService authorizationService)
         {
             _storeService = storeService;
             _storeSearchService = storeSearchService;
             _userManager = userManager;
             _notificationSender = notificationSender;
+            _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
             _authorizationService = authorizationService;
         }
 
@@ -50,7 +52,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("search")]
         public async Task<ActionResult<StoreSearchResult>> SearchStores([FromBody]StoreSearchCriteria criteria)
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read ));
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
                 return Unauthorized();
@@ -97,7 +99,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 Skip = 0,
                 Take = 1,
-                StoreIds = new[] { id } 
+                StoreIds = new[] { id }
             };
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
@@ -149,7 +151,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteStore([FromQuery] string[] ids)
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete ));
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete));
             if (!authorizationResult.Succeeded)
             {
                 return Unauthorized();
@@ -211,7 +213,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 var user = await _userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.LoginOnBehalf));
+                    var userPrincipal = await _userClaimsPrincipalFactory.CreateAsync(user);
+                    var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.LoginOnBehalf));
                     result.CanLoginOnBehalf = authorizationResult.Succeeded;
                 }
             }
