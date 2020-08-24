@@ -79,18 +79,18 @@ namespace VirtoCommerce.StoreModule.Core.Model
 
 
         #region ISeoSupport Members
-        public string SeoObjectType { get { return GetType().Name; } }
+        public string SeoObjectType => nameof(Store);
         public IList<SeoInfo> SeoInfos { get; set; }
         #endregion
 
         #region IHasDynamicProperties Members
-        public string ObjectType => GetType().FullName;
+        public string ObjectType => typeof(Store).FullName;
         public ICollection<DynamicObjectProperty> DynamicProperties { get; set; }
         #endregion
 
         #region IHaveSettings Members
         public ICollection<ObjectSettingEntry> Settings { get; set; }
-        public virtual string TypeName => GetType().Name;
+        public virtual string TypeName => nameof(Store);
         #endregion
 
         #region ISupportSecurityScopes Members
