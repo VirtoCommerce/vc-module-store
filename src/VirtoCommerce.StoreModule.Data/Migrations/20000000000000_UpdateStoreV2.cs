@@ -9,7 +9,7 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
             migrationBuilder.Sql(@"IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '__MigrationHistory'))
                 IF (EXISTS (SELECT * FROM __MigrationHistory WHERE ContextKey = 'VirtoCommerce.StoreModule.Data.Migrations.Configuration'))
                  BEGIN
-                    INSERT INTO [dbo].[__EFMigrationsHistory] ([MigrationId],[ProductVersion]) VALUES ('20190522054351_InitialStore', '2.2.3-servicing-35854')
+                    INSERT INTO [__EFMigrationsHistory] ([MigrationId],[ProductVersion]) VALUES ('20190522054351_InitialStore', '2.2.3-servicing-35854')
                     UPDATE [PlatformDynamicProperty]            SET ObjectType = 'VirtoCommerce.StoreModule.Core.Model.Store' WHERE ObjectType = 'VirtoCommerce.Domain.Store.Model.Store'
                     UPDATE [PlatformDynamicPropertyObjectValue] SET ObjectType = 'VirtoCommerce.StoreModule.Core.Model.Store' WHERE ObjectType = 'VirtoCommerce.Domain.Store.Model.Store'
                 END");
@@ -17,7 +17,7 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
             migrationBuilder.Sql(@"IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '__MigrationHistory'))
                 IF (EXISTS (SELECT * FROM __MigrationHistory WHERE ContextKey = 'VirtoCommerce.StoreModule.Data.Migrations.Configuration'))
                     BEGIN
-                        CREATE TABLE [dbo].[StoreSeoInfo](
+                        CREATE TABLE [StoreSeoInfo](
                             [Id] [nvarchar](128) NOT NULL,
                             [CreatedDate] [datetime2](7) NOT NULL,
                             [ModifiedDate] [datetime2](7) NULL,
@@ -38,9 +38,9 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
                         ) ON [PRIMARY]
 
                         BEGIN
-                            ALTER TABLE [dbo].[StoreSeoInfo]  WITH CHECK ADD  CONSTRAINT [FK_StoreSeoInfo_Store_StoreId] FOREIGN KEY([StoreId])
-                            REFERENCES [dbo].[Store] ([Id]) ON DELETE CASCADE
-                            ALTER TABLE [dbo].[StoreSeoInfo] CHECK CONSTRAINT [FK_StoreSeoInfo_Store_StoreId]
+                            ALTER TABLE [StoreSeoInfo]  WITH CHECK ADD  CONSTRAINT [FK_StoreSeoInfo_Store_StoreId] FOREIGN KEY([StoreId])
+                            REFERENCES [Store] ([Id]) ON DELETE CASCADE
+                            ALTER TABLE [StoreSeoInfo] CHECK CONSTRAINT [FK_StoreSeoInfo_Store_StoreId]
                         END
                         
                     END");
