@@ -32,7 +32,8 @@ namespace VirtoCommerce.StoreModule.Core
                     GroupName = "Store|General",
                     IsDictionary = true,
                     DefaultValue = "Open",
-                    AllowedValues = new[] { "Open", "Closed", "RestrictedAccess" }
+                    AllowedValues = new[] { "Open", "Closed", "RestrictedAccess" },
+                    IsHidden = true
                 };
 
                 public static SettingDescriptor TaxCalculationEnabled = new SettingDescriptor
