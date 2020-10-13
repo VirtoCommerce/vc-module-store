@@ -109,10 +109,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
                 await repository.UnitOfWork.CommitAsync();
                 pkMap.ResolvePrimaryKeys();
                 await _settingManager.DeepSaveSettingsAsync(stores);
+                ClearCache(stores);
                 await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
             }
-
-            ClearCache(stores);
         }
 
         public virtual async Task DeleteAsync(string[] ids)
@@ -134,9 +133,8 @@ namespace VirtoCommerce.StoreModule.Data.Services
                 }
                 await repository.UnitOfWork.CommitAsync();
                 await _settingManager.DeepRemoveSettingsAsync(stores);
-                await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
-
                 ClearCache(stores);
+                await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
             }
         }
 
