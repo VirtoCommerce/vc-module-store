@@ -3,8 +3,10 @@ angular.module('virtoCommerce.storeModule')
     function ($scope, bladeNavigationService, stores, catalogs, settings, settingsHelper, dialogService, currencyUtils) {
         var blade = $scope.blade;
         $scope.pageSize = 20;
+        $scope.catalogs = [];
         blade.updatePermission = 'store:update';
         blade.subtitle = 'stores.blades.store-detail.subtitle';
+        blade.catalogId = undefined;
 
         blade.refresh = function (parentRefresh) {
             blade.isLoading = true;
@@ -16,15 +18,12 @@ angular.module('virtoCommerce.storeModule')
             })
         }
 
-
         function initializeBlade(data) {
-
-            getCatalog(data.catalog); 
-
             data.additionalLanguages = _.without(data.languages, data.defaultLanguage);
             data.additionalCurrencies = _.without(data.currencies, data.defaultCurrency);
 
             blade.currentEntityId = data.id;
+            blade.catalogId = data.catalog;
             blade.title = data.name;
 
             settingsHelper.fixValues(data.settings);
@@ -49,13 +48,6 @@ angular.module('virtoCommerce.storeModule')
             if (blade.currentEntity.scopes && angular.isArray(blade.currentEntity.scopes)) {
                 blade.scopes = blade.currentEntity.scopes;
             }
-        }
-
-        async function getCatalog(catalogId) {
-            $scope.catalogs = [];
-
-            let catalog = await catalogs.get({ id: catalogId }).$promise;
-            $scope.catalogs.push(catalog)
         }
 
         function isDirty() {
@@ -104,9 +96,15 @@ angular.module('virtoCommerce.storeModule')
             dialogService.showConfirmationDialog(dialog);
         }
 
-        $scope.fetchCatalogs = ($select) => {
+        $scope.fetchCatalogs = async ($select) => {
             $select.page = 0;
             $scope.catalogs = [];
+
+            if(blade.catalogId) {
+                let catalog = await catalogs.get({ id: blade.catalogId }).$promise; 
+                $scope.catalogs.push(catalog);
+            }
+
             $scope.fetchNextCatalogs($select);
         }
     
