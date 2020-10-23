@@ -27,7 +27,7 @@
                             <div class="form-input">
                                 <ui-select ng-model="blade.currentEntity.catalog" required>
                                     <ui-select-match placeholder="{{ 'stores.blades.store-detail.placeholders.catalog' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="x.id as x in catalogs | filter: { name: $select.search }">
+                                    <ui-select-choices repeat="x.id as x in catalogs | filter: { name: $select.search }" refresh="fetchCatalogs($select)" when-scrolled="fetchNextCatalogs($select)">
                                         <span ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>

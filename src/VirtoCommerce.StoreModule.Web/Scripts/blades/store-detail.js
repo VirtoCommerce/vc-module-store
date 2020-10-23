@@ -2,21 +2,25 @@ angular.module('virtoCommerce.storeModule')
 .controller('virtoCommerce.storeModule.storeDetailController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.storeModule.catalogs', 'platformWebApp.settings', 'platformWebApp.settings.helper', 'platformWebApp.dialogService', 'virtoCommerce.coreModule.currency.currencyUtils',
     function ($scope, bladeNavigationService, stores, catalogs, settings, settingsHelper, dialogService, currencyUtils) {
         var blade = $scope.blade;
+        $scope.pageSize = 20;
         blade.updatePermission = 'store:update';
         blade.subtitle = 'stores.blades.store-detail.subtitle';
 
         blade.refresh = function (parentRefresh) {
             blade.isLoading = true;
-            stores.get({ id: blade.currentEntityId }, function (data) {
+            stores.get({ id: blade.currentEntityId }, (data) => {
                 initializeBlade(data);
                 if (parentRefresh) {
                     blade.parentBlade.refresh();
                 }
-            },
-            function (error) { bladeNavigationService.setError('Error ' + error.status, blade); });
+            })
         }
 
+
         function initializeBlade(data) {
+
+            getCatalog(data.catalog); 
+
             data.additionalLanguages = _.without(data.languages, data.defaultLanguage);
             data.additionalCurrencies = _.without(data.currencies, data.defaultCurrency);
 
@@ -45,6 +49,13 @@ angular.module('virtoCommerce.storeModule')
             if (blade.currentEntity.scopes && angular.isArray(blade.currentEntity.scopes)) {
                 blade.scopes = blade.currentEntity.scopes;
             }
+        }
+
+        async function getCatalog(catalogId) {
+            $scope.catalogs = [];
+
+            let catalog = await catalogs.get({ id: catalogId }).$promise;
+            $scope.catalogs.push(catalog)
         }
 
         function isDirty() {
@@ -91,6 +102,25 @@ angular.module('virtoCommerce.storeModule')
                 }
             }
             dialogService.showConfirmationDialog(dialog);
+        }
+
+        $scope.fetchCatalogs = ($select) => {
+            $select.page = 0;
+            $scope.catalogs = [];
+            $scope.fetchNextCatalogs($select);
+        }
+    
+        $scope.fetchNextCatalogs = ($select) => {
+            let criteria = {
+                SearchPhrase: $select.search,
+                take: $scope.pageSize,
+                skip: $select.page * $scope.pageSize
+            }
+
+            catalogs.search(criteria, (data) => {
+                $scope.catalogs = $scope.catalogs.concat(data.results);
+                $select.page++;
+            });
         }
 
         $scope.setForm = function (form) { $scope.formScope = form; };
@@ -165,7 +195,7 @@ angular.module('virtoCommerce.storeModule')
         });
 
         blade.refresh();
-        $scope.catalogs = catalogs.getCatalogs();
+        
         $scope.storeStates = settings.getValues({ id: 'Stores.States' });
         $scope.languages = settings.getValues({ id: 'VirtoCommerce.Core.General.Languages' });
         $scope.allStores = stores.query();
