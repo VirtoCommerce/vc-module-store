@@ -206,7 +206,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             if (store.AdditionalFulfillmentCenterIds != null)
             {
 
-                FulfillmentCenters.AddRange(store.AdditionalFulfillmentCenterIds.Select(fc => new StoreFulfillmentCenterEntity
+                FulfillmentCenters.AddRange(store.AdditionalFulfillmentCenterIds.Where(x => x != null).Select(fc => new StoreFulfillmentCenterEntity
                 {
                     FulfillmentCenterId = fc,
                     Name = fc,
@@ -216,7 +216,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             }
             if (store.ReturnsFulfillmentCenterIds != null)
             {
-                FulfillmentCenters.AddRange(store.ReturnsFulfillmentCenterIds.Select(fc => new StoreFulfillmentCenterEntity
+                FulfillmentCenters.AddRange(store.ReturnsFulfillmentCenterIds.Where(x => x != null).Select(fc => new StoreFulfillmentCenterEntity
                 {
                     FulfillmentCenterId = fc,
                     Name = fc,
