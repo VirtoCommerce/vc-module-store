@@ -10,12 +10,13 @@ angular.module('virtoCommerce.storeModule')
 
         blade.refresh = function (parentRefresh) {
             blade.isLoading = true;
-            stores.get({ id: blade.currentEntityId }, (data) => {
-                initializeBlade(data);
-                if (parentRefresh) {
-                    blade.parentBlade.refresh();
-                }
-            })
+            stores.get({ id: blade.currentEntityId },
+                (data) => {
+                    initializeBlade(data);
+                    if (parentRefresh) {
+                        blade.parentBlade.refresh();
+                    }
+                });
         }
 
         function initializeBlade(data) {
@@ -118,6 +119,10 @@ angular.module('virtoCommerce.storeModule')
             catalogs.search(criteria, (data) => {
                 $scope.catalogs = $scope.catalogs.concat(data.results);
                 $select.page++;
+
+                if ($scope.catalogs.length < data.totalCount) {
+                    $scope.$broadcast('scrollCompleted');
+                }
             });
         }
 
