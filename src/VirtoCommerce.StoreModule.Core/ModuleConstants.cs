@@ -14,10 +14,9 @@ namespace VirtoCommerce.StoreModule.Core
                     Create = "store:create",
                     Access = "store:access",
                     Update = "store:update",
-                    Delete = "store:delete",
-                    LoginOnBehalf = "store:loginOnBehalf";
+                    Delete = "store:delete";
 
-                public static string[] AllPermissions = new[] { Access, Create, Read, Update, Delete, LoginOnBehalf };
+                public static string[] AllPermissions = new[] { Access, Create, Read, Update, Delete };
             }
         }
 

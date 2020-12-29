@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VirtoCommerce.NotificationsModule.Core.Services;
+using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -214,7 +215,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 if (user != null)
                 {
                     var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-                    var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.LoginOnBehalf));
+                    var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement(PlatformConstants.Security.Permissions.LoginOnBehalf));
                     result.CanLoginOnBehalf = authorizationResult.Succeeded;
                 }
             }

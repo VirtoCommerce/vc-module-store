@@ -92,12 +92,12 @@
           "tax-provider": "Tax provider"
         }
       },
-		"account-detail": {
-			"labels": {
-			  "container-id": "Container (store)"
-			}
-		}
-	},
+    "account-detail": {
+      "labels": {
+        "container-id": "Container (store)"
+      }
+    }
+  },
     "widgets": {
       "assetsWidget": {
         "title": "Assets"
@@ -145,7 +145,8 @@
     "store:create": "Create store related data",
     "store:read": "View store related data",
     "store:update": "Update store related data",
-    "store:delete": "Delete store related data"
+    "store:delete": "Delete store related data",
+    "store:loginOnBehalf": "Login on behalf of a customer"
   },
   "settings": {
     "Stores": {
