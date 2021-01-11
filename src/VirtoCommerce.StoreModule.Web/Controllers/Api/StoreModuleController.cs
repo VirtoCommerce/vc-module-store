@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VirtoCommerce.NotificationsModule.Core.Services;
-using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -51,7 +50,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         [HttpPost]
         [Route("search")]
-        public async Task<ActionResult<StoreSearchResult>> SearchStores([FromBody]StoreSearchCriteria criteria)
+        public async Task<ActionResult<StoreSearchResult>> SearchStores([FromBody] StoreSearchCriteria criteria)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
@@ -119,7 +118,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPost]
         [Route("")]
         [Authorize(ModuleConstants.Security.Permissions.Create)]
-        public async Task<ActionResult<Store>> CreateStore([FromBody]Store store)
+        public async Task<ActionResult<Store>> CreateStore([FromBody] Store store)
         {
             await _storeService.SaveChangesAsync(new[] { store });
             return Ok(store);
@@ -132,7 +131,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPut]
         [Route("")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> UpdateStore([FromBody]Store store)
+        public async Task<ActionResult> UpdateStore([FromBody] Store store)
         {
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
             if (!authorizationResult.Succeeded)
@@ -169,7 +168,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPost]
         [Route("send/dynamicnotification")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody]SendDynamicNotificationRequest request)
+        public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody] SendDynamicNotificationRequest request)
         {
             var store = await _storeService.GetByIdAsync(request.StoreId);
 
@@ -215,7 +214,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 if (user != null)
                 {
                     var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-                    var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement(PlatformConstants.Security.Permissions.LoginOnBehalf));
+                    // VP-6462: Here we intentionally use inlined platform "platform:security:loginOnBehalf" permission to not create a dependency on the latest platform
+                    var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement("platform:security:loginOnBehalf"));
                     result.CanLoginOnBehalf = authorizationResult.Succeeded;
                 }
             }
