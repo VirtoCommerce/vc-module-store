@@ -81,8 +81,7 @@ namespace VirtoCommerce.StoreModule.Web
             permissionsProvider.WithAvailabeScopesForPermissions(new[] {
                                                                         ModuleConstants.Security.Permissions.Read,
                                                                         ModuleConstants.Security.Permissions.Update,
-                                                                        ModuleConstants.Security.Permissions.Delete,
-                                                                        ModuleConstants.Security.Permissions.LoginOnBehalf }, new StoreSelectedScope());
+                                                                        ModuleConstants.Security.Permissions.Delete }, new StoreSelectedScope());
 
             //Events handlers registration
             var inProcessBus = appBuilder.ApplicationServices.GetService<IHandlerRegistrar>();
