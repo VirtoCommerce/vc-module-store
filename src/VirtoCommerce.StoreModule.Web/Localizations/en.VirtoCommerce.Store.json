@@ -92,12 +92,12 @@
           "tax-provider": "Tax provider"
         }
       },
-    "account-detail": {
-      "labels": {
-        "container-id": "Container (store)"
+      "account-detail": {
+        "labels": {
+          "container-id": "Container (store)"
+        }
       }
-    }
-  },
+    },
     "widgets": {
       "assetsWidget": {
         "title": "Assets"
@@ -135,8 +135,14 @@
         "message": "The Store has been modified. Do you want to save changes?"
       },
       "tax-provider-save": {
-          "title": "Save changes",
-          "message": "The Tax provider has been modified. Do you want to save changes?"
+        "title": "Save changes",
+        "message": "The Tax provider has been modified. Do you want to save changes?"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "Select...",
+        "loading": "Loading..."
       }
     }
   },
