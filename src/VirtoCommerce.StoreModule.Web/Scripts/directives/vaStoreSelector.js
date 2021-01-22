@@ -24,7 +24,8 @@ angular.module('virtoCommerce.storeModule')
                 // If scrollbar doesn't appear auto loading won't work.
                 var pageSize = $scope.pageSize || defaultPageSize;
 
-                $scope.stores = [];
+                $scope.choices = [];
+                $scope.isNoChoices = true;
                 var lastSearchPhrase = '';
                 var totalCount = 0;
 
@@ -35,7 +36,7 @@ angular.module('virtoCommerce.storeModule')
                 function loadEntityStores() {
                     var storeIds = $scope.context.multiple ? $scope.context.modelValue : [$scope.context.modelValue];
 
-                    if (_.any(storeIds) && !_.any($scope.stores)) {
+                    if ($scope.isNoChoices && _.any(storeIds)) {
                         return stores.search({
                             storeIds: storeIds,
                             take: storeIds.length,
@@ -56,7 +57,7 @@ angular.module('virtoCommerce.storeModule')
                         $select.page = 0;
                     }
 
-                    if ($select.page === 0 || totalCount > $scope.stores.length) {
+                    if ($select.page === 0 || totalCount > $scope.choices.length) {
                         return stores.search(
                             {
                                 searchPhrase: $select.search,
@@ -79,8 +80,9 @@ angular.module('virtoCommerce.storeModule')
                 };
 
                 function joinStores(newItems) {
-                    newItems = _.reject(newItems, x => _.any($scope.stores, y => y.id === x.id) || _.indexOf($scope.storesToHide, x.id) > -1);
-                    $scope.stores = $scope.stores.concat(newItems);
+                    newItems = _.reject(newItems, x => _.indexOf($scope.storesToHide, x.id) > -1);
+                    $scope.choices = _.union($scope.choices, newItems);
+                    $scope.isNoChoices = $scope.choices.length === 0;
                 }
 
                 $scope.$watch('context.modelValue', function (newValue, oldValue) {

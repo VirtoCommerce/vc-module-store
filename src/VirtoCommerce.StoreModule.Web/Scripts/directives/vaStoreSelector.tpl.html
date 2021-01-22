@@ -1,14 +1,14 @@
 <div class="form-input">
-    <ui-select ng-if="context.multiple" multiple ng-model="context.modelValue" ng-class="{disabled: stores.length === 0}">
-        <ui-select-match placeholder="{{placeholder || 'stores.directives.store-selector.placeholder' | translate}}">{{stores.length > 0 ? $item.name : 'stores.directives.store-selector.loading' | translate}}</ui-select-match>
-        <ui-select-choices repeat="x.id as x in stores | filter: { name: $select.search }" refresh="fetchStores($select)" refresh-delay="300" when-scrolled="fetchNextStores($select)">
-            <span ng-bind-html="x.name | highlight: $select.search" ng-show='stores.length > 0'></span>
+    <ui-select ng-if="context.multiple" multiple ng-model="context.modelValue" ng-class="{disabled: isNoChoices}">
+        <ui-select-match placeholder="{{placeholder || 'stores.directives.store-selector.placeholder' | translate}}">{{isNoChoices ? ('stores.directives.store-selector.loading' | translate) : $item.name}}</ui-select-match>
+        <ui-select-choices repeat="x.id as x in choices | filter: { name: $select.search }" refresh="fetchStores($select)" refresh-delay="0" when-scrolled="fetchNextStores($select)">
+            <span ng-bind-html="x.name | highlight: $select.search" ng-show='!isNoChoices'></span>
         </ui-select-choices>
     </ui-select>
-    <ui-select ng-if="!context.multiple" ng-model="context.modelValue" ng-required="context.required" ng-class="{disabled: stores.length === 0}">
-        <ui-select-match placeholder="{{placeholder || 'stores.directives.store-selector.placeholder' | translate}}">{{stores.length > 0 ? $select.selected.name : 'stores.directives.store-selector.loading' | translate}}</ui-select-match>
-        <ui-select-choices repeat="x.id as x in stores | filter: { name: $select.search }" refresh="fetchStores($select)" refresh-delay="300" when-scrolled="fetchNextStores($select)">
-            <span ng-bind-html="x.name | highlight: $select.search" ng-show='stores.length > 0'></span>
+    <ui-select ng-if="!context.multiple" ng-model="context.modelValue" ng-required="context.required" ng-class="{disabled: isNoChoices}">
+        <ui-select-match placeholder="{{placeholder || 'stores.directives.store-selector.placeholder' | translate}}">{{isNoChoices ? ('stores.directives.store-selector.loading' | translate) : $select.selected.name}}</ui-select-match>
+        <ui-select-choices repeat="x.id as x in choices | filter: { name: $select.search }" refresh="fetchStores($select)" refresh-delay="300" when-scrolled="fetchNextStores($select)">
+            <span ng-bind-html="x.name | highlight: $select.search" ng-show='!isNoChoices'></span>
         </ui-select-choices>
     </ui-select>
 </div>
