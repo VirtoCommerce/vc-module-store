@@ -71,9 +71,7 @@ angular.module('virtoCommerce.storeModule')
             _.each(entityToSave.paymentMethods, function (x) { settingsHelper.toApiFormat(x.settings); });
             _.each(entityToSave.taxProviders, function (x) { settingsHelper.toApiFormat(x.settings); });
 
-            stores.update({}, entityToSave, function (data) {
-                blade.refresh(true);
-            }, function (error) { bladeNavigationService.setError('Error ' + error.status, blade); });
+            stores.update({}, entityToSave, data => blade.refresh(true));
         };
 
         function deleteEntry() {
@@ -88,8 +86,6 @@ angular.module('virtoCommerce.storeModule')
                         stores.remove({ ids: blade.currentEntityId }, function () {
                             $scope.bladeClose();
                             blade.parentBlade.refresh();
-                        }, function (error) {
-                            bladeNavigationService.setError('Error ' + error.status, blade);
                         });
                     }
                 }
@@ -201,6 +197,5 @@ angular.module('virtoCommerce.storeModule')
         
         $scope.storeStates = settings.getValues({ id: 'Stores.States' });
         $scope.languages = settings.getValues({ id: 'VirtoCommerce.Core.General.Languages' });
-        $scope.allStores = stores.query();
         $scope.currencyUtils = currencyUtils;
     }]);

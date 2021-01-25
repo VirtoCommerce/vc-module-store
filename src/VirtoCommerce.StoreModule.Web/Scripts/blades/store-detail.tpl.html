@@ -28,7 +28,7 @@
                                 <ui-select ng-model="blade.currentEntity.catalog" required ng-class="{disabled: catalogs.length === 0}">
                                     <ui-select-match placeholder="{{ 'stores.blades.store-detail.placeholders.catalog' | translate }}">{{catalogs.length > 0 ? $select.selected.name : 'Loading...'}}</ui-select-match>
                                     <ui-select-choices repeat="x.id as x in catalogs | filter: { name: $select.search }" refresh="fetchCatalogs($select)" refresh-delay="200" when-scrolled="fetchNextCatalogs($select)">
-                                        <span ng-show = 'catalogs.length > 0' ng-bind-html="x.name | highlight: $select.search"></span>
+                                        <span ng-show='catalogs.length > 0' ng-bind-html="x.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
                             </div>
@@ -107,12 +107,7 @@
                 <div class="form-group">
                     <label class="form-label">{{ 'stores.blades.store-detail.labels.linked-stores' | translate }}</label>
                     <div class="form-input" data-role="input-control">
-                        <ui-select multiple ng-model="blade.currentEntity.trustedGroups">
-                            <ui-select-match placeholder="{{ 'stores.blades.store-detail.placeholders.linked-stores' | translate }}">{{$item.name}}</ui-select-match>
-                            <ui-select-choices repeat="x.id as x in allStores | filter: {id: '!'+blade.currentEntity.id} | filter: { name: $select.search }">
-                                <span ng-bind-html="x.name | highlight: $select.search"></span>
-                            </ui-select-choices>
-                        </ui-select>
+                        <va-store-selector multiple ng-model="blade.currentEntity.trustedGroups" stores-to-hide="[blade.currentEntity.id]" placeholder="'stores.blades.store-detail.placeholders.linked-stores'"></va-store-selector>
                     </div>
                 </div>
 
