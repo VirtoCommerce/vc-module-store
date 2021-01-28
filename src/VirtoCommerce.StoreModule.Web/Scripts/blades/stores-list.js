@@ -61,7 +61,7 @@ angular.module('virtoCommerce.storeModule')
                 }
             },
             {
-                name: "platform.commands.add", icon: 'fa fa-plus',
+                name: "platform.commands.add", icon: 'fas fa-plus',
                 executeMethod: openBladeNew,
                 canExecuteMethod: function () {
                     return true;
