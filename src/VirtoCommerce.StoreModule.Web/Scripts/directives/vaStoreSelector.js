@@ -28,6 +28,7 @@ angular.module('virtoCommerce.storeModule')
                 $scope.isNoChoices = true;
                 var lastSearchPhrase = '';
                 var totalCount = 0;
+                var hiddenCount = angular.isArray($scope.storesToHide) ? $scope.storesToHide.length : 0;
 
                 $scope.fetchStores = function ($select) {
                     $q.all([loadEntityStores(), $scope.fetchNextStores($select)]);
@@ -52,7 +53,7 @@ angular.module('virtoCommerce.storeModule')
                 $scope.fetchNextStores = ($select) => {
                     $select.page = $select.page || 0;
 
-                    if (lastSearchPhrase !== $select.search) {
+                    if (lastSearchPhrase !== $select.search && totalCount > $scope.choices.length) {
                         lastSearchPhrase = $select.search;
                         $select.page = 0;
                     }
@@ -72,7 +73,7 @@ angular.module('virtoCommerce.storeModule')
                                     $scope.$broadcast('scrollCompleted');
                                 }
 
-                                totalCount = Math.max(totalCount, data.totalCount);
+                                totalCount = Math.max(totalCount, data.totalCount - hiddenCount);
                             }).$promise;
                     }
 
@@ -80,9 +81,11 @@ angular.module('virtoCommerce.storeModule')
                 };
 
                 function joinStores(newItems) {
-                    newItems = _.reject(newItems, x => _.indexOf($scope.storesToHide, x.id) > -1);
-                    $scope.choices = _.union($scope.choices, newItems);
-                    $scope.isNoChoices = $scope.choices.length === 0;
+                    newItems = _.reject(newItems, x => _.any($scope.choices, y => y.id === x.id) || _.indexOf($scope.storesToHide, x.id) > -1);
+                    if (_.any(newItems)) {
+                        $scope.choices = $scope.choices.concat(newItems);
+                        $scope.isNoChoices = $scope.choices.length === 0;
+                    }
                 }
 
                 $scope.$watch('context.modelValue', function (newValue, oldValue) {
