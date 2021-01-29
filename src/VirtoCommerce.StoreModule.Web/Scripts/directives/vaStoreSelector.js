@@ -6,6 +6,7 @@ angular.module('virtoCommerce.storeModule')
             require: 'ngModel',
             replace: true,
             scope: {
+                disabled: '=?',
                 multiple: '=?',
                 pageSize: '=?',
                 placeholder: '=?',
@@ -31,23 +32,24 @@ angular.module('virtoCommerce.storeModule')
                 var hiddenCount = angular.isArray($scope.storesToHide) ? $scope.storesToHide.length : 0;
 
                 $scope.fetchStores = function ($select) {
-                    $q.all([loadEntityStores(), $scope.fetchNextStores($select)]);
+                    loadEntityStores();
+                    if (!$scope.disabled) {
+                        $scope.fetchNextStores($select);
+                    }
                 };
 
                 function loadEntityStores() {
                     var storeIds = $scope.context.multiple ? $scope.context.modelValue : [$scope.context.modelValue];
 
                     if ($scope.isNoChoices && _.any(storeIds)) {
-                        return stores.search({
+                        stores.search({
                             storeIds: storeIds,
                             take: storeIds.length,
                             responseGroup: 'none'
                         }, (data) => {
                             joinStores(data.results);
-                        }).$promise;
+                        });
                     }
-
-                    return $q.resolve();
                 }
 
                 $scope.fetchNextStores = ($select) => {
