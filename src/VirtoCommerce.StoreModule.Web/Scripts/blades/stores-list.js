@@ -50,7 +50,7 @@ angular.module('virtoCommerce.storeModule')
             bladeNavigationService.showBlade(newBlade, blade);
         }
 
-        blade.headIcon = 'fa-archive';
+        blade.headIcon = 'fa fa-archive';
 
         blade.toolbarCommands = [
             {
