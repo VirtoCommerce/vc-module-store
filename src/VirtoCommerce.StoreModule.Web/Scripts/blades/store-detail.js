@@ -94,15 +94,20 @@ angular.module('virtoCommerce.storeModule')
         }
 
         $scope.fetchCatalogs = async ($select) => {
-            $select.page = 0;
-            $scope.catalogs = [];
+            if ($scope.catalogs.length == 0) {
+                $select.page = 0;
 
-            if(blade.catalogId) {
-                let catalog = await catalogs.get({ id: blade.catalogId }).$promise; 
-                $scope.catalogs.push(catalog);
+                if (blade.catalogId) {
+                    let criteria = {
+                        CatalogIds: [blade.catalogId]
+                    }
+                    let catalog = await catalogs.search(criteria).$promise;
+                    $scope.catalogs = catalog.results;
+                }
+
+
+                $scope.fetchNextCatalogs($select);
             }
-
-            $scope.fetchNextCatalogs($select);
         }
     
         $scope.fetchNextCatalogs = ($select) => {
