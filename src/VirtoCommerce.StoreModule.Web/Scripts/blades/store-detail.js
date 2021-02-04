@@ -128,7 +128,7 @@ angular.module('virtoCommerce.storeModule')
             bladeNavigationService.showConfirmationIfNeeded(isDirty(), canSave(), blade, $scope.saveChanges, closeCallback, "stores.dialogs.store-save.title", "stores.dialogs.store-save.message");
         };
 
-        blade.headIcon = 'fa-archive';
+        blade.headIcon = 'fa fa-archive';
         blade.toolbarCommands = [
             {
                 name: "platform.commands.save",
