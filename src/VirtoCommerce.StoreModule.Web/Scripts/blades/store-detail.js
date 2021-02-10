@@ -93,7 +93,7 @@ angular.module('virtoCommerce.storeModule')
             dialogService.showConfirmationDialog(dialog);
         }
 
-        $scope.fetchCatalogs = async ($select) => {
+        $scope.fetchCatalogs = ($select) => {
             if ($scope.catalogs.length == 0) {
                 $select.page = 0;
 
@@ -101,12 +101,14 @@ angular.module('virtoCommerce.storeModule')
                     let criteria = {
                         CatalogIds: [blade.catalogId]
                     }
-                    let catalog = await catalogs.search(criteria).$promise;
-                    $scope.catalogs = catalog.results;
+                    catalogs.search(criteria, (data) => {
+                        $scope.catalogs = data.results;
+                        $scope.fetchNextCatalogs($select);
+                    });
                 }
-
-
-                $scope.fetchNextCatalogs($select);
+                else {
+                    $scope.fetchNextCatalogs($select);
+                }
             }
         }
     
