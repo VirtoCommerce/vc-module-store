@@ -45,8 +45,6 @@ angular.module('virtoCommerce.storeModule')
             blade.origEntity = data;
             blade.isLoading = false;
 
-            $scope.fetchCatalogs({ page:0 });
-
             //sets security scopes for scope bounded ACL
             if (blade.currentEntity.scopes && angular.isArray(blade.currentEntity.scopes)) {
                 blade.scopes = blade.currentEntity.scopes;
@@ -96,7 +94,7 @@ angular.module('virtoCommerce.storeModule')
         }
 
         $scope.fetchCatalogs = ($select) => {
-            if (blade.isLoading) return;
+            while (blade.isLoading) sleep(100);
             if ($scope.catalogs.length == 0) {
                 $select.page = 0;
 
