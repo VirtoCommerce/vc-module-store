@@ -1,3 +1,8 @@
+//TODO: Use generic directive from the platform 
+
+// generic simple dropdown with infinite scroll.
+// tracking by entity.name field 
+
 angular.module('virtoCommerce.storeModule')
     .directive('uiScrollStore', [function () {
         const defaultPageSize = 20;
@@ -10,7 +15,7 @@ angular.module('virtoCommerce.storeModule')
                 placeholder: '=',
                 selectedId: '=',
             },
-            templateUrl: 'Modules/$(VirtoCommerce.Store)/Scripts/directives/UiScroll.tpl.html',
+            templateUrl: 'Modules/$(VirtoCommerce.Store)/Scripts/directives/uiScrollStore.tpl.html',
             controller: ['$scope', function(scope) {
                 scope.list = [];
                 
@@ -25,7 +30,7 @@ angular.module('virtoCommerce.storeModule')
                         select.page = 0;
                         if (scope.selectedId) {
                             let criteria = {
-                                ObjectIds: [scope.selectedId]
+                                objectIds: [scope.selectedId]
                             }
                             scope.data({criteria: criteria}).then((data) => {
                                 scope.list = data.results;
@@ -40,7 +45,7 @@ angular.module('virtoCommerce.storeModule')
 
                 scope.fetchNext = (select) => {
                     let criteria = {
-                        SearchPhrase: select.search,
+                        searchPhrase: select.search,
                         take: scope.pageSize,
                         skip: select.page * scope.pageSize
                     }
