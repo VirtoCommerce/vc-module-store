@@ -2,7 +2,6 @@ angular.module('virtoCommerce.storeModule')
 .controller('virtoCommerce.storeModule.storeDetailController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.storeModule.catalogs', 'platformWebApp.settings', 'platformWebApp.settings.helper', 'platformWebApp.dialogService', 'virtoCommerce.coreModule.currency.currencyUtils',
     function ($scope, bladeNavigationService, stores, catalogs, settings, settingsHelper, dialogService, currencyUtils) {
         var blade = $scope.blade;
-        $scope.pageSize = 20;
         blade.updatePermission = 'store:update';
         blade.subtitle = 'stores.blades.store-detail.subtitle';
         blade.catalogId = undefined;
