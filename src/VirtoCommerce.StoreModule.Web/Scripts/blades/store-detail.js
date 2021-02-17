@@ -2,8 +2,6 @@ angular.module('virtoCommerce.storeModule')
 .controller('virtoCommerce.storeModule.storeDetailController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.storeModule.catalogs', 'platformWebApp.settings', 'platformWebApp.settings.helper', 'platformWebApp.dialogService', 'virtoCommerce.coreModule.currency.currencyUtils',
     function ($scope, bladeNavigationService, stores, catalogs, settings, settingsHelper, dialogService, currencyUtils) {
         var blade = $scope.blade;
-        $scope.pageSize = 20;
-        $scope.catalogs = [];
         blade.updatePermission = 'store:update';
         blade.subtitle = 'stores.blades.store-detail.subtitle';
         blade.catalogId = undefined;
@@ -93,43 +91,6 @@ angular.module('virtoCommerce.storeModule')
             dialogService.showConfirmationDialog(dialog);
         }
 
-        $scope.fetchCatalogs = ($select) => {
-            while (blade.isLoading) sleep(100);
-            if ($scope.catalogs.length == 0) {
-                $select.page = 0;
-
-                if (blade.catalogId) {
-                    let criteria = {
-                        CatalogIds: [blade.catalogId]
-                    }
-                    catalogs.search(criteria, (data) => {
-                        $scope.catalogs = data.results;
-                        $scope.fetchNextCatalogs($select);
-                    });
-                }
-                else {
-                    $scope.fetchNextCatalogs($select);
-                }
-            }
-        }
-    
-        $scope.fetchNextCatalogs = ($select) => {
-            let criteria = {
-                SearchPhrase: $select.search,
-                take: $scope.pageSize,
-                skip: $select.page * $scope.pageSize
-            }
-
-            catalogs.search(criteria, (data) => {
-                $scope.catalogs = $scope.catalogs.concat(data.results);
-                $select.page++;
-
-                if ($scope.catalogs.length < data.totalCount) {
-                    $scope.$broadcast('scrollCompleted');
-                }
-            });
-        }
-
         $scope.setForm = function (form) { $scope.formScope = form; };
 
         blade.onClose = function (closeCallback) {
@@ -202,7 +163,7 @@ angular.module('virtoCommerce.storeModule')
         });
 
         blade.refresh();
-        
+        $scope.catalogDataSource = (criteria) => catalogs.search(criteria).$promise;        
         $scope.storeStates = settings.getValues({ id: 'Stores.States' });
         $scope.languages = settings.getValues({ id: 'VirtoCommerce.Core.General.Languages' });
         $scope.currencyUtils = currencyUtils;
