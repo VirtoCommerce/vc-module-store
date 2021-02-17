@@ -51,7 +51,7 @@ angular.module('virtoCommerce.storeModule')
             bladeNavigationService.showBlade(newBlade, blade);
         };
         
-        $scope.catalogs = catalogs.getCatalogs();
+        $scope.catalogDataSource = (criteria) => catalogs.search(criteria).$promise;
         $scope.languages = settings.getValues({ id: 'VirtoCommerce.Core.General.Languages' });
         $scope.currencyUtils = currencyUtils;
         $scope.storeStates = settings.getValues({ id: 'Stores.States' });
