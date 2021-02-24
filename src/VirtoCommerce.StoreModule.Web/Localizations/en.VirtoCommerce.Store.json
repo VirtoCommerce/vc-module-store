@@ -175,6 +175,10 @@
       "SeoLinksType": {
         "title": "SEO Links",
         "description": "Determines how to generate links for products and categories. Long: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product, Collapsed: /virtual-parent-category/my-cool-category/my-cool-product, Short: /my-cool-product, None: /product/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "Enable email address verification",
+        "description": "Enables sending address verification emails to the user"
       }
     }
   },
