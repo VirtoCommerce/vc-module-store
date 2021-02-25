@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.Platform.Core.Common;
@@ -88,7 +87,7 @@ namespace VirtoCommerce.StoreModule.Core.Model
         public ICollection<DynamicObjectProperty> DynamicProperties { get; set; }
         #endregion
 
-        #region IHaveSettings Members
+        #region IHasSettings Members
         public ICollection<ObjectSettingEntry> Settings { get; set; }
         public virtual string TypeName => nameof(Store);
         #endregion
@@ -103,8 +102,8 @@ namespace VirtoCommerce.StoreModule.Core.Model
         {
             var result = MemberwiseClone() as Store;
 
-                result.SeoInfos = SeoInfos?.Select(x => x.Clone()).OfType<SeoInfo>().ToList();
-                result.Settings = Settings?.Select(x => x.Clone()).OfType<ObjectSettingEntry>().ToList();
+            result.SeoInfos = SeoInfos?.Select(x => x.Clone()).OfType<SeoInfo>().ToList();
+            result.Settings = Settings?.Select(x => x.Clone()).OfType<ObjectSettingEntry>().ToList();
 
             return result;
         }
