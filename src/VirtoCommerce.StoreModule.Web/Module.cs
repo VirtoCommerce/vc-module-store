@@ -45,7 +45,8 @@ namespace VirtoCommerce.StoreModule.Web
             var connectionString = configuration.GetConnectionString("VirtoCommerce.Store") ?? configuration.GetConnectionString("VirtoCommerce");
 
             serviceCollection.AddTransient<LogChangesChangedEventHandler>();
-            serviceCollection.AddTransient<SendUserEmailVerificationEventHandler>();
+            serviceCollection.AddTransient<SendStoreUserVerificationEmailHandler>();
+            serviceCollection.AddTransient<IStoreNotificationSender, StoreNotificationSender>();
             serviceCollection.AddDbContext<StoreDbContext>(options => options.UseSqlServer(connectionString));
             serviceCollection.AddTransient<IStoreRepository, StoreRepository>();
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
@@ -88,7 +89,7 @@ namespace VirtoCommerce.StoreModule.Web
             //Events handlers registration
             var inProcessBus = appBuilder.ApplicationServices.GetService<IHandlerRegistrar>();
             inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<LogChangesChangedEventHandler>().Handle(message));
-            inProcessBus.RegisterHandler<UserChangedEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<SendUserEmailVerificationEventHandler>().Handle(message));
+            inProcessBus.RegisterHandler<UserVerificationEmailEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<SendStoreUserVerificationEmailHandler>().Handle(message));
 
             using (var serviceScope = appBuilder.ApplicationServices.CreateScope())
             {

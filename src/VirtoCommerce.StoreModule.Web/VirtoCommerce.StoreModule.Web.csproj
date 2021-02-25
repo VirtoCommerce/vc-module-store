@@ -23,9 +23,6 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.13.0" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Data\VirtoCommerce.StoreModule.Data.csproj" />
   </ItemGroup>
