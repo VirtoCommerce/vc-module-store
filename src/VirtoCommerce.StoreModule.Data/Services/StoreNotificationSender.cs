@@ -30,7 +30,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
         }
 
 
-        public async Task<NotificationSendResult> SendUserEmailVerificationAsync(ApplicationUser user)
+        public virtual async Task<NotificationSendResult> SendUserEmailVerificationAsync(ApplicationUser user)
         {
             var result = new NotificationSendResult();
 
@@ -70,7 +70,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
         }
 
 
-        public async Task<string> GenerateEmailVerificationLink(ApplicationUser user, Store store)
+        public virtual async Task<string> GenerateEmailVerificationLink(ApplicationUser user, Store store)
         {
             if (store.Url.IsNullOrEmpty())
             {
