@@ -58,6 +58,15 @@ namespace VirtoCommerce.StoreModule.Core
                     ValueType = SettingValueType.Boolean,
                     DefaultValue = false,
                 };
+
+                public static SettingDescriptor EmailVerificationEnabled = new SettingDescriptor
+                {
+                    Name = "Stores.EmailVerificationEnabled",
+                    GroupName = "Store|General",
+                    ValueType = SettingValueType.Boolean,
+                    DefaultValue = false,
+                };
+
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -66,6 +75,7 @@ namespace VirtoCommerce.StoreModule.Core
                         yield return TaxCalculationEnabled;
                         yield return AllowAnonymousUsers;
                         yield return IsSpa;
+                        yield return EmailVerificationEnabled;
                     }
                 }
             }
