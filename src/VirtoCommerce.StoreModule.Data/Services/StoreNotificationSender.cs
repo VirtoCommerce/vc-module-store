@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using VirtoCommerce.NotificationsModule.Core.Extensions;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
@@ -20,6 +22,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
         private readonly INotificationSender _notificationSender;
         private readonly IStoreService _storeService;
         private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
+
 
         public StoreNotificationSender(INotificationSearchService notificationSearchService, INotificationSender notificationSender, IStoreService storeService, Func<UserManager<ApplicationUser>> userManagerFactory)
         {
@@ -72,16 +75,23 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
         public virtual async Task<string> GenerateEmailVerificationLink(ApplicationUser user, Store store)
         {
-            if (store.Url.IsNullOrEmpty())
+            if (!store.Url.IsNullOrEmpty() && Uri.IsWellFormedUriString(store.Url, UriKind.Absolute))
             {
-                throw new InvalidOperationException($"Required Url property is missing for store '{store.Id}'.");
+                using var userManager = _userManagerFactory();
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                var result = QueryHelpers.AddQueryString(new Uri($"{store.Url.TrimEnd('/')}/account/confirmemail").ToString(),
+                     new Dictionary<string, string>
+                     {
+                        { "UserId", user.Id },
+                        { "Token", token }
+                    });
+                return result;
             }
-
-            using var userManager = _userManagerFactory();
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            var confirmationLink = $"{store.Url.TrimEnd('/')}/account/confirmemail?token={token}&userId={user.Id}";
-            return confirmationLink;
+            else
+            {
+                throw new OperationCanceledException($"A valid URL is required in Url property for store '{store.Id}'.");
+            }
         }
     }
 }
