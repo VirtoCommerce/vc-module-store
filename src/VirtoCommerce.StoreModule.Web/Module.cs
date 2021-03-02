@@ -38,16 +38,18 @@ namespace VirtoCommerce.StoreModule.Web
     {
         public ManifestModuleInfo ModuleInfo { get; set; }
         private IApplicationBuilder _appBuilder;
+
         public void Initialize(IServiceCollection serviceCollection)
         {
-            var snapshot = serviceCollection.BuildServiceProvider();
-            var configuration = snapshot.GetService<IConfiguration>();
-            var connectionString = configuration.GetConnectionString("VirtoCommerce.Store") ?? configuration.GetConnectionString("VirtoCommerce");
+            serviceCollection.AddDbContext<StoreDbContext>((provider, options) =>
+            {
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                options.UseSqlServer(configuration.GetConnectionString(ModuleInfo.Id) ?? configuration.GetConnectionString("VirtoCommerce"));
+            });
 
             serviceCollection.AddTransient<LogChangesChangedEventHandler>();
             serviceCollection.AddTransient<SendStoreUserVerificationEmailHandler>();
             serviceCollection.AddTransient<IStoreNotificationSender, StoreNotificationSender>();
-            serviceCollection.AddDbContext<StoreDbContext>(options => options.UseSqlServer(connectionString));
             serviceCollection.AddTransient<IStoreRepository, StoreRepository>();
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
             serviceCollection.AddTransient<IStoreService, StoreService>();
