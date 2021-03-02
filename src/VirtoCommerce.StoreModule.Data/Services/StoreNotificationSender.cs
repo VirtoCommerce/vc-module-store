@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using VirtoCommerce.NotificationsModule.Core.Extensions;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
@@ -20,13 +21,16 @@ namespace VirtoCommerce.StoreModule.Data.Services
         private readonly INotificationSender _notificationSender;
         private readonly IStoreService _storeService;
         private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
+        private readonly LinkGenerator _linkGenerator;
 
-        public StoreNotificationSender(INotificationSearchService notificationSearchService, INotificationSender notificationSender, IStoreService storeService, Func<UserManager<ApplicationUser>> userManagerFactory)
+
+        public StoreNotificationSender(INotificationSearchService notificationSearchService, INotificationSender notificationSender, IStoreService storeService, Func<UserManager<ApplicationUser>> userManagerFactory, LinkGenerator linkGenerator)
         {
             _notificationSearchService = notificationSearchService;
             _notificationSender = notificationSender;
             _storeService = storeService;
             _userManagerFactory = userManagerFactory;
+            _linkGenerator = linkGenerator;
         }
 
 
@@ -80,8 +84,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
             using var userManager = _userManagerFactory();
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            var confirmationLink = $"{store.Url.TrimEnd('/')}/account/confirmemail?token={token}&userId={user.Id}";
-            return confirmationLink;
+            var callbackUrl = _linkGenerator.GetPathByAction("confirmemail", "account", new { UserId = user.Id, Token = token });
+            var result = $"{store.Url.TrimEnd('/')}{callbackUrl}";
+            return result;
         }
     }
 }
