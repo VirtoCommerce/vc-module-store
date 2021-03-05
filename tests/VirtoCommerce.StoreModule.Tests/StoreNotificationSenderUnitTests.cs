@@ -24,18 +24,11 @@ namespace VirtoCommerce.StoreModule.Tests
     {
         const string _tokenUrlEncoded = "tokenWithSlashes%2FandPlusSigns%2BandDoubleEquals%3D%3D";
 
-        private readonly Mock<INotificationSearchService> _mockNotificationSearchService;
-        private readonly Mock<INotificationSender> _mocknotificationSender;
-        private readonly Mock<IStoreService> _mockStoreService;
-        private readonly CustomUserManager _mockUserManager;
+        private readonly Mock<INotificationSearchService> _mockNotificationSearchService = new Mock<INotificationSearchService>();
+        private readonly Mock<INotificationSender> _mocknotificationSender = new Mock<INotificationSender>();
+        private readonly Mock<IStoreService> _mockStoreService = new Mock<IStoreService>();
+        private readonly CustomUserManager _mockUserManager = GetTestUserManager();
 
-        public StoreNotificationSenderUnitTests()
-        {
-            _mockNotificationSearchService = new Mock<INotificationSearchService>();
-            _mocknotificationSender = new Mock<INotificationSender>();
-            _mockStoreService = new Mock<IStoreService>();
-            _mockUserManager = GetTestUserManager();
-        }
 
         [Fact]
         public async Task EmailVerification_LinkURL_is_Encoded()
@@ -110,21 +103,16 @@ namespace VirtoCommerce.StoreModule.Tests
         {
             _mockNotificationSearchService
                 .Setup(ss => ss.SearchNotificationsAsync(It.IsAny<NotificationSearchCriteria>()))
-                .Returns(() =>
-                {
-                    var notificationSearchResult = new NotificationSearchResult { TotalCount = 1, Results = new[] { new ConfirmationEmailNotification { } } };
-                    return Task.FromResult(notificationSearchResult);
-                });
+                .ReturnsAsync(new NotificationSearchResult { TotalCount = 1, Results = new[] { new ConfirmationEmailNotification { } } });
 
-
-            _mocknotificationSender.Setup(ss => ss.SendNotificationAsync(It.IsAny<Notification>())).Returns(Task.FromResult(new NotificationSendResult { IsSuccess = true }));
-            _mockStoreService.Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(GetStore()));
+            _mocknotificationSender.Setup(ss => ss.SendNotificationAsync(It.IsAny<Notification>())).ReturnsAsync(new NotificationSendResult { IsSuccess = true });
+            _mockStoreService.Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStore());
 
             var result = new StoreNotificationSender(_mockNotificationSearchService.Object, _mocknotificationSender.Object, _mockStoreService.Object, () => _mockUserManager);
             return result;
-
         }
 
+        // TODO: PT-274 Move mock of AspNetUserManager to the platform
         internal static CustomUserManager GetTestUserManager(Mock<IUserStore<ApplicationUser>> storeMock = null)
         {
             storeMock ??= new Mock<IUserStore<ApplicationUser>>();
@@ -169,6 +157,7 @@ namespace VirtoCommerce.StoreModule.Tests
         }
     }
 
+    // TODO: PT-274 Move mock of AspNetUserManager to the platform
     internal class CustomUserManager : AspNetUserManager<ApplicationUser>
     {
         public CustomUserManager(IUserStore<ApplicationUser> store, IOptions<IdentityOptions> optionsAccessor, IPasswordHasher<ApplicationUser> passwordHasher, IEnumerable<IUserValidator<ApplicationUser>> userValidators, IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators, ILookupNormalizer keyNormalizer, IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<ApplicationUser>> logger) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
