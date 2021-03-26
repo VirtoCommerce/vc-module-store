@@ -79,7 +79,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             if (!criteria.FulfillmentCenterIds.IsNullOrEmpty())
             {
                 query = query.Where(x => criteria.FulfillmentCenterIds.Contains(x.FulfillmentCenterId) ||
-                                         x.FulfillmentCenters.Any(y => criteria.FulfillmentCenterIds.Contains(y.Id)));
+                                         x.FulfillmentCenters.Any(y => criteria.FulfillmentCenterIds.Contains(y.FulfillmentCenterId)));
             }
             return query;
         }
