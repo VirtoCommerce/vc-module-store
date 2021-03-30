@@ -53,6 +53,12 @@ namespace VirtoCommerce.StoreModule.Data.Model
         [StringLength(128)]
         public string AdminEmail { get; set; }
 
+        [StringLength(256)]
+        public string EmailName { get; set; }
+
+        [StringLength(256)]
+        public string AdminEmailName { get; set; }
+
         public bool DisplayOutOfStock { get; set; }
 
         [StringLength(128)]
@@ -100,6 +106,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             store.OuterId = OuterId;
 
             store.AdminEmail = AdminEmail;
+            store.AdminEmailName = AdminEmailName;
             store.Catalog = Catalog;
             store.Country = Country;
             store.DefaultCurrency = DefaultCurrency;
@@ -107,6 +114,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             store.Description = Description;
             store.DisplayOutOfStock = DisplayOutOfStock;
             store.Email = Email;
+            store.EmailName = EmailName;
             store.Name = Name;
             store.Region = Region;
             store.SecureUrl = SecureUrl;
@@ -149,6 +157,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             OuterId = store.OuterId;
 
             AdminEmail = store.AdminEmail;
+            AdminEmailName = store.AdminEmailName;
             Catalog = store.Catalog;
             Country = store.Country;
             DefaultCurrency = store.DefaultCurrency;
@@ -156,6 +165,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             Description = store.Description;
             DisplayOutOfStock = store.DisplayOutOfStock;
             Email = store.Email;
+            EmailName = store.EmailName;
             Name = store.Name;
             Region = store.Region;
             SecureUrl = store.SecureUrl;
@@ -245,6 +255,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
                 throw new ArgumentNullException(nameof(target));
 
             target.AdminEmail = AdminEmail;
+            target.AdminEmailName = AdminEmailName;
             target.Catalog = Catalog;
             target.Country = Country;
             target.DefaultCurrency = DefaultCurrency;
@@ -252,6 +263,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             target.Description = Description;
             target.DisplayOutOfStock = DisplayOutOfStock;
             target.Email = Email;
+            target.EmailName = EmailName;
             target.ModifiedBy = ModifiedBy;
             target.ModifiedDate = ModifiedDate;
             target.Name = Name;

@@ -49,7 +49,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     if (notification != null)
                     {
                         notification.Url = await GenerateEmailVerificationLink(user, store);
-                        notification.From = store.AdminEmail ?? store.Email;
+                        notification.From = store.AdminEmailWithName ?? store.EmailWithName;
                         notification.To = user.Email;
 
                         result = await _notificationSender.SendNotificationAsync(notification);

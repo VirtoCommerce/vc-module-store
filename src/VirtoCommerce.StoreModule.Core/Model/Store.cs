@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
@@ -43,6 +44,24 @@ namespace VirtoCommerce.StoreModule.Core.Model
         /// </summary>
         public string Email { get; set; }
         public string AdminEmail { get; set; }
+        public string EmailName { get; set; }
+        public string AdminEmailName { get; set; }
+        [JsonIgnore]
+        public string EmailWithName
+        {
+            get
+            {
+                return FormatEmailWithName(Email, EmailName);
+            }
+        }
+        [JsonIgnore]
+        public string AdminEmailWithName
+        {
+            get
+            {
+                return FormatEmailWithName(AdminEmail, AdminEmailName);
+            }
+        }
         public bool DisplayOutOfStock { get; set; }
         public string OuterId { get; set; }
 
@@ -109,5 +128,24 @@ namespace VirtoCommerce.StoreModule.Core.Model
         }
 
         #endregion
+
+        private string FormatEmailWithName(string email, string name)
+        {
+            string result = null;
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    result = email;
+                }
+                else
+                {
+                    result = $@"""{name}"" <{email}>";
+                }
+            }
+
+            return result;
+        }
     }
 }

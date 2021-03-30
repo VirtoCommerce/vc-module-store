@@ -14,8 +14,14 @@
         "subtitle": "",
         "labels": {
           "description": "Описание",
+          "store-regional-settings": "Региональные настройки",
           "store-country": "Страна",
           "store-region": "Регион",
+          "store-email-settings": "Настройки эл.почты",
+          "store-email": "E-mail",
+          "store-admin-email": "E-mail администратора",
+          "store-email-name": "Имя",
+	  "store-admin-email-name": "Имя администратора",
           "store-email": "Электронный адрес магазина",
           "store-admin-email": "Электронный адрес администратора магазина",
           "fulfillment-center": "Фулфилмент-центр",
@@ -30,6 +36,8 @@
           "store-region": "Введите регион",
           "store-email": "Введите значение",
           "store-admin-email": "Введите значение",
+          "store-email-name": "Введите имя магазина",
+          "store-admin-email-name": "Введите имя администратора",
           "fulfillment-center": "Выбрать...",
           "returns-fulfillment-center": "Выбрать...",
           "operational-timezone": "Выбрать..."
