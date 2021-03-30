@@ -129,23 +129,22 @@ namespace VirtoCommerce.StoreModule.Core.Model
 
         #endregion
 
+        /// <summary>
+        /// Format email and name into single address string 
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private string FormatEmailWithName(string email, string name)
         {
-            string result = null;
-
-            if (!string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email))
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    result = email;
-                }
-                else
-                {
-                    result = $@"""{name}"" <{email}>";
-                }
+                return null;
             }
-
-            return result;
+            else
+            {
+                return string.IsNullOrEmpty(name) ? email : $@"""{name}"" <{email}>";
+            }
         }
     }
 }
