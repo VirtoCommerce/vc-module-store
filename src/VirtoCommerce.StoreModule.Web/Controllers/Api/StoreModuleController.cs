@@ -177,7 +177,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 throw new InvalidOperationException(string.Concat("Store not found. StoreId: ", request.StoreId));
             }
 
-            if (string.IsNullOrEmpty(store.EmailWithName) && string.IsNullOrEmpty(store.AdminEmailWithName))
+            if (string.IsNullOrEmpty(store.Email) && string.IsNullOrEmpty(store.AdminEmail))
             {
                 throw new InvalidOperationException(string.Concat("Both store email and admin email are empty. StoreId: ", request.StoreId));
             }
