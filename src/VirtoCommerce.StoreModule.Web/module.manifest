@@ -22,7 +22,7 @@
   <moduleType>VirtoCommerce.StoreModule.Web.Module, VirtoCommerce.StoreModule.Web</moduleType>
   <dependencies>
     <dependency id="VirtoCommerce.Core" version="3.0.0" />
-    <dependency id="VirtoCommerce.Notifications" version="3.0.0" />
+    <dependency id="VirtoCommerce.Notifications" version="3.14.0" />
   </dependencies>
   <groups>
     <group>commerce</group>
