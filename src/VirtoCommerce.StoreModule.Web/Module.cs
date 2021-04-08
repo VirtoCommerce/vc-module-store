@@ -4,11 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Bus;
@@ -30,7 +28,6 @@ using VirtoCommerce.StoreModule.Data.Handlers;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Web.Authorization;
-using VirtoCommerce.StoreModule.Web.JsonConverters;
 
 namespace VirtoCommerce.StoreModule.Web
 {
@@ -101,8 +98,6 @@ namespace VirtoCommerce.StoreModule.Web
                 dbContext.Database.Migrate();
             }
 
-            var mvcJsonOptions = appBuilder.ApplicationServices.GetService<IOptions<MvcNewtonsoftJsonOptions>>();
-            mvcJsonOptions.Value.SerializerSettings.Converters.Add(new PolymorphicStoreJsonConverter());
             var registrar = appBuilder.ApplicationServices.GetService<INotificationRegistrar>();
             registrar.RegisterNotification<StoreDynamicEmailNotification>();
         }
