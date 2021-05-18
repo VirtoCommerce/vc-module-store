@@ -26,7 +26,7 @@
           "additional-fulfillment-centers": "Available fulfillment centers",
           "additional-returns-fulfillment-centers": "Avail. returns fulfillment centers",
           "operational-timezone": "Operational timezone",
-          "store-url": "Store URL (use only for notifications!)"
+          "store-url": "Store URL"
         },
         "placeholders": {
           "description": "Enter description",
