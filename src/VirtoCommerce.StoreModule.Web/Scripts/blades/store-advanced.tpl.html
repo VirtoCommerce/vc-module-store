@@ -17,9 +17,9 @@
                             <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-country' | translate }}</label>
                             <div class="form-input">
                                 <ui-select ng-model="blade.currentEntity.country">
-                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.store-country' | translate }}">{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="x.id as x in countries | filter: { name: $select.search }">
-                                        <span ng-bind-html="x.name | highlight: $select.search"></span>
+                                    <ui-select-match placeholder="{{ 'stores.blades.store-advanced.placeholders.store-country' | translate }}">{{$select.selected.displayName}}</ui-select-match>
+                                    <ui-select-choices repeat="x.id as x in countries | filter: { displayName: $select.search }">
+                                        <span ng-bind-html="x.displayName | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
                             </div>
