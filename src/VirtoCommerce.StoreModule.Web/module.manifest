@@ -3,7 +3,7 @@
   <id>VirtoCommerce.Store</id>
   <version>3.19.0</version>
   <version-tag />
-  <platformVersion>3.60.0-alpha.11916</platformVersion>
+  <platformVersion>3.60.0</platformVersion>
   <title>Store module</title>
   <description>Multi store management with individual store settings</description>
   <authors>
