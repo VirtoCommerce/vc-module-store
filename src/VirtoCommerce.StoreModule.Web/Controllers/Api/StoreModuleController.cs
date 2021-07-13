@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.StoreModule.Core;
@@ -27,12 +28,14 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         private readonly IAuthorizationService _authorizationService;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
+        private readonly INotificationSearchService _notificationSearchService;
         private readonly INotificationSender _notificationSender;
 
         public StoreModuleController(
             IStoreService storeService,
             IStoreSearchService storeSearchService,
             UserManager<ApplicationUser> userManager,
+            INotificationSearchService notificationSearchService,
             INotificationSender notificationSender,
             SignInManager<ApplicationUser> signInManager,
             IAuthorizationService authorizationService)
@@ -40,6 +43,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             _storeService = storeService;
             _storeSearchService = storeSearchService;
             _userManager = userManager;
+            _notificationSearchService = notificationSearchService;
             _notificationSender = notificationSender;
             _signInManager = signInManager;
             _authorizationService = authorizationService;
@@ -182,12 +186,28 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 throw new InvalidOperationException(string.Concat("Both store email and admin email are empty. StoreId: ", request.StoreId));
             }
 
-            var notification = new StoreDynamicEmailNotification()
+            var notificationsSearchResult = await _notificationSearchService.SearchNotificationsAsync(
+                new NotificationSearchCriteria()
+                {
+                    NotificationType = nameof(StoreDynamicEmailNotification),
+                    TenantId = request.StoreId,
+                    TenantType = nameof(Store),
+                    IsActive = true
+                }
+                );
+            if (notificationsSearchResult.TotalCount == 0)
             {
-                FormType = request.Type,
-                Fields = request.Fields,
-                LanguageCode = request.Language
-            };
+                throw new InvalidOperationException(string.Concat("There is no active notifications of type StoreDynamicEmailNotification. StoreId: ", request.StoreId));
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            var notification = (StoreDynamicEmailNotification)notificationsSearchResult.Results.FirstOrDefault();
+            notification.To = store.EmailWithName ?? store.AdminEmailWithName;
+            notification.From = string.IsNullOrEmpty(user.UserName) ? user.Email : $@"""{user.UserName}"" <{user.Email}>";
+            notification.FormType = request.Type;
+            notification.Fields = request.Fields;
+            notification.LanguageCode = request.Language;
+
             await _notificationSender.SendNotificationAsync(notification);
 
             return NoContent();
