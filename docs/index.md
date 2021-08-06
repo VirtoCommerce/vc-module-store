@@ -20,11 +20,11 @@ Virto Commerce platform is  multi-store by design. This gives the ability to hav
 
 ## Manage Stores
 
-[Add New Store](/docs/add-new-store.md)
+[Add New Store](add-new-store.md)
 
-[Edit Store Details](/docs/edit-store-details.md)
+[Edit Store Details](edit-store-details.md)
 
-[Edit Widgets](/docs/edit-widgets.md)
+[Edit Widgets](edit-widgets.md)
 
 ## Installation
 
