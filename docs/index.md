@@ -36,6 +36,7 @@ Installing the module:
 
 * **Stores.States** - states that a store can be in (Open, Closed, Restricted Access, etc.);
 * **Stores.SeoLinksType** - determines how to generate links for products and categories. Long: /grandparent-category/parent-category/my-cool-category/my-cool-product, Short: /my-cool-product, None: /product/123.
+* **Stores.EnablePriceRoundingForTotalsCalculation** - enables or disables rounding of prices for calculating totals  in the modules Order and Cart.
 
 ## Available resources
 
