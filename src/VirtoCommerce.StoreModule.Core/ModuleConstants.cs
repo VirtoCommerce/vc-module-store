@@ -67,14 +67,6 @@ namespace VirtoCommerce.StoreModule.Core
                     DefaultValue = false,
                 };
 
-                public static SettingDescriptor EnablePriceRoundingForTotalsCalculation = new SettingDescriptor
-                {
-                    Name = "Stores.EnablePriceRoundingForTotalsCalculation",
-                    GroupName = "Store|General",
-                    ValueType = SettingValueType.Boolean,
-                    DefaultValue = true,
-                };
-
                 public static IEnumerable<SettingDescriptor> AllSettings
                 {
                     get
@@ -84,7 +76,6 @@ namespace VirtoCommerce.StoreModule.Core
                         yield return AllowAnonymousUsers;
                         yield return IsSpa;
                         yield return EmailVerificationEnabled;
-                        yield return EnablePriceRoundingForTotalsCalculation;
                     }
                 }
             }
