@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         {
         }
 
-        #region IStoreRepository Members
-
-        public virtual async Task<StoreEntity[]> GetStoresByIdsAsync(string[] ids, string responseGroup = null)
+        public async Task<IEnumerable<StoreEntity>> GetByIdsAsync(IEnumerable<string> ids, string responseGroup = null)
         {
             var storeResponseGroup = EnumUtility.SafeParseFlags(responseGroup, StoreResponseGroup.Full);
 
@@ -50,6 +49,10 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         public IQueryable<SeoInfoEntity> SeoInfos => DbContext.Set<SeoInfoEntity>();
         public IQueryable<StoreDynamicPropertyObjectValueEntity> DynamicPropertyObjectValues => DbContext.Set<StoreDynamicPropertyObjectValueEntity>();
 
-        #endregion
+        public async Task<IEnumerable<StoreEntity>> GetStoresByIdsAsync(IEnumerable<string> ids, string responseGroup = null)
+        {
+            return await Stores.Where(x => ids.Contains(x.Id)).ToArrayAsync();
+        }
+
     }
 }
