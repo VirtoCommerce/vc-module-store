@@ -77,7 +77,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
         protected override Task<IEnumerable<StoreEntity>> LoadEntities(IRepository repository, IEnumerable<string> ids, string responseGroup)
         {
-            return ((IStoreRepository)repository).GetByIdsAsync(ids);
+            return ((IStoreRepository)repository).GetByIdsAsync(ids, responseGroup);
         }
 
         protected override Store ProcessModel(string responseGroup, StoreEntity entity, Store model)
