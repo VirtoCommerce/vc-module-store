@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using VirtoCommerce.Platform.Core.Caching;
@@ -51,6 +52,28 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return retVal;
         }
 
+        public override async Task DeleteAsync(IEnumerable<string> ids, bool softDelete = false) {
+            using (var repository = _repositoryFactory())
+            {
+                var changedEntries = new List<GenericChangedEntry<Store>>();
+                var stores = await GetByIdsAsync(ids, StoreResponseGroup.StoreInfo.ToString());
+                var dbStores = await ((IStoreRepository)repository).GetByIdsAsync(ids);
+
+                foreach (var store in stores)
+                {
+                    var dbStore = dbStores.FirstOrDefault(x => x.Id == store.Id);
+                    if (dbStore != null)
+                    {
+                        repository.Remove(dbStore);
+                        changedEntries.Add(new GenericChangedEntry<Store>(store, EntryState.Deleted));
+                    }
+                }
+                await repository.UnitOfWork.CommitAsync();
+                await _settingManager.DeepRemoveSettingsAsync(stores);
+                ClearCache(stores);
+                await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
+            }
+        }
 
         protected override Task<IEnumerable<StoreEntity>> LoadEntities(IRepository repository, IEnumerable<string> ids, string responseGroup)
         {
@@ -74,10 +97,10 @@ namespace VirtoCommerce.StoreModule.Data.Services
             await _settingManager.DeepSaveSettingsAsync(models);
         }
 
-        protected override async Task AfterDeleteAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
+        /*protected override async Task AfterDeleteAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
         {
             await _settingManager.DeepRemoveSettingsAsync(models);
-        }
+        }*/
 
         private void ValidateStoresProperties(IEnumerable<Store> stores)
         {
@@ -93,5 +116,21 @@ namespace VirtoCommerce.StoreModule.Data.Services
             }
         }
 
+        #region IStoreService compatibility
+        public async Task<Store[]> GetByIdsAsync(string[] ids, string responseGroup = null)
+        {
+            return (await GetByIdsAsync((IEnumerable<string>)ids, responseGroup)).ToArray();
+        }
+
+        public Task SaveChangesAsync(Store[] stores)
+        {
+            return SaveChangesAsync((IEnumerable<Store>)stores);
+        }
+
+        public Task DeleteAsync(string[] ids)
+        {
+            return DeleteAsync((IEnumerable<string>)ids);
+        }
+        #endregion
     }
 }

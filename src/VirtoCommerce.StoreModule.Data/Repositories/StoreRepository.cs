@@ -49,10 +49,5 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         public IQueryable<SeoInfoEntity> SeoInfos => DbContext.Set<SeoInfoEntity>();
         public IQueryable<StoreDynamicPropertyObjectValueEntity> DynamicPropertyObjectValues => DbContext.Set<StoreDynamicPropertyObjectValueEntity>();
 
-        public async Task<IEnumerable<StoreEntity>> GetStoresByIdsAsync(IEnumerable<string> ids, string responseGroup = null)
-        {
-            return await Stores.Where(x => ids.Contains(x.Id)).ToArrayAsync();
-        }
-
     }
 }
