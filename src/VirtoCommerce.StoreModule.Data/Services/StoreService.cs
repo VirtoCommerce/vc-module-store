@@ -97,11 +97,6 @@ namespace VirtoCommerce.StoreModule.Data.Services
             await _settingManager.DeepSaveSettingsAsync(models);
         }
 
-        /*protected override async Task AfterDeleteAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
-        {
-            await _settingManager.DeepRemoveSettingsAsync(models);
-        }*/
-
         private void ValidateStoresProperties(IEnumerable<Store> stores)
         {
             if (stores == null)
