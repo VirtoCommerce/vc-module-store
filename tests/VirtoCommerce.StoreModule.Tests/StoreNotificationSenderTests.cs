@@ -21,6 +21,7 @@ using Xunit;
 using VirtoCommerce.NotificationsModule.Core.Extensions;
 using System.Collections;
 using System.Linq;
+using VirtoCommerce.Platform.Core.GenericCrud;
 
 namespace VirtoCommerce.StoreModule.Tests
 {
@@ -90,7 +91,7 @@ namespace VirtoCommerce.StoreModule.Tests
             //Arrange
             var sender = GetStoreNotificationSender();
             var user = GetUser();
-            _mockStoreService
+            _mockStoreService.As<ICrudService<Store>>()
                 .Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync((Store)null);
 
@@ -110,7 +111,7 @@ namespace VirtoCommerce.StoreModule.Tests
             var user = GetUser();
             var store = GetStore();
             store.Settings = Array.Empty<ObjectSettingEntry>();
-            _mockStoreService
+            _mockStoreService.As<ICrudService<Store>>()
                 .Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(store);
 
@@ -171,7 +172,7 @@ namespace VirtoCommerce.StoreModule.Tests
                 .ReturnsAsync(new NotificationSearchResult { TotalCount = 1, Results = new[] { new ConfirmationEmailNotification { } } });
 
             _mocknotificationSender.Setup(ss => ss.SendNotificationAsync(It.IsAny<Notification>())).ReturnsAsync(new NotificationSendResult { IsSuccess = true });
-            _mockStoreService.Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStore());
+            _mockStoreService.As<ICrudService<Store>>().Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStore());
 
             var result = new StoreNotificationSender(_mockNotificationSearchService.Object, _mocknotificationSender.Object, _mockStoreService.Object, () => _mockUserManager);
             return result;

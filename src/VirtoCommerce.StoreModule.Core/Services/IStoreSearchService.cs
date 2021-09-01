@@ -5,6 +5,5 @@ namespace VirtoCommerce.StoreModule.Core.Services
 {
     public interface IStoreSearchService
     {
-        Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria);
     }
 }

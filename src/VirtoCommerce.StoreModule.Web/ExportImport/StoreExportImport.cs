@@ -6,24 +6,27 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.ExportImport;
+using VirtoCommerce.Platform.Core.GenericCrud;
+using VirtoCommerce.Platform.Data.GenericCrud;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
+using VirtoCommerce.StoreModule.Data.Model;
 
 namespace VirtoCommerce.StoreModule.Web.ExportImport
 {
     public sealed class StoreExportImport
     {
-        private readonly IStoreService _storeService;
-        private readonly IStoreSearchService _storeSearchService;
+        private readonly ICrudService<Store> _storeService;
+        private readonly SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity> _storeSearchService;
         private readonly JsonSerializer _serializer;
         private readonly int BatchSize = 50;
 
         public StoreExportImport(IStoreService storeService, IStoreSearchService storeSearchService, JsonSerializer jsonSerializer)
         {
-            _storeService = storeService;
+            _storeService = (ICrudService<Store>)storeService;
             _serializer = jsonSerializer;
-            _storeSearchService = storeSearchService;
+            _storeSearchService = (SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity>)storeSearchService;
         }
 
         public async Task DoExport(Stream backupStream, Action<ExportImportProgressInfo> progressCallback)
@@ -39,7 +42,7 @@ namespace VirtoCommerce.StoreModule.Web.ExportImport
                 progressInfo.Description = "Evaluation the number of store records";
                 progressCallback(progressInfo);
 
-                var searchResult = await _storeSearchService.SearchStoresAsync(new StoreSearchCriteria { Take = BatchSize });
+                var searchResult = await _storeSearchService.SearchAsync(new StoreSearchCriteria { Take = BatchSize });
                 var totalCount = searchResult.TotalCount;
                 writer.WritePropertyName("StoreTotalCount");
                 writer.WriteValue(totalCount);
@@ -52,7 +55,7 @@ namespace VirtoCommerce.StoreModule.Web.ExportImport
                     progressInfo.Description = $"{i} of {totalCount} stores have been loaded";
                     progressCallback(progressInfo);
 
-                    searchResult = await _storeSearchService.SearchStoresAsync(new StoreSearchCriteria { Skip = i, Take = BatchSize });
+                    searchResult = await _storeSearchService.SearchAsync(new StoreSearchCriteria { Skip = i, Take = BatchSize });
 
                     foreach (var store in searchResult.Results)
                     {
