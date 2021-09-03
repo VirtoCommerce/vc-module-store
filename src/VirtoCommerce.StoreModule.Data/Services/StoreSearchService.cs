@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.GenericCrud;
@@ -60,5 +61,11 @@ namespace VirtoCommerce.StoreModule.Data.Services
             }
             return sortInfos;
         }
+
+        public virtual async Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria)
+        {
+            return await base.SearchAsync(criteria);
+        }
+
     }
 }
