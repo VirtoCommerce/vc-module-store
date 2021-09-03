@@ -20,12 +20,12 @@ namespace VirtoCommerce.StoreModule.Data.Services
 {
     public class StoreService : CrudService<Store, StoreEntity, StoreChangeEvent, StoreChangedEvent>, IStoreService
     {
-        private readonly ISettingsManager _settingManager;
+        private readonly ISettingsManager _settingsManager;
 
-        public StoreService(Func<IStoreRepository> repositoryFactory, IPlatformMemoryCache platformMemoryCache, IEventPublisher eventPublisher, ISettingsManager settingManager)
+        public StoreService(Func<IStoreRepository> repositoryFactory, IPlatformMemoryCache platformMemoryCache, IEventPublisher eventPublisher, ISettingsManager settingsManager)
             : base(repositoryFactory, platformMemoryCache, eventPublisher)
         {
-            _settingManager = settingManager;
+            _settingsManager = settingsManager;
         }
 
         public async Task<IEnumerable<string>> GetUserAllowedStoreIdsAsync(ApplicationUser user)
@@ -69,7 +69,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     }
                 }
                 await repository.UnitOfWork.CommitAsync();
-                await _settingManager.DeepRemoveSettingsAsync(stores);
+                await _settingsManager.DeepRemoveSettingsAsync(stores);
                 ClearCache(stores);
                 await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
             }
@@ -82,7 +82,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
         protected override Store ProcessModel(string responseGroup, StoreEntity entity, Store model)
         {
-            _settingManager.DeepLoadSettingsAsync(model).GetAwaiter().GetResult();
+            _settingsManager.DeepLoadSettingsAsync(model).GetAwaiter().GetResult();
             return model;
         }
 
@@ -94,7 +94,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
         protected override async Task AfterSaveChangesAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
         {
-            await _settingManager.DeepSaveSettingsAsync(models);
+            await _settingsManager.DeepSaveSettingsAsync(models);
         }
 
         private void ValidateStoresProperties(IEnumerable<Store> stores)
