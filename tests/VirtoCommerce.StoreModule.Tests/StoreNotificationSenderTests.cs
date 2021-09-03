@@ -200,7 +200,7 @@ namespace VirtoCommerce.StoreModule.Tests
             userValidators.Add(validator.Object);
             var pwdValidators = new List<PasswordValidator<ApplicationUser>>();
             pwdValidators.Add(new PasswordValidator<ApplicationUser>());
-            var passwordHasher = new Mock<IUserPasswordHasher>();
+            var passwordHasher = new Mock<IPasswordHasher<ApplicationUser>>();
             passwordHasher.Setup(x => x.VerifyHashedPassword(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(PasswordVerificationResult.Success);
 
