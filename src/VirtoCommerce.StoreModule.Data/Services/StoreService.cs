@@ -92,9 +92,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return Task.CompletedTask;  
         }
 
-        protected override async Task AfterSaveChangesAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
+        protected override Task AfterSaveChangesAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
         {
-            await _settingsManager.DeepSaveSettingsAsync(models);
+            return _settingsManager.DeepSaveSettingsAsync(models);
         }
 
         private void ValidateStoresProperties(IEnumerable<Store> stores)

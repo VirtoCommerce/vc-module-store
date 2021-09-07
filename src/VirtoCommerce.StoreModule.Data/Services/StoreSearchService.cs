@@ -62,9 +62,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return sortInfos;
         }
 
-        public virtual async Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria)
+        public virtual Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria)
         {
-            return await base.SearchAsync(criteria);
+            return base.SearchAsync(criteria);
         }
 
     }
