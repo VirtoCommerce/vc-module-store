@@ -74,6 +74,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         [HttpGet]
         [Route("")]
+        [Obsolete("Use POST api/stores/search instead")]
         public async Task<ActionResult<Store[]>> GetStores()
         {
             var criteria = new StoreSearchCriteria
