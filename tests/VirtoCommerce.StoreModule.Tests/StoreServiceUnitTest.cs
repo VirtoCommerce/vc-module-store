@@ -6,6 +6,7 @@ using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.Platform.Core.Events;
+using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.DynamicProperties;
 using VirtoCommerce.Platform.Data.Repositories;
@@ -52,7 +53,7 @@ namespace VirtoCommerce.StoreModule.Tests
         [InlineData("$$TestCode$$$")]
         public virtual void CanTryCreateNewStoreWithInvalidCode_ThrowsValidationException(string code)
         {
-            var service = GetStoreService();
+            var service = (ICrudService<Store>)GetStoreService();
             var store = new Store
             {
                 Id = code,
@@ -87,7 +88,7 @@ namespace VirtoCommerce.StoreModule.Tests
         [InlineData("1test1code1")]
         public virtual void CanTryCreateNewStoreWithValidCode(string code)
         {
-            var service = GetStoreService();
+            var service = (ICrudService<Store>)GetStoreService();
             var store = new Store
             {
                 Id = code,
@@ -115,7 +116,7 @@ namespace VirtoCommerce.StoreModule.Tests
             IPlatformRepository platformRepositoryFactory() => _mockPlatformRepository.Object;
             Func<IStoreRepository> factory = () => _mockStoreRepository.Object;
 
-            var storeService = new StoreService(factory, _mockSettingsManager.Object, _eventPublisherMock.Object, _platformMemoryCacheMock.Object);
+            var storeService = new StoreService(factory, _platformMemoryCacheMock.Object, _eventPublisherMock.Object, _mockSettingsManager.Object);
             return storeService;
           
         }
