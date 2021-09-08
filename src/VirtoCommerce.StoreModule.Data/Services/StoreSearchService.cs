@@ -2,67 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.GenericCrud;
+using VirtoCommerce.Platform.Data.GenericCrud;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
-using VirtoCommerce.StoreModule.Data.Caching;
 using VirtoCommerce.StoreModule.Data.Model;
 using VirtoCommerce.StoreModule.Data.Repositories;
 
 namespace VirtoCommerce.StoreModule.Data.Services
 {
-    public class StoreSearchService : IStoreSearchService
+    public class StoreSearchService : SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity>, IStoreSearchService
     {
-        private readonly Func<IStoreRepository> _repositoryFactory;
-        private readonly IPlatformMemoryCache _platformMemoryCache;
-        private readonly IStoreService _storeService;
-
-        public StoreSearchService(
-            Func<IStoreRepository> repositoryFactory
-            , IPlatformMemoryCache platformMemoryCache
-            , IStoreService storeService
-            )
+        public StoreSearchService(Func<IStoreRepository> repositoryFactory, IPlatformMemoryCache platformMemoryCache,
+            IStoreService storeService)
+           : base(repositoryFactory, platformMemoryCache, (ICrudService<Store>)storeService)
         {
-            _repositoryFactory = repositoryFactory;
-            _platformMemoryCache = platformMemoryCache;
-            _storeService = storeService;
         }
 
-        public virtual async Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria)
+        protected override IQueryable<StoreEntity> BuildQuery(IRepository repository, StoreSearchCriteria criteria)
         {
-            var cacheKey = CacheKey.With(GetType(), "SearchStoresAsync", criteria.GetCacheKey());
-            return await _platformMemoryCache.GetOrCreateExclusiveAsync(cacheKey, async (cacheEntry) =>
-            {
-                cacheEntry.AddExpirationToken(StoreCacheRegion.CreateChangeToken());
-                var result = AbstractTypeFactory<StoreSearchResult>.TryCreateInstance();
-                using (var repository = _repositoryFactory())
-                {
-                    var query = BuildQuery(repository, criteria);
-                    var sortInfos = BuildSortExpression(criteria);
-
-                    result.TotalCount = await query.CountAsync();
-                    if (criteria.Take > 0)
-                    {
-                        var storeIds = await query.OrderBySortInfos(sortInfos).ThenBy(x=>x.Id)
-                                                  .Select(x => x.Id)
-                                                  .Skip(criteria.Skip).Take(criteria.Take)
-                                                  .ToArrayAsync();
-
-                        var unorderedResults = await _storeService.GetByIdsAsync(storeIds, criteria.ResponseGroup);
-                        result.Results = unorderedResults.OrderBy(x => Array.IndexOf(storeIds, x.Id)).ToArray();                        
-                    }
-                }
-                return result;
-            });
-        }
-
-        protected virtual IQueryable<StoreEntity> BuildQuery(IStoreRepository repository, StoreSearchCriteria criteria)
-        {
-            var query = repository.Stores;
+            var query = ((IStoreRepository)repository).Stores;
             if (!string.IsNullOrEmpty(criteria.Keyword))
             {
                 query = query.Where(x => x.Name.Contains(criteria.Keyword) || x.Id.Contains(criteria.Keyword));
@@ -88,7 +50,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return query;
         }
 
-        protected virtual IList<SortInfo> BuildSortExpression(StoreSearchCriteria criteria)
+        protected override IList<SortInfo> BuildSortExpression(StoreSearchCriteria criteria)
         {
             var sortInfos = criteria.SortInfos;
             if (sortInfos.IsNullOrEmpty())
@@ -103,5 +65,11 @@ namespace VirtoCommerce.StoreModule.Data.Services
             }
             return sortInfos;
         }
+
+        public virtual Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria)
+        {
+            return base.SearchAsync(criteria);
+        }
+
     }
 }
