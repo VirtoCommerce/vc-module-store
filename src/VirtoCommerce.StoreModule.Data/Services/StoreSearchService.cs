@@ -71,6 +71,10 @@ namespace VirtoCommerce.StoreModule.Data.Services
             {
                 query = query.Where(x => criteria.StoreIds.Contains(x.Id));
             }
+            else if (!criteria.ObjectIds.IsNullOrEmpty())
+            {
+                query = query.Where(x => criteria.ObjectIds.Contains(x.Id));
+            }
             if (!criteria.StoreStates.IsNullOrEmpty())
             {
                 query = query.Where(x => criteria.StoreStates.Contains((StoreState)x.StoreState));
