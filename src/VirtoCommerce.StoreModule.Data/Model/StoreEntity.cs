@@ -4,12 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Data.Model
 {
-    public class StoreEntity : AuditableEntity, IHasOuterId
+    public class StoreEntity : AuditableEntity, IDataEntity<StoreEntity, Store>, IHasOuterId
     {
         [Required]
         [StringLength(128)]

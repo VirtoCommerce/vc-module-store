@@ -5,25 +5,28 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.ExportImport;
+using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Data.ExportImport;
+using VirtoCommerce.Platform.Data.GenericCrud;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
+using VirtoCommerce.StoreModule.Data.Model;
 
 namespace VirtoCommerce.StoreModule.Data.ExportImport
 {
     public sealed class StoreExportImport
     {
-        private readonly IStoreService _storeService;
-        private readonly IStoreSearchService _storeSearchService;
+        private readonly ICrudService<Store> _storeService;
+        private readonly SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity> _storeSearchService;
         private readonly JsonSerializer _jsonSerializer;
         private readonly int _batchSize = 50;
 
         public StoreExportImport(IStoreService storeService, IStoreSearchService storeSearchService, JsonSerializer jsonSerializer)
         {
-            _storeService = storeService;
+            _storeService = (ICrudService<Store>)storeService;
             _jsonSerializer = jsonSerializer;
-            _storeSearchService = storeSearchService;
+            _storeSearchService = (SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity>)storeSearchService;
         }
 
         public async Task DoExportAsync(Stream outStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
@@ -48,7 +51,7 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
                     searchCriteria.Take = take;
                     searchCriteria.Skip = skip;
 
-                    var searchResult = await _storeSearchService.SearchStoresAsync(searchCriteria);
+                    var searchResult = await _storeSearchService.SearchAsync(searchCriteria);
                     return (GenericSearchResult<Store>)searchResult;
                 }, (processedCount, totalCount) =>
                 {

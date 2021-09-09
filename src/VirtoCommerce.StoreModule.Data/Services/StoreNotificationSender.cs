@@ -8,6 +8,7 @@ using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Types;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -20,14 +21,14 @@ namespace VirtoCommerce.StoreModule.Data.Services
     {
         private readonly INotificationSearchService _notificationSearchService;
         private readonly INotificationSender _notificationSender;
-        private readonly IStoreService _storeService;
+        private readonly ICrudService<Store> _storeService;
         private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
 
         public StoreNotificationSender(INotificationSearchService notificationSearchService, INotificationSender notificationSender, IStoreService storeService, Func<UserManager<ApplicationUser>> userManagerFactory)
         {
             _notificationSearchService = notificationSearchService;
             _notificationSender = notificationSender;
-            _storeService = storeService;
+            _storeService = (ICrudService<Store>)storeService;
             _userManagerFactory = userManagerFactory;
         }
 
