@@ -109,9 +109,7 @@ angular.module('virtoCommerce.storeModule')
             {
                 name: "platform.commands.reset",
                 icon: 'fa fa-undo',
-                executeMethod: function () {
-                    angular.copy(blade.origEntity, blade.currentEntity);
-                },
+                executeMethod: blade.refresh,
                 canExecuteMethod: isDirty,
                 permission: blade.updatePermission
             },
