@@ -207,7 +207,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             var user = await _userManager.GetUserAsync(User);
             var notification = (StoreDynamicEmailNotification)notificationsSearchResult.Results.FirstOrDefault();
             notification.To = store.EmailWithName ?? store.AdminEmailWithName;
-            notification.From = string.IsNullOrEmpty(user.UserName) ? user.Email : $@"""{user.UserName}"" <{user.Email}>";
+            notification.From = user.Email;
             notification.FormType = request.Type;
             notification.Fields = request.Fields;
             notification.LanguageCode = request.Language;
