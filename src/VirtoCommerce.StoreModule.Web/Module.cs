@@ -13,6 +13,7 @@ using VirtoCommerce.Platform.Core.Bus;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.ExportImport;
+using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Security.Events;
@@ -21,6 +22,7 @@ using VirtoCommerce.Platform.Data.Extensions;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Events;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Notifications;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.ExportImport;
@@ -49,8 +51,10 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreNotificationSender, StoreNotificationSender>();
             serviceCollection.AddTransient<IStoreRepository, StoreRepository>();
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
-            serviceCollection.AddTransient<IStoreService, StoreService>();
-            serviceCollection.AddTransient<IStoreSearchService, StoreSearchService>();
+            serviceCollection.AddTransient<ICrudService<Store>, StoreService>();
+            serviceCollection.AddTransient(x => (IStoreService)x.GetRequiredService<ICrudService<Store>>());
+            serviceCollection.AddTransient<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>>();
+            serviceCollection.AddTransient(x => (IStoreSearchService)x.GetRequiredService<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>>());
             serviceCollection.AddTransient<StoreExportImport>();
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
 
