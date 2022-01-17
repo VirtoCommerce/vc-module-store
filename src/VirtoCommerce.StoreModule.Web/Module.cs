@@ -53,7 +53,7 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
             serviceCollection.AddTransient<ICrudService<Store>, StoreService>();
             serviceCollection.AddTransient(x => (IStoreService)x.GetRequiredService<ICrudService<Store>>());
-            serviceCollection.AddTransient<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>>();
+            serviceCollection.AddTransient<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>, StoreSearchService>();
             serviceCollection.AddTransient(x => (IStoreSearchService)x.GetRequiredService<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>>());
             serviceCollection.AddTransient<StoreExportImport>();
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
