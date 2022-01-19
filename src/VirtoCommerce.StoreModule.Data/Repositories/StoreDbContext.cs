@@ -69,7 +69,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<StoreDynamicPropertyObjectValueEntity>().HasIndex(x => new { x.ObjectType, x.ObjectId })
                         .IsUnique(false)
-                        .HasName("IX_ObjectType_ObjectId");
+                        .HasDatabaseName("IX_ObjectType_ObjectId");
             #endregion
         }
     }
