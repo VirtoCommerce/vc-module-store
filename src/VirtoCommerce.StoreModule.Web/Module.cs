@@ -58,7 +58,7 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<StoreExportImport>();
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
-            serviceCollection.AddSingleton<IStoreCurrencyResolver, StoreCurrencyResolver>();
+            serviceCollection.AddTransient<IStoreCurrencyResolver, StoreCurrencyResolver>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
