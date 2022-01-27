@@ -29,7 +29,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             _platformMemoryCache = platformMemoryCache;
         }
 
-        public async Task<IEnumerable<Currency>> GetAllStoreCurrenciesAsync(string storeId, string cultureName = null)
+        public virtual async Task<IEnumerable<Currency>> GetAllStoreCurrenciesAsync(string storeId, string cultureName = null)
         {
             if (cultureName == null)
             {
@@ -58,7 +58,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             });
         }
 
-        public async Task<Currency> GetStoreCurrencyAsync(string currencyCode, string storeId, string cultureName = null)
+        public virtual async Task<Currency> GetStoreCurrencyAsync(string currencyCode, string storeId, string cultureName = null)
         {
             if (string.IsNullOrWhiteSpace(currencyCode))
             {
