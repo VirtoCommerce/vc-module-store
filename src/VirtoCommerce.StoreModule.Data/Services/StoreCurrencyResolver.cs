@@ -72,7 +72,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             var currency = allCurrencies.FirstOrDefault(x => x.Code.EqualsInvariant(currencyCode));
             if (currency == null)
             {
-                throw new OperationCanceledException($"requested currency {currencyCode} is not registered in the system");
+                throw new InvalidOperationException($"requested currency {currencyCode} is not registered in the system");
             }
 
             return currency;
