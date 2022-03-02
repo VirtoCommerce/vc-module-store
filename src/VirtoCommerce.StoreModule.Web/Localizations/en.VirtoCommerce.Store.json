@@ -188,6 +188,10 @@
       "EmailVerificationEnabled": {
         "title": "Enable email address verification",
         "description": "Enables sending address verification emails to the user"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Round price during total calculation",
+        "description": "Enables price rounding for totals calculation in the Order and Cart modules"
       }
     }
   },
