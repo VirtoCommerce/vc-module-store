@@ -50,6 +50,7 @@ angular.module(moduleName, [
                         priority: 100
                     }
                 ]);
+                metaFormsService.registerMetaFields('storeDetails', []);
 
                 //Register widgets in store details
                 widgetService.registerWidget({
