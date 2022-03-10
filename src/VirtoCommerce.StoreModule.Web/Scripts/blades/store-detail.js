@@ -1,6 +1,6 @@
 angular.module('virtoCommerce.storeModule')
-    .controller('virtoCommerce.storeModule.storeDetailController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.storeModule.catalogs', 'platformWebApp.settings', 'platformWebApp.settings.helper', 'platformWebApp.dialogService', 'virtoCommerce.coreModule.currency.currencyUtils',
-        function ($scope, bladeNavigationService, stores, catalogs, settings, settingsHelper, dialogService, currencyUtils) {
+    .controller('virtoCommerce.storeModule.storeDetailController', ['$scope', 'platformWebApp.bladeNavigationService', 'virtoCommerce.storeModule.stores', 'virtoCommerce.storeModule.catalogs', 'platformWebApp.settings', 'platformWebApp.settings.helper', 'platformWebApp.dialogService', 'virtoCommerce.coreModule.currency.currencyUtils', 'platformWebApp.metaFormsService',
+        function ($scope, bladeNavigationService, stores, catalogs, settings, settingsHelper, dialogService, currencyUtils, metaFormsService) {
             var blade = $scope.blade;
             blade.updatePermission = 'store:update';
             blade.subtitle = 'stores.blades.store-detail.subtitle';
@@ -16,6 +16,8 @@ angular.module('virtoCommerce.storeModule')
                         }
                     });
             }
+
+            blade.metaFields = blade.metaFields ? blade.metaFields : metaFormsService.getMetaFields('storeDetails');
 
             function initializeBlade(data) {
                 data.additionalLanguages = _.without(data.languages, data.defaultLanguage);
