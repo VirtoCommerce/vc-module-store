@@ -5,7 +5,7 @@
       "stores-list": {
         "title": "Stores",
         "labels": {
-          "no-stores": "No Stores yet",
+          "no-stores": "You have no stores yet",
           "name": "Name"
         }
       },
@@ -13,33 +13,33 @@
         "subtitle": "",
         "labels": {
           "description": "Description",
-          "store-regional-settings": "Regional settings",
+          "store-regional-settings": "Location settings",
           "store-country": "Store country",
-          "store-region": "Store region",
-          "store-email-settings": "E-mail settings",
-          "store-email": "E-mail",
-          "store-admin-email": "Admin e-mail",
+          "store-region": "Store state or province",
+          "store-email-settings": "Email settings",
+          "store-email": "Email",
+          "store-admin-email": "Admin email",
           "store-email-name": "Name",
           "store-admin-email-name": "Admin name",
           "fulfillment-center": "Default fulfillment center",
-          "returns-fulfillment-center": "Default returns fulfillment center",
+          "returns-fulfillment-center": "Default return fulfillment center",
           "additional-fulfillment-centers": "Available fulfillment centers",
-          "additional-returns-fulfillment-centers": "Avail. returns fulfillment centers",
-          "operational-timezone": "Operational timezone",
+          "additional-returns-fulfillment-centers": "Available return fulfillment centers",
+          "operational-timezone": "Operation timezone",
           "store-url": "Store URL"
         },
         "placeholders": {
-          "description": "Enter description",
-          "store-country": "Select ...",
-          "store-region": "Enter region",
-          "store-email": "Enter e-mail",
-          "store-admin-email": "Enter e-mail",
-          "store-email-name": "Enter store name",
-          "store-admin-email-name": "Enter admin name",
-          "fulfillment-center": "Select...",
-          "returns-fulfillment-center": "Select...",
-          "operational-timezone": "Select...",
-          "store-url": "Enter URL"
+          "description": "Please provide description...",
+          "store-country": "Please select...",
+          "store-region": "Please provide state or province...",
+          "store-email": "Enter email",
+          "store-admin-email": "Enter email",
+          "store-email-name": "Please provide store name...",
+          "store-admin-email-name": "Please enter admin name",
+          "fulfillment-center": "Please select...",
+          "returns-fulfillment-center": "Please select...",
+          "operational-timezone": "Please select...",
+          "store-url": "Please enter URL"
         }
       },
       "store-detail": {
@@ -56,23 +56,23 @@
           "additional-languages": "Additional languages",
           "default-currency": "Default currency",
           "additional-currencies": "Additional currencies",
-          "linked-stores": "Linked stores (Customers can use theirs credentials here)"
+          "linked-stores": "Linked stores (customers can use their credentials to access these stores)"
         },
         "placeholders": {
-          "code": "Enter code",
-          "name": "Enter name",
-          "catalog": "Select...",
-          "state": "Select...",
-          "default-language": "Select...",
-          "additional-languages": "Select...",
-          "default-currency": "Select...",
-          "additional-currencies": "Select...",
+          "code": "Please provide code",
+          "name": "Please enter name",
+          "catalog": "Please select...",
+          "state": "Please select...",
+          "default-language": "Please select...",
+          "additional-languages": "Please select...",
+          "default-currency": "Please select...",
+          "additional-currencies": "Please select...",
           "linked-stores": "This store has no linked stores"
         },
         "descriptions": {
-          "code": "Will use as Store primary key and in storefront as part of url for store selection",
-          "name": "Display name for store to represent in manager",
-          "catalog": "A physical or virtual catalog associated with this store",
+          "code": "This will be used as the store's primary key, as well as a part of the URL for store selection in Storefront",
+          "name": "This name will be displayed in Store Manager",
+          "catalog": "Any physical or virtual catalog associated with this store",
           "state": "Current store state",
           "default-language": "Primary language for this store",
           "default-currency": "Primary currency for this store"
@@ -80,7 +80,7 @@
       },
       "new-store-wizard": {
         "title": "New Store",
-        "subtitle": "Create new Store"
+        "subtitle": "Creating a new store"
       },
       "taxProvider-detail": {
         "subtitle": "Edit tax provider",
@@ -91,13 +91,13 @@
           "settings": "Settings"
         },
         "placeholders": {
-          "description": "Enter description"
+          "description": "Please provide description..."
         }
       },
       "taxProvider-list": {
         "subtitle": "",
         "labels": {
-          "is-active": "Is active",
+          "is-active": "Active",
           "tax-provider": "Tax provider"
         }
       },
@@ -117,13 +117,13 @@
       },
       "storeNotificationsLogWidget": {
         "title": "Notification log",
-        "blade-subtitle": "Notifications log",
-        "blade-title": "Store {{id}} notification sending log"
+        "blade-subtitle": "Notification log",
+        "blade-title": "Notification log for store {{id}}"
       },
       "storeNotificationsWidget": {
         "title": "Notification",
-        "blade-subtitle": "Notifications service",
-        "blade-title": "Store {{id}} notification types list"
+        "blade-subtitle": "Notification service",
+        "blade-title": "List of notification types for store {{id}}"
       },
       "storeSettingsWidget": {
         "title": "Settings",
@@ -136,74 +136,74 @@
     },
     "dialogs": {
       "store-delete": {
-        "title": "Delete confirmation",
+        "title": "Confirm Delete",
         "message": "Are you sure you want to delete this Store?"
       },
       "store-save": {
         "title": "Save changes",
-        "message": "The Store has been modified. Do you want to save changes?"
+        "message": "The store has been modified. Do you want to save changes?"
       },
       "tax-provider-save": {
         "title": "Save changes",
-        "message": "The Tax provider has been modified. Do you want to save changes?"
+        "message": "The tax provider has been modified. Do you want to save changes?"
       }
     },
     "directives": {
       "store-selector": {
-        "placeholder": "Select...",
+        "placeholder": "Please select...",
         "loading": "Loading..."
       }
     }
   },
   "permissions": {
-    "store:access": "Open stores menu",
-    "store:create": "Create store related data",
-    "store:read": "View store related data",
-    "store:update": "Update store related data",
-    "store:delete": "Delete store related data",
+    "store:access": "Open store menu",
+    "store:create": "Create store data",
+    "store:read": "View store data",
+    "store:update": "Update store data",
+    "store:delete": "Delete store data",
     "store:loginOnBehalf": "Login on behalf of a customer"
   },
   "settings": {
     "Stores": {
       "States": {
         "title": "States",
-        "description": "States that a store can be in"
+        "description": "States this store may have"
       },
       "TaxCalculationEnabled": {
-        "title": "Enable Tax Calculation",
-        "description": "Setting to off prevents tax calculation on storefront"
+        "title": "Enable tax calculation",
+        "description": "Toggle it off to disable tax calculation on Storefront"
       },
       "AllowAnonymousUsers": {
-        "title": "Allow anonymous user for store",
-        "description": "Set to false to prevent anonymous user access to store"
+        "title": "Allow anonymous users to visit the store",
+        "description": "Toggle it off to prevent anonymous users from accessing this store"
       },
       "IsSpa": {
-        "title": "Is SPA",
-        "description": "Flag indicates that store is a SPA application"
+        "title": "SPA",
+        "description": "Toggle on or off depending on whether this store is an SPA"
       },
       "SeoLinksType": {
-        "title": "SEO Links",
-        "description": "Determines how to generate links for products and categories. Long: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product, Collapsed: /virtual-parent-category/my-cool-category/my-cool-product, Short: /my-cool-product, None: /product/123"
+        "title": "SEO links",
+        "description": "Determines the type of links for products and categories. Examples: 1. Long:  /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product, 2. Collapsed: /virtual-parent-category/my-cool-category/my-cool-product, 3. Short: /my-cool-product, 4. None: /product/123"
       },
       "EmailVerificationEnabled": {
-        "title": "Enable email address verification",
-        "description": "Enables sending address verification emails to the user"
+        "title": "Email address verification",
+        "description": "Enables the email verification process for users"
       },
       "EnablePriceRoundingForTotalsCalculation": {
-        "title": "Round price during total calculation",
-        "description": "Enables price rounding for totals calculation in the Order and Cart modules"
+        "title": "Round price for total calculation",
+        "description": "Enables price rounding for total calculation in the Order and Cart modules"
       }
     }
   },
   "module": {
     "VirtoCommerce.Store": {
-      "description": "Export/Import stores with all related informations"
+      "description": "Export or import stores with all related data"
     }
   },
   "notificationTypes": {
     "StoreDynamicEmailNotification": {
-      "displayName": "Sending custom form from storefront",
-      "description": "This notification sends by email to client when he complete some form on storefront, for example contact us form"
+      "displayName": "Submitting forms on Storefront",
+      "description": "The customer will get an email notification when they submit a form (e.g. the Contact Us form) on Storefront "
     }
   }
 }
