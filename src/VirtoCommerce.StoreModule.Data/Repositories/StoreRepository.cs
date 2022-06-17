@@ -15,7 +15,7 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
         {
         }
 
-        public async Task<IEnumerable<StoreEntity>> GetByIdsAsync(IEnumerable<string> ids, string responseGroup = null)
+        public virtual async Task<IEnumerable<StoreEntity>> GetByIdsAsync(IEnumerable<string> ids, string responseGroup = null)
         {
             var storeResponseGroup = EnumUtility.SafeParseFlags(responseGroup, StoreResponseGroup.Full);
 
