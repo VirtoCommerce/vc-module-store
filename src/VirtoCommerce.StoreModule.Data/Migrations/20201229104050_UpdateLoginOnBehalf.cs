@@ -6,7 +6,7 @@ namespace VirtoCommerce.StoreModule.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(@"UPDATE [AspNetRoleClaims] SET  [ClaimValue] = 'platform:security:loginOnBehalf' WHERE [ClaimValue] = 'store:loginOnBehalf'");
+            migrationBuilder.Sql(@"IF 'AspNetRoleClaims' IN (SELECT [name] FROM [sys].[tables]) UPDATE [AspNetRoleClaims] SET [ClaimValue] = 'platform:security:loginOnBehalf' WHERE [ClaimValue] = 'store:loginOnBehalf'");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
