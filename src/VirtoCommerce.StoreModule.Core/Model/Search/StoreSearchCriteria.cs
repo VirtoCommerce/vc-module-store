@@ -13,7 +13,7 @@ namespace VirtoCommerce.StoreModule.Core.Model.Search
             get
             {
 #pragma warning disable S2365 
-                return ObjectIds.ToArray();
+                return ObjectIds?.ToArray() ?? Array.Empty<string>();
 #pragma warning restore S2365
             }
             set
