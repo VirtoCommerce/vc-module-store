@@ -31,7 +31,7 @@ namespace VirtoCommerce.StoreModule.Web.Authorization
                     var allowedStoreIds = storeSelectedScopes.Select(x => x.StoreId).Distinct().ToArray();
                     if (context.Resource is StoreSearchCriteria criteria)
                     {
-                        criteria.StoreIds = allowedStoreIds;
+                        criteria.ObjectIds = allowedStoreIds;
                         context.Succeed(requirement);
                     }
                     if (context.Resource is Store store && allowedStoreIds.Contains(store.Id))
