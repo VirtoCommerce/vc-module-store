@@ -43,7 +43,7 @@ angular.module('virtoCommerce.storeModule')
 
                     if ($scope.isNoChoices && _.any(storeIds)) {
                         stores.search({
-                            storeIds: storeIds,
+                            objectIds: storeIds,
                             take: storeIds.length,
                             responseGroup: 'none'
                         }, (data) => {
