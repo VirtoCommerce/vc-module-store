@@ -107,7 +107,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 Skip = 0,
                 Take = 1,
-                StoreIds = new[] { id }
+                ObjectIds = new[] { id }
             };
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
