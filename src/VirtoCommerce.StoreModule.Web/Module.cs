@@ -27,23 +27,40 @@ using VirtoCommerce.StoreModule.Core.Notifications;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.ExportImport;
 using VirtoCommerce.StoreModule.Data.Handlers;
+using VirtoCommerce.StoreModule.Data.MySql;
+using VirtoCommerce.StoreModule.Data.PostgreSql;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
+using VirtoCommerce.StoreModule.Data.SqlServer;
 using VirtoCommerce.StoreModule.Web.Authorization;
 
 namespace VirtoCommerce.StoreModule.Web
 {
-    public class Module : IModule, IExportSupport, IImportSupport
+    public class Module : IModule, IExportSupport, IImportSupport, IHasConfiguration
     {
         public ManifestModuleInfo ModuleInfo { get; set; }
         private IApplicationBuilder _appBuilder;
+        public IConfiguration Configuration { get; set; }
 
         public void Initialize(IServiceCollection serviceCollection)
         {
             serviceCollection.AddDbContext<StoreDbContext>((provider, options) =>
             {
-                var configuration = provider.GetRequiredService<IConfiguration>();
-                options.UseSqlServer(configuration.GetConnectionString(ModuleInfo.Id) ?? configuration.GetConnectionString("VirtoCommerce"));
+                var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
+                var connectionString = Configuration.GetConnectionString(ModuleInfo.Id) ?? Configuration.GetConnectionString("VirtoCommerce");
+
+                switch (databaseProvider)
+                {
+                    case "MySql":
+                        options.UseMySqlDatabase(connectionString);
+                        break;
+                    case "PostgreSql":
+                        options.UsePostgreSqlDatabase(connectionString);
+                        break;
+                    default:
+                        options.UseSqlServerDatabase(connectionString);
+                        break;
+                }
             });
 
             serviceCollection.AddTransient<LogChangesChangedEventHandler>();
@@ -94,10 +111,17 @@ namespace VirtoCommerce.StoreModule.Web
             inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<LogChangesChangedEventHandler>().Handle(message));
             inProcessBus.RegisterHandler<UserVerificationEmailEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<SendStoreUserVerificationEmailHandler>().Handle(message));
 
+            var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
+
             using (var serviceScope = appBuilder.ApplicationServices.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<StoreDbContext>();
-                dbContext.Database.MigrateIfNotApplied(MigrationName.GetUpdateV2MigrationName(ModuleInfo.Id));
+
+                if (databaseProvider == "SqlServer")
+                {
+                    dbContext.Database.MigrateIfNotApplied(MigrationName.GetUpdateV2MigrationName(ModuleInfo.Id));
+                }
+
                 dbContext.Database.EnsureCreated();
                 dbContext.Database.Migrate();
             }
