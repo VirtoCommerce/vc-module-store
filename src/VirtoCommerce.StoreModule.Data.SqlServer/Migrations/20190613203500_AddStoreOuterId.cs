@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace VirtoCommerce.StoreModule.Data.Migrations
+namespace VirtoCommerce.StoreModule.Data.SqlServer.Migrations
 {
     public partial class AddStoreOuterId : Migration
     {
