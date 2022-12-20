@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using VirtoCommerce.StoreModule.Data.Repositories;
 
-namespace VirtoCommerce.StoreModule.Data.Migrations
+namespace VirtoCommerce.StoreModule.Data.SqlServer.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
     [Migration("20190613203500_AddStoreOuterId")]
