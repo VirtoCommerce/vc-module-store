@@ -24,6 +24,7 @@ using VirtoCommerce.StoreModule.Core.Events;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Notifications;
+using VirtoCommerce.StoreModule.Core.Security;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.ExportImport;
 using VirtoCommerce.StoreModule.Data.Handlers;

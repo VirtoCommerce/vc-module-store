@@ -7,6 +7,7 @@ using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Security.Authorization;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
+using VirtoCommerce.StoreModule.Core.Security;
 using VirtoCommerce.StoreModule.Data.Authorization;
 
 namespace VirtoCommerce.StoreModule.Web.Authorization

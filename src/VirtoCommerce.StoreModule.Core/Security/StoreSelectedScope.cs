@@ -1,6 +1,6 @@
 using VirtoCommerce.Platform.Core.Security;
 
-namespace VirtoCommerce.StoreModule.Web.Authorization
+namespace VirtoCommerce.StoreModule.Core.Security
 {
     /// <summary>
     /// Restricts access rights to a particular store
