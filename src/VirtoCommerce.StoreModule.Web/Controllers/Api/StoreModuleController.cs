@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
-using VirtoCommerce.Platform.Core.GenericCrud;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -24,8 +24,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
     public class StoreModuleController : Controller
     {
         private readonly IStoreService _storeService;
-        private readonly ICrudService<Store> _storeCrudService;
-        private readonly ISearchService<StoreSearchCriteria, StoreSearchResult, Store> _storeSearchService;
+        private readonly IStoreSearchService _storeSearchService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -43,8 +42,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             IAuthorizationService authorizationService)
         {
             _storeService = storeService;
-            _storeCrudService = (ICrudService<Store>)storeService;
-            _storeSearchService = (ISearchService<StoreSearchCriteria, StoreSearchResult, Store>)storeSearchService;
+            _storeSearchService = storeSearchService;
             _userManager = userManager;
             _notificationSearchService = notificationSearchService;
             _notificationSender = notificationSender;
@@ -68,7 +66,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 criteria.ResponseGroup = StoreResponseGroup.StoreInfo.ToString();
             }
-            var result = await _storeSearchService.SearchAsync(criteria);
+            var result = await _storeSearchService.SearchNoCloneAsync(criteria);
             return result;
         }
 
@@ -91,7 +89,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 return Forbid();
             }
-            var result = await _storeSearchService.SearchAsync(criteria);
+            var result = await _storeSearchService.SearchNoCloneAsync(criteria);
             return result.Stores.ToArray();
         }
 
@@ -114,7 +112,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 return Forbid();
             }
-            var result = await _storeSearchService.SearchAsync(criteria);
+            var result = await _storeSearchService.SearchNoCloneAsync(criteria);
             return Ok(result.Stores.FirstOrDefault());
         }
 
@@ -128,7 +126,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Create)]
         public async Task<ActionResult<Store>> CreateStore([FromBody] Store store)
         {
-            await _storeCrudService.SaveChangesAsync(new[] { store });
+            await _storeService.SaveChangesAsync(new[] { store });
             return Ok(store);
         }
 
@@ -146,7 +144,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 return Forbid();
             }
-            await _storeCrudService.SaveChangesAsync(new[] { store });
+            await _storeService.SaveChangesAsync(new[] { store });
             return NoContent();
         }
 
@@ -164,7 +162,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 return Forbid();
             }
-            await _storeCrudService.DeleteAsync(ids);
+            await _storeService.DeleteAsync(ids);
             return NoContent();
         }
 
@@ -178,7 +176,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody] SendDynamicNotificationRequest request)
         {
-            var store = await _storeCrudService.GetByIdAsync(request.StoreId);
+            var store = await _storeService.GetNoCloneAsync(request.StoreId);
 
             if (store == null)
             {
@@ -191,7 +189,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             }
 
             var notificationsSearchResult = await _notificationSearchService.SearchNotificationsAsync(
-                new NotificationSearchCriteria()
+                new NotificationSearchCriteria
                 {
                     NotificationType = nameof(StoreDynamicEmailNotification),
                     TenantId = request.StoreId,
@@ -234,7 +232,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 UserName = id
             };
-            var store = await _storeCrudService.GetByIdAsync(storeId);
+            var store = await _storeService.GetNoCloneAsync(storeId);
             if (store != null)
             {
                 var user = await _userManager.FindByIdAsync(id);
@@ -263,12 +261,11 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             if (user != null)
             {
                 var storeIds = await _storeService.GetUserAllowedStoreIdsAsync(user);
-                var stores = await _storeCrudService.GetByIdsAsync(storeIds.ToArray(), StoreResponseGroup.StoreInfo.ToString());
+                var stores = await _storeService.GetNoCloneAsync(storeIds, StoreResponseGroup.StoreInfo.ToString());
                 return Ok(stores);
             }
 
             return NotFound();
         }
-
     }
 }

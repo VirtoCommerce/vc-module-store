@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +12,6 @@ using VirtoCommerce.Platform.Core.Bus;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.ExportImport;
-using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Security.Events;
@@ -22,7 +20,6 @@ using VirtoCommerce.Platform.Data.Extensions;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Events;
 using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Notifications;
 using VirtoCommerce.StoreModule.Core.Security;
 using VirtoCommerce.StoreModule.Core.Services;
@@ -45,7 +42,7 @@ namespace VirtoCommerce.StoreModule.Web
 
         public void Initialize(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddDbContext<StoreDbContext>((provider, options) =>
+            serviceCollection.AddDbContext<StoreDbContext>(options =>
             {
                 var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
                 var connectionString = Configuration.GetConnectionString(ModuleInfo.Id) ?? Configuration.GetConnectionString("VirtoCommerce");
@@ -69,10 +66,8 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreNotificationSender, StoreNotificationSender>();
             serviceCollection.AddTransient<IStoreRepository, StoreRepository>();
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
-            serviceCollection.AddTransient<ICrudService<Store>, StoreService>();
-            serviceCollection.AddTransient(x => (IStoreService)x.GetRequiredService<ICrudService<Store>>());
-            serviceCollection.AddTransient<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>, StoreSearchService>();
-            serviceCollection.AddTransient(x => (IStoreSearchService)x.GetRequiredService<ISearchService<StoreSearchCriteria, StoreSearchResult, Store>>());
+            serviceCollection.AddTransient<IStoreService, StoreService>();
+            serviceCollection.AddTransient<IStoreSearchService, StoreSearchService>();
             serviceCollection.AddTransient<StoreExportImport>();
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
@@ -89,28 +84,27 @@ namespace VirtoCommerce.StoreModule.Web
             var settingsRegistrar = appBuilder.ApplicationServices.GetRequiredService<ISettingsRegistrar>();
             settingsRegistrar.RegisterSettings(ModuleConstants.Settings.AllSettings, ModuleInfo.Id);
             //Register settings for type Store
-            settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.AllSettings, typeof(Store).Name);
+            settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.AllSettings, nameof(Store));
 
-            var permissionsProvider = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
-            permissionsProvider.RegisterPermissions(ModuleConstants.Security.Permissions.AllPermissions.Select(x =>
-                new Permission()
-                {
-                    GroupName = "Store",
-                    ModuleId = ModuleInfo.Id,
-                    Name = x
-                }).ToArray());
+            var permissionsRegistrar = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
+            permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Store", ModuleConstants.Security.Permissions.AllPermissions);
 
             //Register Permission scopes
             AbstractTypeFactory<PermissionScope>.RegisterType<StoreSelectedScope>();
-            permissionsProvider.WithAvailabeScopesForPermissions(new[] {
-                                                                        ModuleConstants.Security.Permissions.Read,
-                                                                        ModuleConstants.Security.Permissions.Update,
-                                                                        ModuleConstants.Security.Permissions.Delete }, new StoreSelectedScope());
+
+            permissionsRegistrar.WithAvailabeScopesForPermissions(
+                new[]
+                {
+                    ModuleConstants.Security.Permissions.Read,
+                    ModuleConstants.Security.Permissions.Update,
+                    ModuleConstants.Security.Permissions.Delete,
+                },
+                new StoreSelectedScope());
 
             //Events handlers registration
             var inProcessBus = appBuilder.ApplicationServices.GetService<IHandlerRegistrar>();
-            inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<LogChangesChangedEventHandler>().Handle(message));
-            inProcessBus.RegisterHandler<UserVerificationEmailEvent>(async (message, token) => await appBuilder.ApplicationServices.GetService<SendStoreUserVerificationEmailHandler>().Handle(message));
+            inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, _) => await appBuilder.ApplicationServices.GetService<LogChangesChangedEventHandler>().Handle(message));
+            inProcessBus.RegisterHandler<UserVerificationEmailEvent>(async (message, _) => await appBuilder.ApplicationServices.GetService<SendStoreUserVerificationEmailHandler>().Handle(message));
 
             var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
 

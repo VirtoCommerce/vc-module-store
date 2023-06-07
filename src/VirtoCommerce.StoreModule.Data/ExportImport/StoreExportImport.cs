@@ -1,32 +1,27 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.ExportImport;
-using VirtoCommerce.Platform.Core.GenericCrud;
-using VirtoCommerce.Platform.Data.ExportImport;
-using VirtoCommerce.Platform.Data.GenericCrud;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
-using VirtoCommerce.StoreModule.Data.Model;
 
 namespace VirtoCommerce.StoreModule.Data.ExportImport
 {
     public sealed class StoreExportImport
     {
-        private readonly ICrudService<Store> _storeService;
-        private readonly SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity> _storeSearchService;
+        private readonly IStoreService _storeService;
+        private readonly IStoreSearchService _storeSearchService;
         private readonly JsonSerializer _jsonSerializer;
-        private readonly int _batchSize = 50;
+        private const int _batchSize = 50;
 
         public StoreExportImport(IStoreService storeService, IStoreSearchService storeSearchService, JsonSerializer jsonSerializer)
         {
-            _storeService = (ICrudService<Store>)storeService;
+            _storeService = storeService;
             _jsonSerializer = jsonSerializer;
-            _storeSearchService = (SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity>)storeSearchService;
+            _storeSearchService = storeSearchService;
         }
 
         public async Task DoExportAsync(Stream outStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
@@ -45,13 +40,13 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
                 progressCallback(progressInfo);
 
                 await writer.WritePropertyNameAsync("Stores");
-                await writer.SerializeJsonArrayWithPagingAsync(_jsonSerializer, _batchSize, async (skip, take) =>
+                await writer.SerializeArrayWithPagingAsync(_jsonSerializer, _batchSize, async (skip, take) =>
                 {
                     var searchCriteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
                     searchCriteria.Take = take;
                     searchCriteria.Skip = skip;
 
-                    var searchResult = await _storeSearchService.SearchAsync(searchCriteria);
+                    var searchResult = await _storeSearchService.SearchNoCloneAsync(searchCriteria);
                     return (GenericSearchResult<Store>)searchResult;
                 }, (processedCount, totalCount) =>
                 {
@@ -73,15 +68,15 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
             using (var streamReader = new StreamReader(inputStream))
             using (var reader = new JsonTextReader(streamReader))
             {
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     if (reader.TokenType == JsonToken.PropertyName)
                     {
                         if (reader.Value.ToString() == "Stores")
                         {
-                            await reader.DeserializeJsonArrayWithPagingAsync<Store>(_jsonSerializer, _batchSize, items => _storeService.SaveChangesAsync(items.ToArray()), processedCount =>
+                            await reader.DeserializeArrayWithPagingAsync<Store>(_jsonSerializer, _batchSize, items => _storeService.SaveChangesAsync(items), processedCount =>
                             {
-                                progressInfo.Description = $"{ processedCount } stores have been imported";
+                                progressInfo.Description = $"{processedCount} stores have been imported";
                                 progressCallback(progressInfo);
                             }, cancellationToken);
                         }

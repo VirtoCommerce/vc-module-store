@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.GenericCrud;
@@ -16,23 +16,29 @@ namespace VirtoCommerce.StoreModule.Data.Services
 {
     public class StoreSearchService : SearchService<StoreSearchCriteria, StoreSearchResult, Store, StoreEntity>, IStoreSearchService
     {
-        public StoreSearchService(Func<IStoreRepository> repositoryFactory, IPlatformMemoryCache platformMemoryCache,
-            IStoreService storeService)
-           : base(repositoryFactory, platformMemoryCache, (ICrudService<Store>)storeService)
+        public StoreSearchService(
+            Func<IStoreRepository> repositoryFactory,
+            IPlatformMemoryCache platformMemoryCache,
+            IStoreService storeService,
+            IOptions<CrudOptions> crudOptions)
+           : base(repositoryFactory, platformMemoryCache, storeService, crudOptions)
         {
         }
 
         protected override IQueryable<StoreEntity> BuildQuery(IRepository repository, StoreSearchCriteria criteria)
         {
             var query = ((IStoreRepository)repository).Stores;
+
             if (!string.IsNullOrEmpty(criteria.Keyword))
             {
                 query = query.Where(x => x.Name.Contains(criteria.Keyword) || x.Id.Contains(criteria.Keyword));
             }
+
             if (!criteria.ObjectIds.IsNullOrEmpty())
             {
                 query = query.Where(x => criteria.ObjectIds.Contains(x.Id));
             }
+
             if (!criteria.StoreStates.IsNullOrEmpty())
             {
                 query = query.Where(x => criteria.StoreStates.Contains((StoreState)x.StoreState));
@@ -40,15 +46,19 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
             if (!criteria.FulfillmentCenterIds.IsNullOrEmpty())
             {
-                query = query.Where(x => criteria.FulfillmentCenterIds.Contains(x.FulfillmentCenterId) ||
-                                         x.FulfillmentCenters.Any(y => criteria.FulfillmentCenterIds.Contains(y.FulfillmentCenterId)));
+                query = query
+                    .Where(x =>
+                        criteria.FulfillmentCenterIds.Contains(x.FulfillmentCenterId) ||
+                        x.FulfillmentCenters.Any(y => criteria.FulfillmentCenterIds.Contains(y.FulfillmentCenterId)));
             }
+
             return query;
         }
 
         protected override IList<SortInfo> BuildSortExpression(StoreSearchCriteria criteria)
         {
             var sortInfos = criteria.SortInfos;
+
             if (sortInfos.IsNullOrEmpty())
             {
                 sortInfos = new[]
@@ -59,13 +69,8 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     }
                 };
             }
+
             return sortInfos;
         }
-
-        public virtual Task<StoreSearchResult> SearchStoresAsync(StoreSearchCriteria criteria)
-        {
-            return base.SearchAsync(criteria);
-        }
-
     }
 }
