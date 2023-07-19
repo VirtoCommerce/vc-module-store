@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -18,10 +19,6 @@ using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.Services;
 using Xunit;
-using VirtoCommerce.NotificationsModule.Core.Extensions;
-using System.Collections;
-using System.Linq;
-using VirtoCommerce.Platform.Core.GenericCrud;
 
 namespace VirtoCommerce.StoreModule.Tests
 {
@@ -29,9 +26,9 @@ namespace VirtoCommerce.StoreModule.Tests
     {
         private const string _tokenUrlEncoded = "tokenWithSlashes%2FandPlusSigns%2BandDoubleEquals%3D%3D";
 
-        private readonly Mock<INotificationSearchService> _mockNotificationSearchService = new Mock<INotificationSearchService>();
-        private readonly Mock<INotificationSender> _mocknotificationSender = new Mock<INotificationSender>();
-        private readonly Mock<IStoreService> _mockStoreService = new Mock<IStoreService>();
+        private readonly Mock<INotificationSearchService> _mockNotificationSearchService = new();
+        private readonly Mock<INotificationSender> _mockNotificationSender = new();
+        private readonly Mock<IStoreService> _mockStoreService = new();
         private readonly CustomUserManager _mockUserManager = GetTestUserManager();
 
         [Fact]
@@ -47,7 +44,7 @@ namespace VirtoCommerce.StoreModule.Tests
             //Assert
             Assert.NotNull(link);
             Assert.Contains(_tokenUrlEncoded, link);
-            Assert.Contains(StaticTokenProvider._token, HttpUtility.UrlDecode(link));
+            Assert.Contains(StaticTokenProvider.Token, HttpUtility.UrlDecode(link));
         }
 
         [Theory]
@@ -91,9 +88,9 @@ namespace VirtoCommerce.StoreModule.Tests
             //Arrange
             var sender = GetStoreNotificationSender();
             var user = GetUser();
-            _mockStoreService.As<ICrudService<Store>>()
-                .Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync((Store)null);
+            _mockStoreService
+                .Setup(ss => ss.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(Array.Empty<Store>());
 
             //Act
             var actual = await sender.SendUserEmailVerificationAsync(user);
@@ -111,9 +108,9 @@ namespace VirtoCommerce.StoreModule.Tests
             var user = GetUser();
             var store = GetStore();
             store.Settings = Array.Empty<ObjectSettingEntry>();
-            _mockStoreService.As<ICrudService<Store>>()
-                .Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(store);
+            _mockStoreService
+                .Setup(ss => ss.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(new[] { store });
 
             //Act
             var actual = await sender.SendUserEmailVerificationAsync(user);
@@ -169,12 +166,14 @@ namespace VirtoCommerce.StoreModule.Tests
         {
             _mockNotificationSearchService
                 .Setup(ss => ss.SearchNotificationsAsync(It.IsAny<NotificationSearchCriteria>()))
-                .ReturnsAsync(new NotificationSearchResult { TotalCount = 1, Results = new[] { new ConfirmationEmailNotification { } } });
+                .ReturnsAsync(new NotificationSearchResult { TotalCount = 1, Results = new Notification[] { new ConfirmationEmailNotification() } });
 
-            _mocknotificationSender.Setup(ss => ss.SendNotificationAsync(It.IsAny<Notification>())).ReturnsAsync(new NotificationSendResult { IsSuccess = true });
-            _mockStoreService.As<ICrudService<Store>>().Setup(ss => ss.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(GetStore());
+            _mockNotificationSender.Setup(ss => ss.SendNotificationAsync(It.IsAny<Notification>())).ReturnsAsync(new NotificationSendResult { IsSuccess = true });
+            _mockStoreService
+                .Setup(ss => ss.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(new[] { GetStore() });
 
-            var result = new StoreNotificationSender(_mockNotificationSearchService.Object, _mocknotificationSender.Object, _mockStoreService.Object, () => _mockUserManager);
+            var result = new StoreNotificationSender(_mockNotificationSearchService.Object, _mockNotificationSender.Object, _mockStoreService.Object, () => _mockUserManager);
             return result;
         }
 
@@ -198,8 +197,7 @@ namespace VirtoCommerce.StoreModule.Tests
             var userValidators = new List<IUserValidator<ApplicationUser>>();
             var validator = new Mock<IUserValidator<ApplicationUser>>();
             userValidators.Add(validator.Object);
-            var pwdValidators = new List<PasswordValidator<ApplicationUser>>();
-            pwdValidators.Add(new PasswordValidator<ApplicationUser>());
+            var pwdValidators = new List<PasswordValidator<ApplicationUser>> { new() };
             var passwordHasher = new Mock<IPasswordHasher<ApplicationUser>>();
             passwordHasher.Setup(x => x.VerifyHashedPassword(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(PasswordVerificationResult.Success);
@@ -233,7 +231,7 @@ namespace VirtoCommerce.StoreModule.Tests
 
     internal class StaticTokenProvider : IUserTwoFactorTokenProvider<ApplicationUser>
     {
-        internal const string _token = "tokenWithSlashes/andPlusSigns+andDoubleEquals==";
+        internal const string Token = "tokenWithSlashes/andPlusSigns+andDoubleEquals==";
 
         public async Task<string> GenerateAsync(string purpose, UserManager<ApplicationUser> manager, ApplicationUser user)
         {
@@ -252,7 +250,7 @@ namespace VirtoCommerce.StoreModule.Tests
 
         private static string MakeToken(string purpose, string userId)
         {
-            return string.Join(":", userId, purpose, _token);
+            return string.Join(":", userId, purpose, Token);
         }
     }
 }

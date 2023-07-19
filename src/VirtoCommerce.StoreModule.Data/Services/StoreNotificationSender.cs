@@ -8,7 +8,6 @@ using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Types;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -21,40 +20,49 @@ namespace VirtoCommerce.StoreModule.Data.Services
     {
         private readonly INotificationSearchService _notificationSearchService;
         private readonly INotificationSender _notificationSender;
-        private readonly ICrudService<Store> _storeService;
+        private readonly IStoreService _storeService;
         private readonly Func<UserManager<ApplicationUser>> _userManagerFactory;
 
         public StoreNotificationSender(INotificationSearchService notificationSearchService, INotificationSender notificationSender, IStoreService storeService, Func<UserManager<ApplicationUser>> userManagerFactory)
         {
             _notificationSearchService = notificationSearchService;
             _notificationSender = notificationSender;
-            _storeService = (ICrudService<Store>)storeService;
+            _storeService = storeService;
             _userManagerFactory = userManagerFactory;
         }
 
         public virtual async Task<NotificationSendResult> SendUserEmailVerificationAsync(ApplicationUser user)
         {
             // Return error if store not found
-            var store = await _storeService.GetByIdAsync(user.StoreId, StoreResponseGroup.None.ToString());
-            if (store is null) return new NotificationSendResult
+            var store = await _storeService.GetNoCloneAsync(user.StoreId, StoreResponseGroup.None.ToString());
+            if (store is null)
             {
-                ErrorMessage = $"Can't find store for user {user.UserName}."
-            };
+                return new NotificationSendResult
+                {
+                    ErrorMessage = $"Can't find store for user {user.UserName}."
+                };
+            }
 
             // Return error if email verification feature is disabled
             var settingDescriptor = StoreSettings.General.EmailVerificationEnabled;
             var isVerificationEnabled = store.Settings.GetSettingValue(settingDescriptor.Name, (bool)settingDescriptor.DefaultValue);
-            if (!isVerificationEnabled) return new NotificationSendResult
+            if (!isVerificationEnabled)
             {
-                ErrorMessage = $"Email verification sending disabled. Check {settingDescriptor.Name} setting for store {store.Id}."
-            };
+                return new NotificationSendResult
+                {
+                    ErrorMessage = $"Email verification sending disabled. Check {settingDescriptor.Name} setting for store {store.Id}."
+                };
+            }
 
             // Return error if notification is not registered
             var notification = await _notificationSearchService.GetNotificationAsync<ConfirmationEmailNotification>(new TenantIdentity(store.Id, nameof(Store)));
-            if (notification is null) return new NotificationSendResult
+            if (notification is null)
             {
-                ErrorMessage = $"Can't find {nameof(ConfirmationEmailNotification)} notification for store {store.Id}."
-            };
+                return new NotificationSendResult
+                {
+                    ErrorMessage = $"Can't find {nameof(ConfirmationEmailNotification)} notification for store {store.Id}."
+                };
+            }
 
             notification.Url = await GenerateEmailVerificationLink(user, store);
             notification.From = store.AdminEmailWithName ?? store.EmailWithName;

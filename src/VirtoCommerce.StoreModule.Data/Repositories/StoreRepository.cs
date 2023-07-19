@@ -11,19 +11,21 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 {
     public class StoreRepository : DbContextRepositoryBase<StoreDbContext>, IStoreRepository
     {
-        public StoreRepository(StoreDbContext dbContext) : base(dbContext)
+        public StoreRepository(StoreDbContext dbContext)
+            : base(dbContext)
         {
         }
 
-        public virtual async Task<IEnumerable<StoreEntity>> GetByIdsAsync(IEnumerable<string> ids, string responseGroup = null)
+        public virtual async Task<IList<StoreEntity>> GetByIdsAsync(IList<string> ids, string responseGroup = null)
         {
             var storeResponseGroup = EnumUtility.SafeParseFlags(responseGroup, StoreResponseGroup.Full);
 
-            var retVal = await Stores.Where(x => ids.Contains(x.Id))
-                               .Include(x => x.Languages)
-                               .Include(x => x.Currencies)
-                               .Include(x => x.TrustedGroups)
-                               .ToArrayAsync();
+            var retVal = await Stores
+                .Where(x => ids.Contains(x.Id))
+                .Include(x => x.Languages)
+                .Include(x => x.Currencies)
+                .Include(x => x.TrustedGroups)
+                .ToListAsync();
 
             if (storeResponseGroup.HasFlag(StoreResponseGroup.StoreFulfillmentCenters))
             {
@@ -48,6 +50,5 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
         public IQueryable<SeoInfoEntity> SeoInfos => DbContext.Set<SeoInfoEntity>();
         public IQueryable<StoreDynamicPropertyObjectValueEntity> DynamicPropertyObjectValues => DbContext.Set<StoreDynamicPropertyObjectValueEntity>();
-
     }
 }
