@@ -20,27 +20,30 @@ namespace VirtoCommerce.StoreModule.Data.Services
 {
     public class StoreService : CrudService<Store, StoreEntity, StoreChangeEvent, StoreChangedEvent>, IStoreService
     {
+        private readonly Func<IStoreRepository> _repositoryFactory;
+        private readonly IEventPublisher _eventPublisher;
         private readonly ISettingsManager _settingsManager;
 
-        public StoreService(Func<IStoreRepository> repositoryFactory, IPlatformMemoryCache platformMemoryCache, IEventPublisher eventPublisher, ISettingsManager settingsManager)
+        public StoreService(
+            Func<IStoreRepository> repositoryFactory,
+            IPlatformMemoryCache platformMemoryCache,
+            IEventPublisher eventPublisher,
+            ISettingsManager settingsManager)
             : base(repositoryFactory, platformMemoryCache, eventPublisher)
         {
+            _repositoryFactory = repositoryFactory;
+            _eventPublisher = eventPublisher;
             _settingsManager = settingsManager;
         }
 
-        public async Task<IEnumerable<string>> GetUserAllowedStoreIdsAsync(ApplicationUser user)
+        public async Task<IList<string>> GetUserAllowedStoreIdsAsync(ApplicationUser user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException("user");
-            }
-
             var retVal = new List<string>();
 
-            if (user.StoreId != null)
+            if (user?.StoreId != null)
             {
-                var stores = await GetByIdsAsync(new[] { user.StoreId }, StoreResponseGroup.StoreInfo.ToString());
-                foreach (var store in stores)
+                var store = await this.GetNoCloneAsync(user.StoreId, StoreResponseGroup.StoreInfo.ToString());
+                if (store != null)
                 {
                     retVal.Add(store.Id);
                     if (!store.TrustedGroups.IsNullOrEmpty())
@@ -49,15 +52,17 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     }
                 }
             }
+
             return retVal;
         }
 
-        public override async Task DeleteAsync(IEnumerable<string> ids, bool softDelete = false) {
+        public override async Task DeleteAsync(IList<string> ids, bool softDelete = false)
+        {
             using (var repository = _repositoryFactory())
             {
                 var changedEntries = new List<GenericChangedEntry<Store>>();
-                var stores = await GetByIdsAsync(ids, StoreResponseGroup.StoreInfo.ToString());
-                var dbStores = await ((IStoreRepository)repository).GetByIdsAsync(ids);
+                var stores = await GetAsync(ids, StoreResponseGroup.StoreInfo.ToString());
+                var dbStores = await repository.GetByIdsAsync(ids);
 
                 foreach (var store in stores)
                 {
@@ -75,7 +80,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             }
         }
 
-        protected override Task<IEnumerable<StoreEntity>> LoadEntities(IRepository repository, IEnumerable<string> ids, string responseGroup)
+        protected override Task<IList<StoreEntity>> LoadEntities(IRepository repository, IList<string> ids, string responseGroup)
         {
             return ((IStoreRepository)repository).GetByIdsAsync(ids, responseGroup);
         }
@@ -86,13 +91,13 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return model;
         }
 
-        protected override Task BeforeSaveChanges(IEnumerable<Store> models)
+        protected override Task BeforeSaveChanges(IList<Store> models)
         {
             ValidateStoresProperties(models);
-            return Task.CompletedTask;  
+            return Task.CompletedTask;
         }
 
-        protected override Task AfterSaveChangesAsync(IEnumerable<Store> models, IEnumerable<GenericChangedEntry<Store>> changedEntries)
+        protected override Task AfterSaveChangesAsync(IList<Store> models, IList<GenericChangedEntry<Store>> changedEntries)
         {
             return _settingsManager.DeepSaveSettingsAsync(models);
         }
@@ -110,22 +115,5 @@ namespace VirtoCommerce.StoreModule.Data.Services
                 validator.ValidateAndThrow(store);
             }
         }
-
-        #region IStoreService compatibility
-        public async Task<Store[]> GetByIdsAsync(string[] ids, string responseGroup = null)
-        {
-            return (await GetByIdsAsync((IEnumerable<string>)ids, responseGroup)).ToArray();
-        }
-
-        public Task SaveChangesAsync(Store[] stores)
-        {
-            return SaveChangesAsync((IEnumerable<Store>)stores);
-        }
-
-        public Task DeleteAsync(string[] ids)
-        {
-            return DeleteAsync((IEnumerable<string>)ids);
-        }
-        #endregion
     }
 }

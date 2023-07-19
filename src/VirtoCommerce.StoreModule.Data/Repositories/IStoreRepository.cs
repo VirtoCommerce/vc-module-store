@@ -12,7 +12,6 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
         IQueryable<SeoInfoEntity> SeoInfos { get; }
         IQueryable<StoreDynamicPropertyObjectValueEntity> DynamicPropertyObjectValues { get; }
-        Task<IEnumerable<StoreEntity>> GetByIdsAsync(IEnumerable<string> ids, string responseGroup = null);
-
+        Task<IList<StoreEntity>> GetByIdsAsync(IList<string> ids, string responseGroup = null);
     }
 }

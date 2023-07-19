@@ -8,8 +8,6 @@ using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.CoreModule.Data.Currency;
 using VirtoCommerce.Platform.Core.Caching;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.GenericCrud;
-using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.StoreModule.Data.Services
@@ -17,11 +15,11 @@ namespace VirtoCommerce.StoreModule.Data.Services
     public class StoreCurrencyResolver : IStoreCurrencyResolver
     {
         private readonly ICurrencyService _currencyService;
-        private readonly ICrudService<Store> _storeService;
+        private readonly IStoreService _storeService;
         private readonly IPlatformMemoryCache _platformMemoryCache;
         public StoreCurrencyResolver(
             ICurrencyService currencyService,
-            ICrudService<Store> storeService,
+            IStoreService storeService,
             IPlatformMemoryCache platformMemoryCache)
         {
             _currencyService = currencyService;
@@ -38,7 +36,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     throw new ArgumentNullException(nameof(storeId));
                 }
 
-                var store = await _storeService.GetByIdAsync(storeId);
+                var store = await _storeService.GetNoCloneAsync(storeId);
 
                 cultureName = store.DefaultLanguage ?? Language.InvariantLanguage.CultureName;
             }
@@ -62,13 +60,13 @@ namespace VirtoCommerce.StoreModule.Data.Services
         {
             if (string.IsNullOrWhiteSpace(currencyCode))
             {
-                var store = await _storeService.GetByIdAsync(storeId);
+                var store = await _storeService.GetNoCloneAsync(storeId);
 
                 currencyCode = store.DefaultCurrency;
             }
 
             var allCurrencies = await GetAllStoreCurrenciesAsync(storeId, cultureName);
-            
+
             var currency = allCurrencies.FirstOrDefault(x => x.Code.EqualsInvariant(currencyCode));
             if (currency == null)
             {

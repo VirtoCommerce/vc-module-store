@@ -1,14 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using VirtoCommerce.Platform.Core.Caching;
-using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.Platform.Core.Events;
-using VirtoCommerce.Platform.Core.GenericCrud;
 using VirtoCommerce.Platform.Core.Settings;
-using VirtoCommerce.Platform.Data.DynamicProperties;
 using VirtoCommerce.Platform.Data.Repositories;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
@@ -53,7 +48,7 @@ namespace VirtoCommerce.StoreModule.Tests
         [InlineData("$$TestCode$$$")]
         public virtual void CanTryCreateNewStoreWithInvalidCode_ThrowsValidationException(string code)
         {
-            var service = (ICrudService<Store>)GetStoreService();
+            var service = GetStoreService();
             var store = new Store
             {
                 Id = code,
@@ -71,7 +66,7 @@ namespace VirtoCommerce.StoreModule.Tests
             var cacheKey = CacheKey.With(service.GetType(), "GetByIdsAsync", string.Join("-", code), null);
             _platformMemoryCacheMock.Setup(pmc => pmc.CreateEntry(cacheKey)).Returns(_cacheEntryMock.Object);
 
-            Func<Task> act = () =>
+            var act = () =>
             {
                 return service.SaveChangesAsync(new[] { store });
             };
@@ -88,7 +83,7 @@ namespace VirtoCommerce.StoreModule.Tests
         [InlineData("1test1code1")]
         public virtual void CanTryCreateNewStoreWithValidCode(string code)
         {
-            var service = (ICrudService<Store>)GetStoreService();
+            var service = GetStoreService();
             var store = new Store
             {
                 Id = code,
@@ -113,12 +108,10 @@ namespace VirtoCommerce.StoreModule.Tests
             _mockStoreRepository.Setup(ss => ss.UnitOfWork).Returns(_mockUnitOfWork.Object);
             _mockPlatformRepository.Setup(ss => ss.UnitOfWork).Returns(_mockUnitOfWork.Object);
 
-            IPlatformRepository platformRepositoryFactory() => _mockPlatformRepository.Object;
-            Func<IStoreRepository> factory = () => _mockStoreRepository.Object;
+            var factory = () => _mockStoreRepository.Object;
 
             var storeService = new StoreService(factory, _platformMemoryCacheMock.Object, _eventPublisherMock.Object, _mockSettingsManager.Object);
             return storeService;
-          
         }
     }
 }
