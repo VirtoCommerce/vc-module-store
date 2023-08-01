@@ -69,6 +69,14 @@ namespace VirtoCommerce.StoreModule.Core
                     DefaultValue = false,
                 };
 
+                public static SettingDescriptor EmailVerificationRequired = new SettingDescriptor
+                {
+                    Name = "Stores.EmailVerificationRequired",
+                    GroupName = "Store|General",
+                    ValueType = SettingValueType.Boolean,
+                    DefaultValue = false,
+                };
+
                 public static SettingDescriptor EnablePriceRoundingForTotalsCalculation = new SettingDescriptor
                 {
                     Name = "Stores.EnablePriceRoundingForTotalsCalculation",
@@ -86,6 +94,7 @@ namespace VirtoCommerce.StoreModule.Core
                         yield return AllowAnonymousUsers;
                         yield return IsSpa;
                         yield return EmailVerificationEnabled;
+                        yield return EmailVerificationRequired;
                         yield return EnablePriceRoundingForTotalsCalculation;
                     }
                 }
