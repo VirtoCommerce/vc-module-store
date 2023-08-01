@@ -69,7 +69,7 @@ namespace VirtoCommerce.StoreModule.Core
                     DefaultValue = false,
                 };
 
-                public static SettingDescriptor EmailVerificationRequired = new SettingDescriptor
+                public static SettingDescriptor EmailVerificationRequired { get; } = new SettingDescriptor
                 {
                     Name = "Stores.EmailVerificationRequired",
                     GroupName = "Store|General",
