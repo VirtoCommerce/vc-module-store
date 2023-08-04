@@ -186,8 +186,12 @@
         "description": "Determines the type of links for products and categories. Examples: 1. Long:  /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product, 2. Collapsed: /virtual-parent-category/my-cool-category/my-cool-product, 3. Short: /my-cool-product, 4. None: /product/123"
       },
       "EmailVerificationEnabled": {
-        "title": "Email address verification",
+        "title": "Email address verification enabled",
         "description": "Enables the email verification process for users"
+      },
+      "EmailVerificationRequired": {
+        "title": "Email address verification required",
+        "description": "Controls verification process for users"
       },
       "EnablePriceRoundingForTotalsCalculation": {
         "title": "Round price for total calculation",
