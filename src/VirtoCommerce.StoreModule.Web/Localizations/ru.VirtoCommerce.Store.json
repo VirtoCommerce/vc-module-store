@@ -182,7 +182,7 @@
       },
       "SeoLinksType": {
         "title": "SEO ссылки",
-        "description": "Определяет тип ссылок для продуктов и категорий. Примеры:/n 1. Длинный: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,/n 2. Сжатый: /virtual-parent-category/my-cool-category/my-cool-product,/n 3. Короткий: /my-cool-product,/n 4. Отсутствует: /product/123"
+        "description": "Определяет тип ссылок для продуктов и категорий. Примеры:\n 1. Длинный: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,\n 2. Сжатый: /virtual-parent-category/my-cool-category/my-cool-product,\n 3. Короткий: /my-cool-product,\n 4. Отсутствует: /product/123"
       },
       "EmailVerificationEnabled": {
         "title": "Проверка адреса электронной почты",
