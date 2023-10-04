@@ -183,7 +183,7 @@
       },
       "SeoLinksType": {
         "title": "SEO links",
-        "description": "Determines the type of links for products and categories. Examples: 1. Long:  /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product, 2. Collapsed: /virtual-parent-category/my-cool-category/my-cool-product, 3. Short: /my-cool-product, 4. None: /product/123"
+        "description": "Determines the type of links for products and categories. Examples:\n 1. Long:  /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,\n 2. Collapsed: /virtual-parent-category/my-cool-category/my-cool-product,\n 3. Short: /my-cool-product,\n 4. None: /product/123"
       },
       "EmailVerificationEnabled": {
         "title": "Email address verification enabled",
