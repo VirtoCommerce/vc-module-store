@@ -107,14 +107,7 @@ namespace VirtoCommerce.StoreModule.Web.ExportImport
                                     await _storeService.SaveChangesAsync(new[] { store });
                                 }
 
-                                if (storeCount > 0)
-                                {
-                                    progressInfo.Description = $"{i} of {storeCount} stores imported";
-                                }
-                                else
-                                {
-                                    progressInfo.Description = $"{i} stores imported";
-                                }
+                                progressInfo.Description = $"{i} of {storeCount} stores imported";
 
                                 progressCallback(progressInfo);
                             }
