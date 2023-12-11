@@ -45,7 +45,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
             // Return error if email verification feature is disabled
             var settingDescriptor = StoreSettings.General.EmailVerificationEnabled;
-            var isVerificationEnabled = store.Settings.GetSettingValue(settingDescriptor.Name, (bool)settingDescriptor.DefaultValue);
+            var isVerificationEnabled = store.Settings.GetValue<bool>(settingDescriptor);
             if (!isVerificationEnabled)
             {
                 return new NotificationSendResult
