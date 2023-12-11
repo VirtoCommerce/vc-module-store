@@ -7,7 +7,6 @@ using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.Repositories;
 using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using Xunit;
@@ -101,10 +100,16 @@ namespace VirtoCommerce.StoreModule.Tests
             var cacheKey = CacheKey.With(service.GetType(), "GetByIdsAsync", string.Join("-", code), null);
             _platformMemoryCacheMock.Setup(pmc => pmc.CreateEntry(cacheKey)).Returns(_cacheEntryMock.Object);
 
-            await service.SaveChangesAsync(new[] { store });
+            var act = () =>
+            {
+                return service.SaveChangesAsync(new[] { store });
+            };
+
+            var exception = await Record.ExceptionAsync(act);
+            Assert.Null(exception);
         }
 
-        private IStoreService GetStoreService()
+        private StoreService GetStoreService()
         {
             _mockStoreRepository.Setup(ss => ss.UnitOfWork).Returns(_mockUnitOfWork.Object);
             _mockPlatformRepository.Setup(ss => ss.UnitOfWork).Returns(_mockUnitOfWork.Object);
