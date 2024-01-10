@@ -17,6 +17,7 @@ using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Security.Events;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.Platform.Data.Extensions;
+using VirtoCommerce.Platform.Security.Services;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Events;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -29,6 +30,7 @@ using VirtoCommerce.StoreModule.Data.MySql;
 using VirtoCommerce.StoreModule.Data.PostgreSql;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
+using VirtoCommerce.StoreModule.Data.Services.Security;
 using VirtoCommerce.StoreModule.Data.SqlServer;
 using VirtoCommerce.StoreModule.Web.Authorization;
 
@@ -72,6 +74,8 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
             serviceCollection.AddTransient<IStoreCurrencyResolver, StoreCurrencyResolver>();
+
+            serviceCollection.AddTransient<IUserSignInValidator, UserCanLoginToStoreValidator>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
