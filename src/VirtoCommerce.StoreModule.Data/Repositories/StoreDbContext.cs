@@ -2,10 +2,11 @@ using System.Reflection;
 using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
 using VirtoCommerce.StoreModule.Data.Model;
+using VirtoCommerce.Platform.Data.Infrastructure;
 
 namespace VirtoCommerce.StoreModule.Data.Repositories
 {
-    public class StoreDbContext : DbContextWithTriggers
+    public class StoreDbContext : DbContextBase
     {
         public StoreDbContext(DbContextOptions<StoreDbContext> options)
             : base(options)
