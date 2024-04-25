@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Security.Authorization;
 using VirtoCommerce.StoreModule.Core.Model;
