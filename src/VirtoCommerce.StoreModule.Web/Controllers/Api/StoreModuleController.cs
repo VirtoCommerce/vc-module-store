@@ -101,19 +101,21 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("{id}")]
         public async Task<ActionResult<Store>> GetStoreById(string id)
         {
-            var criteria = new StoreSearchCriteria
+            var stores = await _storeService.GetNoCloneAsync(new[] { id }, StoreResponseGroup.Full.ToString());
+            var store = stores.FirstOrDefault();
+
+            if (store == null)
             {
-                Skip = 0,
-                Take = 1,
-                ObjectIds = new[] { id }
-            };
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+                return null;
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
             }
-            var result = await _storeSearchService.SearchNoCloneAsync(criteria);
-            return Ok(result.Stores.FirstOrDefault());
+
+            return Ok(store);
         }
 
 
