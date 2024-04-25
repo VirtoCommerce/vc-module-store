@@ -101,8 +101,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("{id}")]
         public async Task<ActionResult<Store>> GetStoreById(string id)
         {
-            var stores = await _storeService.GetNoCloneAsync(new[] { id }, StoreResponseGroup.Full.ToString());
-            var store = stores.FirstOrDefault();
+            var store = await _storeService.GetNoCloneAsync(id, StoreResponseGroup.Full.ToString());
 
             if (store == null)
             {
