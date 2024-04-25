@@ -62,7 +62,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
-                return Unauthorized();
+                return Forbid();
             }
             if (string.IsNullOrEmpty(criteria.ResponseGroup))
             {
@@ -89,7 +89,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
-                return Unauthorized();
+                return Forbid();
             }
             var result = await _storeSearchService.SearchAsync(criteria);
             return result.Stores.ToArray();
@@ -103,19 +103,20 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("{id}")]
         public async Task<ActionResult<Store>> GetStoreById(string id)
         {
-            var criteria = new StoreSearchCriteria
+            var store = await _storeService.GetByIdAsync(id, StoreResponseGroup.Full.ToString());
+
+            if (store == null)
             {
-                Skip = 0,
-                Take = 1,
-                ObjectIds = new[] { id }
-            };
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+                return null;
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
-                return Unauthorized();
+                return Forbid();
             }
-            var result = await _storeSearchService.SearchAsync(criteria);
-            return Ok(result.Stores.FirstOrDefault());
+
+            return Ok(store);
         }
 
 
@@ -144,7 +145,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
             if (!authorizationResult.Succeeded)
             {
-                return Unauthorized();
+                return Forbid();
             }
             await _storeCrudService.SaveChangesAsync(new[] { store });
             return NoContent();
@@ -162,7 +163,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete));
             if (!authorizationResult.Succeeded)
             {
-                return Unauthorized();
+                return Forbid();
             }
             await _storeCrudService.DeleteAsync(ids);
             return NoContent();
