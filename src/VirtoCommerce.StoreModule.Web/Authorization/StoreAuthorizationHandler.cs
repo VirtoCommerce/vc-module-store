@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Security.Authorization;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -32,8 +33,24 @@ namespace VirtoCommerce.StoreModule.Web.Authorization
                     var allowedStoreIds = storeSelectedScopes.Select(x => x.StoreId).Distinct().ToArray();
                     if (context.Resource is StoreSearchCriteria criteria)
                     {
-                        criteria.ObjectIds = allowedStoreIds;
-                        context.Succeed(requirement);
+                        if (!criteria.ObjectIds.IsNullOrEmpty())
+                        {
+                            var scopedObjectIds = criteria.ObjectIds.Intersect(allowedStoreIds).ToArray();
+                            if (scopedObjectIds.Length == 0)
+                            {
+                                context.Fail();
+                            }
+                            else
+                            {
+                                criteria.ObjectIds = scopedObjectIds;
+                                context.Succeed(requirement);
+                            }
+                        }
+                        else
+                        {
+                            criteria.ObjectIds = allowedStoreIds;
+                            context.Succeed(requirement);
+                        }
                     }
                     if (context.Resource is Store store && allowedStoreIds.Contains(store.Id))
                     {
