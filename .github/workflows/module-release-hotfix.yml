@@ -46,11 +46,12 @@ jobs:
   publish-github-release:
     needs:
       [build, test, get-metadata]
-    uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@v3.800.5
+    uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@VCST-915
     with:
       fullKey: ${{ needs.build.outputs.packageFullKey }}
       changeLog: '${{ needs.get-metadata.outputs.changeLog }}'
       incrementPatch: ${{ github.event.inputs.incrementPatch }}
+      makeLatest: 'false'
 
     secrets:
       envPAT: ${{ secrets.GITHUB_TOKEN }}
