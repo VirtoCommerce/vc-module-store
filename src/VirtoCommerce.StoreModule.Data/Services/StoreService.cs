@@ -64,7 +64,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
             using (var repository = _repositoryFactory())
             {
                 storeId = repository.Stores.Where(c => c.Url.Contains(domain)).Select(c => c.Id).FirstOrDefault();
-                if (!string.IsNullOrEmpty(storeId))
+                if (string.IsNullOrEmpty(storeId))
                 {
                     return null;
                 }
