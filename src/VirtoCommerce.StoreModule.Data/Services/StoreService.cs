@@ -56,23 +56,6 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return retVal;
         }
 
-        public Task<Store> GetByDomainAsync(string domain, string responseGroup = null, bool clone = true)
-        {
-            ArgumentException.ThrowIfNullOrEmpty(domain, nameof(domain));
-
-            string storeId = null;
-            using (var repository = _repositoryFactory())
-            {
-                storeId = repository.Stores.Where(c => c.Url.Contains(domain)).Select(c => c.Id).FirstOrDefault();
-                if (string.IsNullOrEmpty(storeId))
-                {
-                    return Task.FromResult<Store>(null);
-                }
-            }
-
-            return this.GetByIdAsync(storeId, responseGroup, clone);
-        }
-
         public override async Task DeleteAsync(IList<string> ids, bool softDelete = false)
         {
             using (var repository = _repositoryFactory())

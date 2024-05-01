@@ -14,7 +14,5 @@ namespace VirtoCommerce.StoreModule.Core.Services
         /// <param name="user"></param>
         /// <returns></returns>
         Task<IList<string>> GetUserAllowedStoreIdsAsync(ApplicationUser user);
-
-        Task<Store> GetByDomainAsync(string domain, string responseGroup = null, bool clone = true);
     }
 }

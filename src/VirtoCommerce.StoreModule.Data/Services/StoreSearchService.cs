@@ -52,6 +52,12 @@ namespace VirtoCommerce.StoreModule.Data.Services
                         x.FulfillmentCenters.Any(y => criteria.FulfillmentCenterIds.Contains(y.FulfillmentCenterId)));
             }
 
+            if (!criteria.Domain.IsNullOrEmpty())
+            {
+                var domainFilter = $"://{criteria.Domain}";
+                query = query.Where(c => c.Url.Contains(domainFilter));
+            }
+
             return query;
         }
 
