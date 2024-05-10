@@ -24,5 +24,7 @@ namespace VirtoCommerce.StoreModule.Core.Model.Search
 
         public StoreState[] StoreStates { get; set; }
         public string[] FulfillmentCenterIds { get; set; }
+
+        public string Domain { get; set; }
     }
 }
