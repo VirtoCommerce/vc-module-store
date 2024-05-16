@@ -8,9 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.NotificationsModule.Core.Services;
-using VirtoCommerce.Platform.Core.Bus;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
+using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.ExportImport;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
@@ -83,28 +83,26 @@ namespace VirtoCommerce.StoreModule.Web
 
             var settingsRegistrar = appBuilder.ApplicationServices.GetRequiredService<ISettingsRegistrar>();
             settingsRegistrar.RegisterSettings(ModuleConstants.Settings.AllSettings, ModuleInfo.Id);
-            //Register settings for type Store
+            // Register settings for type Store
             settingsRegistrar.RegisterSettingsForType(ModuleConstants.Settings.AllSettings, nameof(Store));
 
             var permissionsRegistrar = appBuilder.ApplicationServices.GetRequiredService<IPermissionsRegistrar>();
             permissionsRegistrar.RegisterPermissions(ModuleInfo.Id, "Store", ModuleConstants.Security.Permissions.AllPermissions);
 
-            //Register Permission scopes
+            // Register permission scopes
             AbstractTypeFactory<PermissionScope>.RegisterType<StoreSelectedScope>();
 
             permissionsRegistrar.WithAvailabeScopesForPermissions(
-                new[]
-                {
+                [
                     ModuleConstants.Security.Permissions.Read,
                     ModuleConstants.Security.Permissions.Update,
                     ModuleConstants.Security.Permissions.Delete,
-                },
+                ],
                 new StoreSelectedScope());
 
-            //Events handlers registration
-            var inProcessBus = appBuilder.ApplicationServices.GetService<IHandlerRegistrar>();
-            inProcessBus.RegisterHandler<StoreChangedEvent>(async (message, _) => await appBuilder.ApplicationServices.GetService<LogChangesChangedEventHandler>().Handle(message));
-            inProcessBus.RegisterHandler<UserVerificationEmailEvent>(async (message, _) => await appBuilder.ApplicationServices.GetService<SendStoreUserVerificationEmailHandler>().Handle(message));
+            // Register event handlers
+            appBuilder.RegisterEventHandler<StoreChangedEvent, LogChangesChangedEventHandler>();
+            appBuilder.RegisterEventHandler<UserVerificationEmailEvent, SendStoreUserVerificationEmailHandler>();
 
             var databaseProvider = Configuration.GetValue("DatabaseProvider", "SqlServer");
 
