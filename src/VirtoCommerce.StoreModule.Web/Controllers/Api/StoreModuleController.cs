@@ -19,6 +19,7 @@ using VirtoCommerce.StoreModule.Web.Model;
 
 namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 {
+
     [Route("api/stores")]
     [Authorize]
     public class StoreModuleController : Controller
@@ -32,6 +33,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         private readonly INotificationSearchService _notificationSearchService;
         private readonly INotificationSender _notificationSender;
 
+        private readonly IPublicStoreSettings _publicStoreSettings;
+
         public StoreModuleController(
             IStoreService storeService,
             IStoreSearchService storeSearchService,
@@ -39,7 +42,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             INotificationSearchService notificationSearchService,
             INotificationSender notificationSender,
             SignInManager<ApplicationUser> signInManager,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            IPublicStoreSettings publicStoreSettings)
         {
             _storeService = storeService;
             _storeSearchService = storeSearchService;
@@ -48,6 +52,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             _notificationSender = notificationSender;
             _signInManager = signInManager;
             _authorizationService = authorizationService;
+            _publicStoreSettings = publicStoreSettings;
         }
 
         /// <summary>
@@ -267,6 +272,14 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             }
 
             return NotFound();
+        }
+
+        [HttpGet]
+        [Route("{id}/public-settings")]
+        public async Task<ActionResult<ModulePublicStoreSettings[]>> GetStorePublicSettingsById(string id)
+        {
+            var settings = await _publicStoreSettings.GetSettings(id);
+            return settings.ToArray();
         }
     }
 }
