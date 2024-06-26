@@ -276,6 +276,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 
         [HttpGet]
         [Route("{id}/public-settings")]
+        [AllowAnonymous]
         public async Task<ActionResult<ModulePublicStoreSettings[]>> GetStorePublicSettingsById(string id)
         {
             var settings = await _publicStoreSettings.GetSettings(id);
