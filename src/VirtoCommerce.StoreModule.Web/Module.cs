@@ -72,6 +72,7 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
             serviceCollection.AddTransient<IStoreCurrencyResolver, StoreCurrencyResolver>();
+            serviceCollection.AddTransient<IPublicStoreSettings, PublicStoreSettings>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
@@ -127,17 +128,17 @@ namespace VirtoCommerce.StoreModule.Web
             //Nothing do here
         }
 
-        public async Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
+        public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
             ICancellationToken cancellationToken)
         {
-            await _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream,
+            return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream,
                 progressCallback, cancellationToken);
         }
 
-        public async Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
+        public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
             ICancellationToken cancellationToken)
         {
-            await _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream,
+            return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream,
                 progressCallback, cancellationToken);
         }
     }
