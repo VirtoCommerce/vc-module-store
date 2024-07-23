@@ -81,37 +81,36 @@ public class StoreAuthenticationService : IStoreAuthenticationService
 
         foreach (var globalScheme in globalSchemes.Where(scheme => !storeSchemes.Any(x => x.Name.EqualsIgnoreCase(scheme.Name))))
         {
-            storeSchemes.Add(new StoreAuthenticationScheme
-            {
-                StoreId = storeId,
-                Name = globalScheme.Name,
-                DisplayName = globalScheme.DisplayName,
-                IsActive = true,
-            });
+            var storeScheme = AbstractTypeFactory<StoreAuthenticationScheme>.TryCreateInstance();
+            storeScheme.StoreId = storeId;
+            storeScheme.Name = globalScheme.Name;
+            storeScheme.DisplayName = globalScheme.DisplayName;
+            storeScheme.IsActive = true;
+
+            storeSchemes.Add(storeScheme);
         }
 
         return storeSchemes;
     }
 
-    private async Task<List<StoreAuthenticationScheme>> GetGlobalAuthenticationSchemes()
+    private async Task<List<GlobalAuthenticationScheme>> GetGlobalAuthenticationSchemes()
     {
         var schemes = await _signInManager.GetExternalAuthenticationSchemesAsync();
 
         var result = schemes
-            .Select(scheme => new
+            .Select(scheme => new GlobalAuthenticationScheme
             {
-                scheme.Name,
-                scheme.DisplayName,
+                Name = scheme.Name,
+                DisplayName = scheme.DisplayName,
                 Priority = _externalSigninProviderConfigs.FirstOrDefault(x => x.AuthenticationType.EqualsIgnoreCase(scheme.Name))?.Provider.Priority ?? 0,
             })
             .OrderByDescending(x => x.Priority)
             .ThenBy(x => x.DisplayName)
-            .Select(x => new StoreAuthenticationScheme { Name = x.Name, DisplayName = x.DisplayName })
             .ToList();
 
         if (_passwordLoginOptions.Enabled)
         {
-            result.Insert(0, new StoreAuthenticationScheme
+            result.Insert(0, new GlobalAuthenticationScheme
             {
                 Name = _passwordLoginOptions.AuthenticationType,
                 DisplayName = _passwordLoginOptions.AuthenticationType,
@@ -119,5 +118,12 @@ public class StoreAuthenticationService : IStoreAuthenticationService
         }
 
         return result;
+    }
+
+    private class GlobalAuthenticationScheme
+    {
+        public string Name { get; init; }
+        public string DisplayName { get; init; }
+        public int Priority { get; init; }
     }
 }
