@@ -42,6 +42,12 @@
           "store-url": "Please enter URL"
         }
       },
+      "store-authentication": {
+        "title": "Store authentication types",
+        "active": "Is active",
+        "name": "Name",
+        "no-data": "No authentication types found"
+      },
       "store-detail": {
         "subtitle": "Store details",
         "labels": {
@@ -114,6 +120,9 @@
       "storeAdvancedWidget": {
         "title": "Advanced properties",
         "blade-subtitle": "Advanced properties"
+      },
+      "store-authentication-widget": {
+        "title": "Authentication"
       },
       "storeNotificationsLogWidget": {
         "title": "Notification log",

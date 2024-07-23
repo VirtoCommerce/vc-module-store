@@ -1,8 +1,7 @@
 using System.Reflection;
-using EntityFrameworkCore.Triggers;
 using Microsoft.EntityFrameworkCore;
-using VirtoCommerce.StoreModule.Data.Model;
 using VirtoCommerce.Platform.Data.Infrastructure;
+using VirtoCommerce.StoreModule.Data.Model;
 
 namespace VirtoCommerce.StoreModule.Data.Repositories
 {
@@ -73,6 +72,13 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
                         .IsUnique(false)
                         .HasDatabaseName("IX_StoreDynamicPropertyObjectValue_ObjectType_ObjectId");
             #endregion
+
+            modelBuilder.Entity<StoreAuthenticationSchemeEntity>().ToTable("StoreAuthenticationScheme").HasKey(x => x.Id);
+            modelBuilder.Entity<StoreAuthenticationSchemeEntity>().Property(x => x.Id).HasMaxLength(128).ValueGeneratedOnAdd();
+            modelBuilder.Entity<StoreAuthenticationSchemeEntity>().HasOne(x => x.Store).WithMany()
+                .HasForeignKey(x => x.StoreId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<StoreAuthenticationSchemeEntity>().HasIndex(x => new { x.StoreId, x.Name }).IsUnique()
+                .HasDatabaseName("IX_StoreAuthenticationScheme_StoreId_Name");
 
 
             // Allows configuration for an entity type for different database types.

@@ -10,9 +10,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="VirtoCommerce.CoreModule.Data" Version="3.800.0" />
-    <PackageReference Include="VirtoCommerce.Platform.Data" Version="3.825.0" />
-    <PackageReference Include="VirtoCommerce.Platform.Hangfire" Version="3.825.0" />
-    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.825.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Hangfire" Version="3.845.0-alpha.12952-vcst-1431" />
+    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.845.0-alpha.12952-vcst-1431" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
