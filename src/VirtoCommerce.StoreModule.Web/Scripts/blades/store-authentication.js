@@ -36,7 +36,7 @@ angular.module('virtoCommerce.storeModule')
             function saveChanges() {
                 blade.isLoading = true;
                 storeAuthenticationApi.update({ storeId: blade.storeId }, blade.currentEntities, blade.refresh);
-            };
+            }
 
             function reset() {
                 angular.copy(blade.originalEntities, blade.currentEntities);
