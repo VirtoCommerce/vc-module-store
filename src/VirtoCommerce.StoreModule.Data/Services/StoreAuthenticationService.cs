@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,18 +35,24 @@ public class StoreAuthenticationService : IStoreAuthenticationService
         _externalSigninProviderConfigs = externalSigninProviderConfigs;
     }
 
-    public Task SaveByStoreIdAsync(string storeId, IList<StoreAuthenticationScheme> models)
+    public Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models)
     {
+        if (string.IsNullOrEmpty(storeId))
+        {
+            throw new ArgumentNullException(nameof(storeId));
+        }
+
         var position = 0;
         models.Apply(x =>
         {
             x.StoreId = storeId;
             x.Position = position++;
         });
+
         return _crudService.SaveChangesAsync(models);
     }
 
-    public async Task<IList<StoreAuthenticationScheme>> GetByStoreIdAsync(string storeId, bool clone = true)
+    public async Task<IList<StoreAuthenticationScheme>> GetStoreSchemesAsync(string storeId, bool clone = true)
     {
         if (string.IsNullOrEmpty(storeId))
         {

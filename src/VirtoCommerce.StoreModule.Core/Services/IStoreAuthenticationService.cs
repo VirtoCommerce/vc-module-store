@@ -6,6 +6,6 @@ namespace VirtoCommerce.StoreModule.Core.Services;
 
 public interface IStoreAuthenticationService
 {
-    Task SaveByStoreIdAsync(string storeId, IList<StoreAuthenticationScheme> models);
-    Task<IList<StoreAuthenticationScheme>> GetByStoreIdAsync(string storeId, bool clone = true);
+    Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models);
+    Task<IList<StoreAuthenticationScheme>> GetStoreSchemesAsync(string storeId, bool clone = true);
 }

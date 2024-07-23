@@ -23,7 +23,7 @@ public class StoreAuthenticationSchemeController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<IList<StoreAuthenticationScheme>>> Get([FromRoute] string storeId)
     {
-        var result = await _service.GetByStoreIdAsync(storeId, clone: false);
+        var result = await _service.GetStoreSchemesAsync(storeId, clone: false);
         return Ok(result);
     }
 
@@ -32,7 +32,7 @@ public class StoreAuthenticationSchemeController : Controller
     [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
     public async Task<ActionResult> Update([FromRoute] string storeId, [FromBody] IList<StoreAuthenticationScheme> models)
     {
-        await _service.SaveByStoreIdAsync(storeId, models);
+        await _service.SaveStoreSchemesAsync(storeId, models);
         return Ok();
     }
 }
