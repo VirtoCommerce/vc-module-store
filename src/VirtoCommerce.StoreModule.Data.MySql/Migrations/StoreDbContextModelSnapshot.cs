@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VirtoCommerce.StoreModule.Data.Repositories;
 
@@ -16,8 +17,10 @@ namespace VirtoCommerce.StoreModule.Data.MySql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.SeoInfoEntity", b =>
                 {
@@ -77,6 +80,52 @@ namespace VirtoCommerce.StoreModule.Data.MySql.Migrations
                     b.HasIndex("StoreId");
 
                     b.ToTable("StoreSeoInfo", (string)null);
+                });
+
+            modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.StoreAuthenticationSchemeEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StoreId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_StoreAuthenticationScheme_StoreId_Name");
+
+                    b.ToTable("StoreAuthenticationScheme", (string)null);
                 });
 
             modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.StoreCurrencyEntity", b =>
@@ -371,6 +420,17 @@ namespace VirtoCommerce.StoreModule.Data.MySql.Migrations
                         .WithMany("SeoInfos")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.StoreAuthenticationSchemeEntity", b =>
+                {
+                    b.HasOne("VirtoCommerce.StoreModule.Data.Model.StoreEntity", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Store");
                 });
