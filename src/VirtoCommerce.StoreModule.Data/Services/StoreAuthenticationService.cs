@@ -120,7 +120,7 @@ public class StoreAuthenticationService : IStoreAuthenticationService
         return result;
     }
 
-    private class GlobalAuthenticationScheme
+    private sealed class GlobalAuthenticationScheme
     {
         public string Name { get; init; }
         public string DisplayName { get; init; }
