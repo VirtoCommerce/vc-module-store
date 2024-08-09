@@ -89,6 +89,11 @@ angular.module(moduleName, [
                     template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/storeNotificationsLogWidget.tpl.html'
                 }, 'storeDetail');
 
+                widgetService.registerWidget({
+                    controller: 'virtoCommerce.storeModule.storeAuthenticationWidgetController',
+                    template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/store-authentication-widget.html'
+                }, 'storeDetail');
+
                 //Register permission scopes templates used for scope bounded definition in role management ui
                 var selectedStoreScope = {
                     type: 'StoreSelectedScope',

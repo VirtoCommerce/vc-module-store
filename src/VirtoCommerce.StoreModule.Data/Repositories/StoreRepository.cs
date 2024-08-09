@@ -50,5 +50,19 @@ namespace VirtoCommerce.StoreModule.Data.Repositories
 
         public IQueryable<SeoInfoEntity> SeoInfos => DbContext.Set<SeoInfoEntity>();
         public IQueryable<StoreDynamicPropertyObjectValueEntity> DynamicPropertyObjectValues => DbContext.Set<StoreDynamicPropertyObjectValueEntity>();
+
+        public IQueryable<StoreAuthenticationSchemeEntity> StoreAuthenticationSchemes => DbContext.Set<StoreAuthenticationSchemeEntity>();
+
+        public virtual async Task<IList<StoreAuthenticationSchemeEntity>> GetStoreAuthenticationSchemesByIdsAsync(IList<string> ids, string responseGroup)
+        {
+            if (ids.IsNullOrEmpty())
+            {
+                return [];
+            }
+
+            return ids.Count == 1
+                ? await StoreAuthenticationSchemes.Where(x => x.Id == ids.First()).ToListAsync()
+                : await StoreAuthenticationSchemes.Where(x => ids.Contains(x.Id)).ToListAsync();
+        }
     }
 }
