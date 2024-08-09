@@ -1,0 +1,28 @@
+<div class="blade-content">
+  <div class="blade-inner">
+    <div class="inner-block">
+      <div class="table-wrapper">
+        <table class="table">
+          <tbody>
+            <tr>
+              <th class="table-col">{{ 'stores.blades.store-authentication.active' | translate }}</th>
+              <th class="table-col">{{ 'stores.blades.store-authentication.name' | translate }}</th>
+            </tr>
+            <tr class="table-item" ng-repeat="data in blade.currentEntities track by data.name " ng-class="{'__selected': data.name === selectedNodeId}">
+              <td class="table-col">
+                  <label class="form-label __switch">
+                    <input type="checkbox" ng-model="data.isActive">
+                    <span class="switch"></span>
+                  </label>
+              </td>
+              <td class="table-col">
+                <span class="table-t">{{data.displayName}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text no-data" ng-if="!blade.currentEntities.length">{{ 'stores.blades.store-authentication.no-data' | translate }}</p>
+    </div>
+  </div>
+</div>

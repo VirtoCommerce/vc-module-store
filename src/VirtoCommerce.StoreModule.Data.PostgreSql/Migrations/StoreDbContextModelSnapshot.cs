@@ -17,7 +17,7 @@ namespace VirtoCommerce.StoreModule.Data.PostgreSql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -82,6 +82,52 @@ namespace VirtoCommerce.StoreModule.Data.PostgreSql.Migrations
                     b.ToTable("StoreSeoInfo", (string)null);
                 });
 
+            modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.StoreAuthenticationSchemeEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StoreId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StoreId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_StoreAuthenticationScheme_StoreId_Name");
+
+                    b.ToTable("StoreAuthenticationScheme", (string)null);
+                });
+
             modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.StoreCurrencyEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -126,7 +172,7 @@ namespace VirtoCommerce.StoreModule.Data.PostgreSql.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("DecimalValue")
-                        .HasColumnType("numeric(18,5)");
+                        .HasColumnType("decimal(18,5)");
 
                     b.Property<string>("DictionaryItemId")
                         .HasMaxLength(128)
@@ -374,6 +420,17 @@ namespace VirtoCommerce.StoreModule.Data.PostgreSql.Migrations
                         .WithMany("SeoInfos")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("VirtoCommerce.StoreModule.Data.Model.StoreAuthenticationSchemeEntity", b =>
+                {
+                    b.HasOne("VirtoCommerce.StoreModule.Data.Model.StoreEntity", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Store");
                 });
