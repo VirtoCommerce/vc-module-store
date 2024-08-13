@@ -18,20 +18,20 @@ public class StoreAuthenticationService : IStoreAuthenticationService
     private readonly IStoreAuthenticationSchemeService _crudService;
     private readonly IStoreAuthenticationSchemeSearchService _searchService;
     private readonly PasswordLoginOptions _passwordLoginOptions;
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly Func<SignInManager<ApplicationUser>> _signInManagerFactory;
     private readonly IEnumerable<ExternalSignInProviderConfiguration> _externalSigninProviderConfigs;
 
     public StoreAuthenticationService(
         IStoreAuthenticationSchemeService crudService,
         IStoreAuthenticationSchemeSearchService searchService,
         IOptions<PasswordLoginOptions> passwordOptions,
-        SignInManager<ApplicationUser> signInManager,
+        Func<SignInManager<ApplicationUser>> signInManagerFactory,
         IEnumerable<ExternalSignInProviderConfiguration> externalSigninProviderConfigs)
     {
         _passwordLoginOptions = passwordOptions.Value;
         _crudService = crudService;
         _searchService = searchService;
-        _signInManager = signInManager;
+        _signInManagerFactory = signInManagerFactory;
         _externalSigninProviderConfigs = externalSigninProviderConfigs;
     }
 
@@ -95,7 +95,8 @@ public class StoreAuthenticationService : IStoreAuthenticationService
 
     private async Task<List<GlobalAuthenticationScheme>> GetGlobalAuthenticationSchemes()
     {
-        var schemes = await _signInManager.GetExternalAuthenticationSchemesAsync();
+        var signInManager = _signInManagerFactory();
+        var schemes = await signInManager.GetExternalAuthenticationSchemesAsync();
 
         var result = schemes
             .Select(scheme => new GlobalAuthenticationScheme
