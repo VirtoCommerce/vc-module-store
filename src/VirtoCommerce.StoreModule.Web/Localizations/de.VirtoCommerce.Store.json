@@ -1,74 +1,92 @@
 {
   "stores": {
-    "main-menu-title": "Stores",
+    "main-menu-title": "Geschäfte",
     "blades": {
       "stores-list": {
-        "title": "Store",
+        "title": "Geschäfte",
         "labels": {
-          "no-stores": "Noch keine Stores",
+          "no-stores": "Sie haben noch keine Geschäfte",
           "name": "Name"
         }
       },
-
       "store-advanced": {
-        "subtitle": {},
+        "subtitle": "",
         "labels": {
           "description": "Beschreibung",
-          "store-country": "Shop Land",
-          "store-region": "Shop region",
-          "store-email": "E-Mail speichern",
-          "store-admin-email": "Shop Admin E-Mail",
-          "fulfillment-center": "Fulfillment Center",
-          "returns-fulfillment-center": "Versandkosten Fulfillment Center",
-          "operational-timezone": "Operative Zeitzone"
+          "store-regional-settings": "Standorteinstellungen",
+          "store-country": "Land des Geschäfts",
+          "store-region": "Bundesland oder Provinz des Geschäfts",
+          "store-email-settings": "E-Mail-Einstellungen",
+          "store-email": "E-Mail",
+          "store-admin-email": "Admin-E-Mail",
+          "store-email-name": "Name",
+          "store-admin-email-name": "Admin-Name",
+          "fulfillment-center": "Standard-Versandzentrum",
+          "returns-fulfillment-center": "Standard-Retouren-Versandzentrum",
+          "additional-fulfillment-centers": "Verfügbare Versandzentren",
+          "additional-returns-fulfillment-centers": "Verfügbare Retouren-Versandzentren",
+          "operational-timezone": "Betriebszeitzone",
+          "store-url": "Geschäfts-URL"
         },
         "placeholders": {
-          "description": "Beschreibung eingeben",
-          "store-country": "Wählen Sie aus...",
-          "store-region": "Region eingeben",
-          "store-email": "Wert eingeben",
-          "store-admin-email": "Wert eingeben",
-          "fulfillment-center": "Wählen Sie aus...",
-          "returns-fulfillment-center": "Wählen Sie aus...",
-          "operational-timezone": "Wählen Sie aus..."
+          "description": "Bitte geben Sie eine Beschreibung an...",
+          "store-country": "Bitte auswählen...",
+          "store-region": "Bitte Bundesland oder Provinz angeben...",
+          "store-email": "Bitte geben Sie eine E-Mail Adresse an",
+          "store-admin-email": "Bitte geben Sie eine E-Mail Adresse an",
+          "store-email-name": "Bitte geben Sie den Namen des Geschäfts an...",
+          "store-admin-email-name": "Bitte geben Sie den Namen des Admins ein",
+          "fulfillment-center": "Bitte auswählen...",
+          "returns-fulfillment-center": "Bitte auswählen...",
+          "operational-timezone": "Bitte auswählen...",
+          "store-url": "Bitte URL eingeben"
         }
       },
+      "store-authentication": {
+        "title": "Authentifizierungstypen des Geschäfts",
+        "active": "Aktiv",
+        "name": "Name",
+        "no-data": "Keine Authentifizierungstypen gefunden"
+      },
       "store-detail": {
-        "subtitle": "Shop Details",
+        "subtitle": "Geschäftsdetails",
         "labels": {
           "code": "Code",
           "name": "Name",
           "catalog": "Katalog",
           "state": "Status",
+          "language": "Sprache",
+          "currency": "Währung",
+          "links": "Links",
           "default-language": "Standardsprache",
           "additional-languages": "Zusätzliche Sprachen",
           "default-currency": "Standardwährung",
-          "additional-currencies": "Weitere Währungen",
-          "linked-stores": "Verbundene Geschäfte (Kunden können Ihre Anmeldeinformationen hier verwenden)"
+          "additional-currencies": "Zusätzliche Währungen",
+          "linked-stores": "Verknüpfte Geschäfte (Kunden können ihre Zugangsdaten für diese Geschäfte verwenden)"
         },
         "placeholders": {
-          "code": "Code eingeben",
-          "name": "Namen eingeben",
-          "catalog": "Wählen Sie aus...",
-          "state": "Wählen Sie aus...",
-          "default-language": "Wählen Sie aus...",
-          "additional-languages": "Wählen Sie aus...",
-          "default-currency": "Wählen Sie aus...",
-          "additional-currencies": "Wählen Sie aus...",
-          "linked-stores": "Dieser Shop hat keine verknüpften Shop"
+          "code": "Bitte Code angeben",
+          "name": "Bitte Name eingeben",
+          "catalog": "Bitte auswählen...",
+          "state": "Bitte auswählen...",
+          "default-language": "Bitte auswählen...",
+          "additional-languages": "Bitte auswählen...",
+          "default-currency": "Bitte auswählen...",
+          "additional-currencies": "Bitte auswählen...",
+          "linked-stores": "Dieses Geschäft hat keine verknüpften Geschäfte"
         },
         "descriptions": {
-          "code": "wird als Store-Primärschlüssel und in Storefront als Teil der URL für die Store-Auswahl verwendet",
-          "name": "Anzeigename für Store im Manager darstellen",
-          "catalog": "ein physischer oder virtueller Katalog, der diesem Geschäft zugeordnet ist",
-          "state": "aktueller Geschäftszustand",
-          "default-language": "Primärsprache für diesen Laden",
-          "default-currency": "Hauptwährung für diesen Laden"
+          "code": "Dies wird als primärer Schlüssel des Geschäfts sowie als Teil der URL für die Geschäftsauswahl im Frontend verwendet",
+          "name": "Dieser Name wird im Store Manager angezeigt",
+          "catalog": "Jeder physische oder virtuelle Katalog, der mit diesem Geschäft verbunden ist",
+          "state": "Aktueller Status des Geschäfts",
+          "default-language": "Primäre Sprache für dieses Geschäft",
+          "default-currency": "Primäre Währung für dieses Geschäft"
         }
       },
       "new-store-wizard": {
-        "title": "Neuer Shop",
-        "subtitle": "Neuen Shop erstellen"
+        "title": "Neues Geschäft",
+        "subtitle": "Ein neues Geschäft erstellen"
       },
       "taxProvider-detail": {
         "subtitle": "Steueranbieter bearbeiten",
@@ -79,50 +97,42 @@
           "settings": "Einstellungen"
         },
         "placeholders": {
-          "description": "Beschreibung eingeben"
+          "description": "Bitte Beschreibung angeben..."
         }
       },
       "taxProvider-list": {
-        "subtitle": {},
+        "subtitle": "",
         "labels": {
-          "is-active": "Ist aktiv",
+          "is-active": "Aktiv",
           "tax-provider": "Steueranbieter"
-        }
-      },
-      "loginOnBehalf-list": {
-        "title": "Anmeldung als {{name}}",
-        "labels": {
-          "pick-store-to-login": "Wählen Sie einen Shop für die Anmeldung",
-          "no-stores": "Noch keine Shops"
-        },
-        "validations": {
-          "secure-url-missing": "Sichere URL fehlt. Klicken Sie auf Shopdetails zu öffnen.",
-          "default-language-missing": "Standardsprache fehlt. Klicken Sie auf Shopdetails zu öffnen."
         }
       },
       "account-detail": {
         "labels": {
-          "container-id": "Container (Shop)"
+          "container-id": "Container (Geschäft)"
         }
       }
     },
     "widgets": {
       "assetsWidget": {
-        "title": "Medien"
+        "title": "Mediendateien"
       },
       "storeAdvancedWidget": {
         "title": "Erweiterte Eigenschaften",
         "blade-subtitle": "Erweiterte Eigenschaften"
       },
+      "store-authentication-widget": {
+        "title": "Authentifizierung"
+      },
       "storeNotificationsLogWidget": {
         "title": "Benachrichtigungsprotokoll",
         "blade-subtitle": "Benachrichtigungsprotokoll",
-        "blade-title": "Shop {{id}} Benachrichtigung beim Senden des Protokolls"
+        "blade-title": "Benachrichtigungsprotokoll für Geschäft {{id}}"
       },
       "storeNotificationsWidget": {
         "title": "Benachrichtigung",
-        "blade-subtitle": "Benachrichtigungen service",
-        "blade-title": "Shop {{id}} Benachrichtigungstypen Liste"
+        "blade-subtitle": "Benachrichtigungsdienst",
+        "blade-title": "Liste der Benachrichtigungstypen für Geschäft {{id}}"
       },
       "storeSettingsWidget": {
         "title": "Einstellungen",
@@ -135,16 +145,78 @@
     },
     "dialogs": {
       "store-delete": {
-        "title": "Bestätigung löschen",
-        "message": "Sind Sie sicher, dass Sie diesen Shop löschen wollen?"
+        "title": "Löschen bestätigen",
+        "message": "Möchten Sie dieses Geschäft wirklich löschen?"
       },
       "store-save": {
         "title": "Änderungen speichern",
-        "message": "Der Shop wurde geändert. Möchten Sie die Änderungen speichern?"
+        "message": "Das Geschäft wurde geändert. Möchten Sie die Änderungen speichern?"
+      },
+      "tax-provider-save": {
+        "title": "Änderungen speichern",
+        "message": "Der Steueranbieter wurde geändert. Möchten Sie die Änderungen speichern?"
       }
     },
-    "commands": {
-      "login-on-behalf": "Einloggen im Namens von"
+    "directives": {
+      "store-selector": {
+        "placeholder": "Bitte Wählen Sie aus...",
+        "loading": "Ladeprozess..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "Geschäftsmenü öffnen",
+    "store:create": "Geschäftsdaten erstellen",
+    "store:read": "Geschäftsdaten anzeigen",
+    "store:update": "Geschäftsdaten aktualisieren",
+    "store:delete": "Geschäftsdaten löschen",
+    "store:loginOnBehalf": "Im Namen eines Kunden einloggen"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "Status",
+        "description": "Status, den dieses Geschäft haben kann"
+      },
+      "TaxCalculationEnabled": {
+        "title": "Steuerberechnung",
+        "description": "Steuerberechnung im Frontend aktivieren/deaktivieren"
+      },
+      "AllowAnonymousUsers": {
+        "title": "Anonyme Besuche",
+        "description": "Anonymen Besuch verbieten/erlauben "
+      },
+      "IsSpa": {
+        "title": "Single-Page-Anwendung (SPA)",
+        "description": "Angeben, ob dieses Geschäft eine SPA ist"
+      },
+      "SeoLinksType": {
+        "title": "SEO-Links",
+        "description": "Bestimmt die Art der Links für Produkte und Kategorien. Beispiele:\n 1. Lang:  /virtuelle-hauptkategorie/physische-hauptkategorie/meine-coole-kategorie/mein-cooles-produkt,\n 2. Zusammengefasst: /virtuelle-hauptkategorie/meine-coole-kategorie/mein-cooles-produkt,\n 3. Kurz: /mein-cooles-produkt,\n 4. Keine: /produkt/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "E-Mail-Verifizierung",
+        "description": "E-Mail-Prüfung für Benutzer aktivieren/deaktivieren"
+      },
+      "EmailVerificationRequired": {
+        "title": "Erforderliche E-Mail-Verifizierung",
+        "description": "E-Mail-Prüfung für Benutzer aktivieren/deaktivieren"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Preise für Gesamtsummenberechnung runden",
+        "description": "Preisrundung in den Modulen Bestellung und Warenkorb aktivieren/deaktivieren"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "Geschäfte mit allen zugehörigen Daten exportieren oder importieren"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Formulareinsendungen im Frontend",
+      "description": "Der Kunde erhält eine E-Mail-Benachrichtigung, wenn er ein Formular (z. B. das Kontaktformular) im Frontend absendet"
     }
   }
 }
