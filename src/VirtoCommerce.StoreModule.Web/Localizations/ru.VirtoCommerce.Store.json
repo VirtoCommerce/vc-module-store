@@ -169,28 +169,28 @@
         "description": "Регионы, которые могут быть у этого магазина"
       },
       "TaxCalculationEnabled": {
-        "title": "Разрешить расчет налогов",
-        "description": "Отключите его, чтобы отключить расчет налогов на сайте магазина."
+        "title": "Расчет налогов",
+        "description": "Включите/ отключите расчет налогов на сайте магазина."
       },
       "AllowAnonymousUsers": {
-        "title": "Разрешить анонимным пользователям посещать магазин",
-        "description": "Отключите настройку, чтобы не допукать не авторизованных пользователей к этому магазину"
+        "title": "Посещение магазина анонимными пользователями",
+        "description": "Разрешите/ запретите посещение магазина неавторизованными пользователями"
       },
       "IsSpa": {
         "title": "SPA",
-        "description": "Включите, если клиентское приложение является SPA"
+        "description": "Включите, если клиентское приложение является одностраничным (SPA)"
       },
       "SeoLinksType": {
         "title": "SEO ссылки",
-        "description": "Определяет тип ссылок для продуктов и категорий. Примеры:\n 1. Длинный: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,\n 2. Сжатый: /virtual-parent-category/my-cool-category/my-cool-product,\n 3. Короткий: /my-cool-product,\n 4. Отсутствует: /product/123"
+        "description": "Определbnt тип ссылок для продуктов и категорий. Примеры:\n 1. Длинный: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,\n 2. Сжатый: /virtual-parent-category/my-cool-category/my-cool-product,\n 3. Короткий: /my-cool-product,\n 4. Отсутствует: /product/123"
       },
       "EmailVerificationEnabled": {
-        "title": "Проверка адреса электронной почты",
-        "description": "Включает процесс проверки электронной почты для пользователей"
+        "title": "Адрес электронной почты",
+        "description": "Включите/ отключите процесс проверки электронной почты для пользователей"
       },
       "EnablePriceRoundingForTotalsCalculation": {
-        "title": "Округлить цену для итога",
-        "description": "Включает округление цены для итогового расчета в модулях «Заказ» и «Корзина»."
+        "title": "Округление цены для итогового расчета",
+        "description": "Включите/ отключите округление цены для итогового расчета в модулях «Заказ» и «Корзина»."
       }
     }
   },
