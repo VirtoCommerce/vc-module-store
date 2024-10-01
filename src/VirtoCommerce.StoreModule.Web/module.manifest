@@ -4,10 +4,10 @@
   <version>3.809.0</version>
   <version-tag />
 
-  <platformVersion>3.848.0</platformVersion>
+  <platformVersion>3.853.0</platformVersion>
   <dependencies>
-    <dependency id="VirtoCommerce.Core" version="3.800.0" />
-    <dependency id="VirtoCommerce.Notifications" version="3.800.0" />
+    <dependency id="VirtoCommerce.Core" version="3.808.0" />
+    <dependency id="VirtoCommerce.Notifications" version="3.809.0" />
   </dependencies>
 
   <title>Store</title>
@@ -18,7 +18,7 @@
   <owners>
     <owner>Virto Commerce</owner>
   </owners>
-  <projectUrl>https://virtocommerce.com/apps/extensions/virto-store-module</projectUrl>
+  <projectUrl>https://github.com/VirtoCommerce/vc-module-store</projectUrl>
   <iconUrl>Modules/$(VirtoCommerce.Store)/Content/logo.png</iconUrl>
   <requireLicenseAcceptance>false</requireLicenseAcceptance>
   <releaseNotes />
