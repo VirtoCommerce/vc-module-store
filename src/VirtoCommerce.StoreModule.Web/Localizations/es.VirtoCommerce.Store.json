@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "Tiendas",
+    "blades": {
+      "stores-list": {
+        "title": "Tiendas",
+        "labels": {
+          "no-stores": "No tienes tiendas aún",
+          "name": "Nombre"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "Descripción",
+          "store-regional-settings": "Configuraciones de ubicación",
+          "store-country": "País de la tienda",
+          "store-region": "Estado o provincia de la tienda",
+          "store-email-settings": "Configuraciones de correo electrónico",
+          "store-email": "Correo electrónico",
+          "store-admin-email": "Correo electrónico del administrador",
+          "store-email-name": "Nombre",
+          "store-admin-email-name": "Nombre del administrador",
+          "fulfillment-center": "Centro de cumplimiento predeterminado",
+          "returns-fulfillment-center": "Centro de devoluciones predeterminado",
+          "additional-fulfillment-centers": "Centros de cumplimiento disponibles",
+          "additional-returns-fulfillment-centers": "Centros de devoluciones disponibles",
+          "operational-timezone": "Zona horaria de operación",
+          "store-url": "URL de la tienda"
+        },
+        "placeholders": {
+          "description": "Proporcionar descripción...",
+          "store-country": "Seleccionar...",
+          "store-region": "Proporcionar estado o provincia...",
+          "store-email": "Ingresar correo electrónico",
+          "store-admin-email": "Ingresar correo electrónico",
+          "store-email-name": "Proporcionar nombre de la tienda...",
+          "store-admin-email-name": "Ingresar nombre del administrador",
+          "fulfillment-center": "Seleccionar...",
+          "returns-fulfillment-center": "Seleccionar...",
+          "operational-timezone": "Seleccionar...",
+          "store-url": "Ingresar URL"
+        }
+      },
+      "store-authentication": {
+        "title": "Tipos de autenticación de la tienda",
+        "active": "Está activo",
+        "name": "Nombre",
+        "no-data": "No se encontraron tipos de autenticación"
+      },
+      "store-detail": {
+        "subtitle": "Detalles de la tienda",
+        "labels": {
+          "code": "Código",
+          "name": "Nombre",
+          "catalog": "Catálogo",
+          "state": "Status",
+          "language": "Idioma",
+          "currency": "Moneda",
+          "links": "Enlaces",
+          "default-language": "Idioma predeterminado",
+          "additional-languages": "Idiomas adicionales",
+          "default-currency": "Moneda predeterminada",
+          "additional-currencies": "Monedas adicionales",
+          "linked-stores": "Tiendas vinculadas (los clientes pueden usar sus credenciales para acceder a estas tiendas)"
+        },
+        "placeholders": {
+          "code": "Proporcionar código",
+          "name": "Ingresar nombre",
+          "catalog": "Seleccionar...",
+          "state": "Seleccionar...",
+          "default-language": "Seleccionar...",
+          "additional-languages": "Seleccionar...",
+          "default-currency": "Seleccionar...",
+          "additional-currencies": "Seleccionar...",
+          "linked-stores": "Esta tienda no tiene tiendas vinculadas"
+        },
+        "descriptions": {
+          "code": "Esto se utilizará como la clave principal de la tienda, así como parte de la URL para la selección de la tienda en la aplicación Frontend",
+          "name": "Este nombre se mostrará en el Administrador de Tiendas",
+          "catalog": "Cualquier catálogo físico o virtual asociado con esta tienda",
+          "state": "Estado actual de la tienda",
+          "default-language": "Idioma principal para esta tienda",
+          "default-currency": "Moneda principal para esta tienda"
+        }
+      },
+      "new-store-wizard": {
+        "title": "Nueva tienda",
+        "subtitle": "Crear nueva tienda"
+      },
+      "taxProvider-detail": {
+        "subtitle": "Editar proveedor de impuestos",
+        "labels": {
+          "name": "Nombre",
+          "code": "Código",
+          "description": "Descripción",
+          "settings": "Configuraciones"
+        },
+        "placeholders": {
+          "description": "Proporcionar descripción..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "Activo",
+          "tax-provider": "Proveedor de impuestos"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Contenedor (tienda)"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "Recursos"
+      },
+      "storeAdvancedWidget": {
+        "title": "Propiedades avanzadas",
+        "blade-subtitle": "Propiedades avanzadas"
+      },
+      "store-authentication-widget": {
+        "title": "Autenticación"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "Registro de notificaciones",
+        "blade-subtitle": "Registro de notificaciones",
+        "blade-title": "Registro de notificaciones para la tienda {{id}}"
+      },
+      "storeNotificationsWidget": {
+        "title": "Notificación",
+        "blade-subtitle": "Servicio de notificación",
+        "blade-title": "Lista de tipos de notificación para la tienda {{id}}"
+      },
+      "storeSettingsWidget": {
+        "title": "Configuraciones",
+        "blade-subtitle": "Configuraciones"
+      },
+      "storeTaxingWidget": {
+        "title": "Proveedores de impuestos",
+        "blade-subtitle": "Proveedores de impuestos"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "Confirmar eliminación",
+        "message": "¿Está seguro de que desea eliminar esta tienda?"
+      },
+      "store-save": {
+        "title": "Guardar cambios",
+        "message": "La tienda ha sido modificada. ¿Desea guardar los cambios?"
+      },
+      "tax-provider-save": {
+        "title": "Guardar cambios",
+        "message": "El proveedor de impuestos ha sido modificado. ¿Desea guardar los cambios?"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "Seleccionar...",
+        "loading": "Cargando..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "Abrir el menú de la tienda",
+    "store:create": "Crear datos de la tienda",
+    "store:read": "Ver datos de la tienda",
+    "store:update": "Actualizar datos de la tienda",
+    "store:delete": "Eliminar datos de la tienda",
+    "store:loginOnBehalf": "Iniciar sesión en nombre de un cliente"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "Estados",
+        "description": "Estados que esta tienda puede tener"
+      },
+      "TaxCalculationEnabled": {
+        "title": "Cálculo de impuestos",
+        "description": "Habilitar / deshabilitar el cálculo de impuestos en la aplicación Frontend"
+      },
+      "AllowAnonymousUsers": {
+        "title": "Visitas anónimas a la tienda",
+        "description": "Prohibir / permitir que los usuarios anónimos visiten la tienda"
+      },
+      "IsSpa": {
+        "title": "Aplicación de una sola página (SPA)",
+        "description": "Especificar si esta tienda es una aplicación de una sola página"
+      },
+      "SeoLinksType": {
+        "title": "Enlaces SEO",
+        "description": "Determinar el tipo de enlace para el producto y la categoría. Ejemplos:\n 1. Largo:  /categoría-padre-virtual/categoría-padre-física/mi-categoría-genial/mi-producto-genial,\n 2. Colapsado: /categoría-padre-virtual/mi-categoría-genial/mi-producto-genial,\n 3. Corto: /mi-producto-genial,\n 4. Ninguno: /producto/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "Verificación de correo electrónico",
+        "description": "Habilitar / deshabilitar la verificación de correo electrónico para los usuarios"
+      },
+      "EmailVerificationRequired": {
+        "title": "Verificación de correo electrónico requerida",
+        "description": "Habilitar / deshabilitar la verificación de correo electrónico requerida para los usuarios"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Redondeo de precios para el cálculo de totales",
+        "description": "Habilitar / deshabilitar el redondeo de precios en los módulos de Pedido y Carrito"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "Exportar o importar tiendas con todos los datos relacionados"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Envío de formularios en la aplicación Frontend",
+      "description": "El cliente recibe una notificación por correo electrónico al enviar un formulario (por ejemplo, el formulario de contacto) en la aplicación Frontend"
+    }
+  }
+}

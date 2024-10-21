@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "Magasins",
+    "blades": {
+      "stores-list": {
+        "title": "Magasins",
+        "labels": {
+          "no-stores": "Vous n'avez pas encore de magasins",
+          "name": "Nom"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "Description",
+          "store-regional-settings": "Paramètres de localisation",
+          "store-country": "Pays du magasin",
+          "store-region": "État ou province du magasin",
+          "store-email-settings": "Paramètres de messagerie",
+          "store-email": "E-mail",
+          "store-admin-email": "E-mail de l'administrateur",
+          "store-email-name": "Nom",
+          "store-admin-email-name": "Nom de l'administrateur",
+          "fulfillment-center": "Centre de traitement par défaut",
+          "returns-fulfillment-center": "Centre de retour par défaut",
+          "additional-fulfillment-centers": "Centres de traitement disponibles",
+          "additional-returns-fulfillment-centers": "Centres de retour disponibles",
+          "operational-timezone": "Fuseau horaire opérationnel",
+          "store-url": "URL du magasin"
+        },
+        "placeholders": {
+          "description": "Fournir une description...",
+          "store-country": "Sélectionner...",
+          "store-region": "Fournir un état ou une province...",
+          "store-email": "Entrer l'e-mail",
+          "store-admin-email": "Entrer l'e-mail",
+          "store-email-name": "Fournir le nom du magasin...",
+          "store-admin-email-name": "Entrer le nom de l'administrateur",
+          "fulfillment-center": "Sélectionner...",
+          "returns-fulfillment-center": "Sélectionner...",
+          "operational-timezone": "Sélectionner...",
+          "store-url": "Entrer l'URL"
+        }
+      },
+      "store-authentication": {
+        "title": "Types d'authentification du magasin",
+        "active": "Est actif",
+        "name": "Nom",
+        "no-data": "Aucun type d'authentification trouvé"
+      },
+      "store-detail": {
+        "subtitle": "Détails du magasin",
+        "labels": {
+          "code": "Code",
+          "name": "Nom",
+          "catalog": "Catalogue",
+          "state": "Statut",
+          "language": "Langue",
+          "currency": "Devise",
+          "links": "Liens",
+          "default-language": "Langue par défaut",
+          "additional-languages": "Langues supplémentaires",
+          "default-currency": "Devise par défaut",
+          "additional-currencies": "Devises supplémentaires",
+          "linked-stores": "Magasins liés (les clients peuvent utiliser leurs identifiants pour accéder à ces magasins)"
+        },
+        "placeholders": {
+          "code": "Fournir un code",
+          "name": "Entrer le nom",
+          "catalog": "Sélectionner...",
+          "state": "Sélectionner...",
+          "default-language": "Sélectionner...",
+          "additional-languages": "Sélectionner...",
+          "default-currency": "Sélectionner...",
+          "additional-currencies": "Sélectionner...",
+          "linked-stores": "Ce magasin n'a pas de magasins liés"
+        },
+        "descriptions": {
+          "code": "Ceci sera utilisé comme clé primaire du magasin, ainsi que comme partie de l'URL pour la sélection du magasin dans l'application Frontend",
+          "name": "Ce nom sera affiché dans le gestionnaire de magasins",
+          "catalog": "Tout catalogue physique ou virtuel associé à ce magasin",
+          "state": "Statut actuel du magasin",
+          "default-language": "Langue principale pour ce magasin",
+          "default-currency": "Devise principale pour ce magasin"
+        }
+      },
+      "new-store-wizard": {
+        "title": "Nouveau magasin",
+        "subtitle": "Créer un nouveau magasin"
+      },
+      "taxProvider-detail": {
+        "subtitle": "Modifier le fournisseur de taxes",
+        "labels": {
+          "name": "Nom",
+          "code": "Code",
+          "description": "Description",
+          "settings": "Paramètres"
+        },
+        "placeholders": {
+          "description": "Fournir une description..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "Actif",
+          "tax-provider": "Fournisseur de taxes"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Conteneur (magasin)"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "Ressources"
+      },
+      "storeAdvancedWidget": {
+        "title": "Propriétés avancées",
+        "blade-subtitle": "Propriétés avancées"
+      },
+      "store-authentication-widget": {
+        "title": "Authentification"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "Journal des notifications",
+        "blade-subtitle": "Journal des notifications",
+        "blade-title": "Journal des notifications pour le magasin {{id}}"
+      },
+      "storeNotificationsWidget": {
+        "title": "Notification",
+        "blade-subtitle": "Service de notification",
+        "blade-title": "Liste des types de notification pour le magasin {{id}}"
+      },
+      "storeSettingsWidget": {
+        "title": "Paramètres",
+        "blade-subtitle": "Paramètres"
+      },
+      "storeTaxingWidget": {
+        "title": "Fournisseurs de taxes",
+        "blade-subtitle": "Fournisseurs de taxes"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "Confirmer la suppression",
+        "message": "Êtes-vous sûr de vouloir supprimer ce magasin ?"
+      },
+      "store-save": {
+        "title": "Enregistrer les modifications",
+        "message": "Le magasin a été modifié. Voulez-vous enregistrer les modifications ?"
+      },
+      "tax-provider-save": {
+        "title": "Enregistrer les modifications",
+        "message": "Le fournisseur de taxes a été modifié. Voulez-vous enregistrer les modifications ?"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "Sélectionner...",
+        "loading": "Chargement..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "Ouvrir le menu du magasin",
+    "store:create": "Créer des données de magasin",
+    "store:read": "Voir les données du magasin",
+    "store:update": "Mettre à jour les données du magasin",
+    "store:delete": "Supprimer les données du magasin",
+    "store:loginOnBehalf": "Se connecter au nom d'un client"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "Statuts",
+        "description": "Statuts que ce magasin peut avoir"
+      },
+      "TaxCalculationEnabled": {
+        "title": "Calcul des taxes",
+        "description": "Activer / désactiver le calcul des taxes dans l'application Frontend"
+      },
+      "AllowAnonymousUsers": {
+        "title": "Visites anonymes du magasin",
+        "description": "Interdire / autoriser les utilisateurs anonymes à visiter le magasin"
+      },
+      "IsSpa": {
+        "title": "Application monopage (SPA)",
+        "description": "Spécifiez si ce magasin est une application monopage"
+      },
+      "SeoLinksType": {
+        "title": "Liens SEO",
+        "description": "Déterminer le type de lien pour le produit et la catégorie. Exemples :\n 1. Long :  /catégorie-parent-virtuelle/catégorie-parent-physique/ma-catégorie-cool/mon-produit-cool,\n 2. Réduit : /catégorie-parent-virtuelle/ma-catégorie-cool/mon-produit-cool,\n 3. Court : /mon-produit-cool,\n 4. Aucun : /produit/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "Vérification par e-mail",
+        "description": "Activer / désactiver la vérification par e-mail pour les utilisateurs"
+      },
+      "EmailVerificationRequired": {
+        "title": "Vérification par e-mail requise",
+        "description": "Activer / désactiver la vérification par e-mail requise pour les utilisateurs"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Arrondi des prix pour le calcul des totaux",
+        "description": "Activer / désactiver l'arrondi des prix dans les modules de commande et de panier"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "Exporter ou importer des magasins avec toutes les données associées"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Soumission de formulaires dans l'application Frontend",
+      "description": "Le client reçoit une notification par e-mail lors de la soumission d'un formulaire (par exemple, le formulaire de contact) dans l'application Frontend"
+    }
+  }
+}

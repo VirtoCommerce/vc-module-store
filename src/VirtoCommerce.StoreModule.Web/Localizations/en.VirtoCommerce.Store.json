@@ -29,17 +29,17 @@
           "store-url": "Store URL"
         },
         "placeholders": {
-          "description": "Please provide description...",
-          "store-country": "Please select...",
-          "store-region": "Please provide state or province...",
+          "description": "Provide description...",
+          "store-country": "Select...",
+          "store-region": "Provide state or province...",
           "store-email": "Enter email",
           "store-admin-email": "Enter email",
-          "store-email-name": "Please provide store name...",
-          "store-admin-email-name": "Please enter admin name",
-          "fulfillment-center": "Please select...",
-          "returns-fulfillment-center": "Please select...",
-          "operational-timezone": "Please select...",
-          "store-url": "Please enter URL"
+          "store-email-name": "Provide store name...",
+          "store-admin-email-name": "Enter admin name",
+          "fulfillment-center": "Select...",
+          "returns-fulfillment-center": "Select...",
+          "operational-timezone": "Select...",
+          "store-url": "Enter URL"
         }
       },
       "store-authentication": {
@@ -65,14 +65,14 @@
           "linked-stores": "Linked stores (customers can use their credentials to access these stores)"
         },
         "placeholders": {
-          "code": "Please provide code",
-          "name": "Please enter name",
-          "catalog": "Please select...",
-          "state": "Please select...",
-          "default-language": "Please select...",
-          "additional-languages": "Please select...",
-          "default-currency": "Please select...",
-          "additional-currencies": "Please select...",
+          "code": "Provide code",
+          "name": "Enter name",
+          "catalog": "Select...",
+          "state": "Select...",
+          "default-language": "Select...",
+          "additional-languages": "Select...",
+          "default-currency": "Select...",
+          "additional-currencies": "Select...",
           "linked-stores": "This store has no linked stores"
         },
         "descriptions": {
@@ -85,7 +85,7 @@
         }
       },
       "new-store-wizard": {
-        "title": "New Store",
+        "title": "New store",
         "subtitle": "Create new store"
       },
       "taxProvider-detail": {
@@ -97,7 +97,7 @@
           "settings": "Settings"
         },
         "placeholders": {
-          "description": "Please provide description..."
+          "description": "Provide description..."
         }
       },
       "taxProvider-list": {
@@ -145,7 +145,7 @@
     },
     "dialogs": {
       "store-delete": {
-        "title": "Confirm Delete",
+        "title": "Confirm delete",
         "message": "Are you sure you want to delete this store?"
       },
       "store-save": {
@@ -159,7 +159,7 @@
     },
     "directives": {
       "store-selector": {
-        "placeholder": "Please select...",
+        "placeholder": "Select...",
         "loading": "Loading..."
       }
     }
@@ -203,7 +203,7 @@
         "description": "Enable/ disable required email verification for users"
       },
       "EnablePriceRoundingForTotalsCalculation": {
-        "title": "Price rounding for total calculation",
+        "title": "Price rounding for totals calculation",
         "description": "Enable/ disable price rounding in Order and Cart modules"
       }
     }
@@ -215,7 +215,7 @@
   },
   "notificationTypes": {
     "StoreDynamicEmailNotification": {
-      "displayName": "Submitting forms in Frontend Application",
+      "displayName": "Submitting forms in the Frontend Application",
       "description": "The customer gets an email notification when submitting a form (e.g. the Contact Us form) in the Frontend Application"
     }
   }
