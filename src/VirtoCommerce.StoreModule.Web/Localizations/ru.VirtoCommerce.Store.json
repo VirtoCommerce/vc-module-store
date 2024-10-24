@@ -5,104 +5,111 @@
       "stores-list": {
         "title": "Магазины",
         "labels": {
-          "no-stores": "Пока нет магазинов",
-          "name": "Название"
+          "no-stores": "У вас пока нет магазинов",
+          "name": "Имя"
         }
       },
       "store-advanced": {
         "subtitle": "",
         "labels": {
           "description": "Описание",
-          "store-regional-settings": "Региональные настройки",
+          "store-regional-settings": "Настройки местоположения магазина",
           "store-country": "Страна",
-          "store-region": "Регион",
-          "store-email-settings": "Настройки эл.почты",
-          "store-email": "E-mail",
-          "store-admin-email": "E-mail администратора",
+          "store-region": "Штат или провинция",
+          "store-email-settings": "Настройки электронной почты",
+          "store-email": "Электронная почта",
+          "store-admin-email": "Электронная почта администратора",
           "store-email-name": "Имя",
           "store-admin-email-name": "Имя администратора",
-          "fulfillment-center": "Фулфилмент-центр",
-          "returns-fulfillment-center": "Вернуть Фулфилмент-центры",
-          "additional-fulfillment-centers": "Фулфилмент-центры",
-          "additional-returns-fulfillment-centers": "Вернуть Фулфилмент-центры",
-          "operational-timezone": "Операционный часовой пояс",
+          "fulfillment-center": "Центр выполнения заказов по умолчанию",
+          "returns-fulfillment-center": "Центр выполнения возврата по умолчанию",
+          "additional-fulfillment-centers": "Доступные центры выполнения заказов",
+          "additional-returns-fulfillment-centers": "Доступные центры выполнения возврата",
+          "operational-timezone": "Часовой пояс работы",
           "store-url": "URL магазина"
         },
         "placeholders": {
-          "description": "Введите описание",
-          "store-country": "Выбрать ...",
-          "store-region": "Введите регион",
-          "store-email": "Введите значение",
-          "store-admin-email": "Введите значение",
-          "store-email-name": "Введите имя магазина",
+          "description": "Укажите описание...",
+          "store-country": "Выберите...",
+          "store-region": "Укажите штат или провинцию...",
+          "store-email": "Введите электронную почту",
+          "store-admin-email": "Введите электронную почту",
+          "store-email-name": "Укажите имя магазина...",
           "store-admin-email-name": "Введите имя администратора",
-          "fulfillment-center": "Выбрать...",
-          "returns-fulfillment-center": "Выбрать...",
-          "operational-timezone": "Выбрать..."
+          "fulfillment-center": "Выберите...",
+          "returns-fulfillment-center": "Выберите...",
+          "operational-timezone": "Выберите...",
+          "store-url": "Введите URL"
         }
       },
+      "store-authentication": {
+        "title": "Типы аутентификации магазина",
+        "active": "Активен",
+        "name": "Имя",
+        "no-data": "Типы аутентификации не найдены"
+      },
       "store-detail": {
-        "subtitle": "Информация о магазине",
+        "subtitle": "Детали магазина",
         "labels": {
           "code": "Код",
-          "name": "Название",
+          "name": "Имя",
           "catalog": "Каталог",
-          "state": "Состояние",
-          "language": "Языки",
-          "currency": "Валюты",
+          "state": "Статус",
+          "language": "Язык",
+          "currency": "Валюта",
           "links": "Ссылки",
           "default-language": "Язык по умолчанию",
           "additional-languages": "Дополнительные языки",
           "default-currency": "Валюта по умолчанию",
           "additional-currencies": "Дополнительные валюты",
-          "linked-stores": "Связанные магазины (Здесь покупатели могут использовать их учетные данные)"
+          "linked-stores": "Связанные магазины (клиенты могут использовать свои учетные данные для доступа к этим магазинам)"
         },
         "placeholders": {
-          "code": "Введите код",
-          "name": "Введите название",
-          "catalog": "Выбрать...",
-          "state": "Выбрать...",
-          "default-language": "Выбрать...",
-          "additional-languages": "Выбрать...",
-          "default-currency": "Выбрать...",
-          "additional-currencies": "Выбрать...",
-          "linked-stores": "Нет связанных с этим магазинов"
+          "code": "Укажите код",
+          "name": "Введите имя",
+          "catalog": "Выберите...",
+          "state": "Выберите...",
+          "default-language": "Выберите...",
+          "additional-languages": "Выберите...",
+          "default-currency": "Выберите...",
+          "additional-currencies": "Выберите...",
+          "linked-stores": "У этого магазина нет связанных магазинов"
         },
         "descriptions": {
-          "code": "Будет использован как первичный ключ магазина и на сторефронте как часть пути (чтобы определить выбранный магазин)",
-          "name": "Отображаемое название магазина для представления в менеджере",
-          "catalog": "Физические или виртуальный каталог, связанный с этим магазином",
-          "state": "Текущее состояние магазина",
+          "code": "Этот код будет использоваться в качестве первичного ключа магазина, а также как часть URL для выбора магазина во фронтенд-приложении",
+          "name": "Это имя будет отображаться в менеджере магазина",
+          "catalog": "Любой физический или виртуальный каталог, связанный с этим магазином",
+          "state": "Текущий статус магазина",
           "default-language": "Основной язык для этого магазина",
           "default-currency": "Основная валюта для этого магазина"
         }
       },
       "new-store-wizard": {
-        "title": "Новый Магазин",
-        "subtitle": "Создать новый Магазин"
+        "title": "Новый магазин",
+        "subtitle": "Создать новый магазин"
       },
       "taxProvider-detail": {
-        "subtitle": "Изменить провайдера налогов",
+        "subtitle": "Редактировать налогового провайдера",
         "labels": {
-          "name": "Название",
+          "name": "Имя",
           "code": "Код",
           "description": "Описание",
           "settings": "Настройки"
         },
         "placeholders": {
-          "description": "Введите описание"
+          "description": "Добавьте описание..."
         }
       },
       "taxProvider-list": {
         "subtitle": "",
         "labels": {
           "is-active": "Активен",
-          "tax-provider": "Провайдер налогов"
+          "tax-provider": "Налоговый провайдер"
         }
       },
       "account-detail": {
         "labels": {
-          "container-id": "Хранилище (магазин)"
+          "container-id": "Контейнер (магазин)"
         }
       }
     },
@@ -111,98 +118,105 @@
         "title": "Ресурсы"
       },
       "storeAdvancedWidget": {
-        "title": "Дополнительные свойства",
-        "blade-subtitle": "Дополнительные свойства"
+        "title": "Расширенные свойства",
+        "blade-subtitle": "Расширенные свойства"
+      },
+      "store-authentication-widget": {
+        "title": "Аутентификация"
       },
       "storeNotificationsLogWidget": {
         "title": "Журнал уведомлений",
         "blade-subtitle": "Журнал уведомлений",
-        "blade-title": "Журнал отправки уведомлений Магазина {{id}}"
+        "blade-title": "Журнал уведомлений для магазина {{id}}"
       },
       "storeNotificationsWidget": {
         "title": "Уведомление",
         "blade-subtitle": "Служба уведомлений",
-        "blade-title": "Список уведомлений Магазина {{id}}"
+        "blade-title": "Список типов уведомлений для магазина {{id}}"
       },
       "storeSettingsWidget": {
         "title": "Настройки",
         "blade-subtitle": "Настройки"
       },
       "storeTaxingWidget": {
-        "title": "Провайдеры налогов",
-        "blade-subtitle": "Провайдеры налогов"
+        "title": "Налоговые провайдеры",
+        "blade-subtitle": "Налоговые провайдеры"
       }
     },
     "dialogs": {
       "store-delete": {
-        "title": "Подтверждение удаления",
-        "message": "Вы уверены, что хотите удалить данный Магазин?"
+        "title": "Подтвердите удаление",
+        "message": "Вы уверены, что хотите удалить этот магазин?"
       },
       "store-save": {
-        "title": "Сохранение изменений",
+        "title": "Сохранить изменения",
         "message": "Магазин был изменен. Вы хотите сохранить изменения?"
       },
       "tax-provider-save": {
-        "title": "Сохранение изменений",
+        "title": "Сохранить изменения",
         "message": "Налоговый провайдер был изменен. Вы хотите сохранить изменения?"
       }
     },
     "directives": {
       "store-selector": {
-        "placeholder": "Выбрать...",
+        "placeholder": "Выберите...",
         "loading": "Загрузка..."
       }
     }
   },
   "permissions": {
-    "store:access": "Доступ к данным магазина",
-    "store:create": "Создание новой записи о магазине",
-    "store:read": "Просмотр подробностей о магазине",
-    "store:update": "Обновление записей о магазине",
-    "store:delete": "Удаление данных о магазине",
-    "store:loginOnBehalf": "Вход от имени клиента"
+    "store:access": "Открывать меню магазина",
+    "store:create": "Создавать записи о магазине",
+    "store:read": "Просматривать данные о магазине",
+    "store:update": "Обновлять данные о магазине",
+    "store:delete": "Удалять данные о магазине",
+    "store:loginOnBehalf": "Входить от имени клиента"
   },
   "settings": {
     "Stores": {
       "States": {
-        "title": "Регионы",
-        "description": "Регионы, которые могут быть у этого магазина"
+        "title": "Статусы",
+        "description": "Статусы для этого магазина"
       },
       "TaxCalculationEnabled": {
-        "title": "Расчет налогов",
-        "description": "Включите/ отключите расчет налогов на сайте магазина."
+        "title": "Расчет налога",
+        "description": "Включить/выключить расчет налога во фронтенд-приложении"
       },
       "AllowAnonymousUsers": {
-        "title": "Посещение магазина анонимными пользователями",
-        "description": "Разрешите/ запретите посещение магазина неавторизованными пользователями"
+        "title": "Анонимные посещения магазина",
+        "description": "Запретить/разрешить анонимным пользователям посещать магазин"
       },
       "IsSpa": {
-        "title": "SPA",
-        "description": "Включите, если клиентское приложение является одностраничным (SPA)"
+        "title": "Одностраничное приложение (SPA)",
+        "description": "Укажите, является ли этот магазин одностраничным приложением"
       },
       "SeoLinksType": {
-        "title": "SEO ссылки",
-        "description": "Определbnt тип ссылок для продуктов и категорий. Примеры:\n 1. Длинный: /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,\n 2. Сжатый: /virtual-parent-category/my-cool-category/my-cool-product,\n 3. Короткий: /my-cool-product,\n 4. Отсутствует: /product/123"
+        "title": "SEO-ссылки",
+        "description": "Определите тип ссылки для продукта и категории. Примеры:\n 1. Длинная:  /виртуальная-родительская-категория/физическая-родительская-категория/моя-классная-категория/мой-классный-продукт,\n 2. Сжатая: /виртуальная-родительская-категория/моя-классная-категория/мой-классный-продукт,\n 3. Короткая: /мой-классный-продукт,\n 4. Никакая: /продукт/123"
       },
       "EmailVerificationEnabled": {
-        "title": "Адрес электронной почты",
-        "description": "Включите/ отключите процесс проверки электронной почты для пользователей"
+        "title": "Подтверждение электронной почты",
+        "description": "Включить/выключить подтверждение электронной почты для пользователей"
+      },
+      "EmailVerificationRequired": {
+        "title": "Обязательное подтверждение электронной почты",
+        "description": "Включить/выключить обязательное подтверждение электронной почты для пользователей"
       },
       "EnablePriceRoundingForTotalsCalculation": {
-        "title": "Округление цены для итогового расчета",
-        "description": "Включите/ отключите округление цены для итогового расчета в модулях «Заказ» и «Корзина»."
+        "title": "Округление цен для расчета итогов",
+        "description": "Включить/выключить округление цен в модулях Заказы и Корзина"
       }
     }
   },
   "module": {
     "VirtoCommerce.Store": {
-      "description": "Экспорт или импорт магазинов со всеми соответствующими данными"
+      "description": "Экспорт или импорт магазинов со всеми связанными данными"
     }
   },
   "notificationTypes": {
     "StoreDynamicEmailNotification": {
-      "displayName": "Отправка форм на сайте",
-      "description": "Клиент получит уведомление по электронной почте, когда отправит форму (например форму «Свяжитесь с нами») на сайте "
+      "displayName": "Отправка форм во фронтенд-приложении",
+      "description": "Клиент получает уведомление по электронной почте при отправке формы (например, формы обратной связи) во фронтенд-приложении"
     }
   }
 }

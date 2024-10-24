@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "商店",
+    "blades": {
+      "stores-list": {
+        "title": "商店",
+        "labels": {
+          "no-stores": "您还没有商店",
+          "name": "名称"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "描述",
+          "store-regional-settings": "位置设置",
+          "store-country": "商店国家",
+          "store-region": "商店州或省",
+          "store-email-settings": "电子邮件设置",
+          "store-email": "电子邮件",
+          "store-admin-email": "管理员电子邮件",
+          "store-email-name": "名称",
+          "store-admin-email-name": "管理员名称",
+          "fulfillment-center": "默认履行中心",
+          "returns-fulfillment-center": "默认退货履行中心",
+          "additional-fulfillment-centers": "可用履行中心",
+          "additional-returns-fulfillment-centers": "可用退货履行中心",
+          "operational-timezone": "操作时区",
+          "store-url": "商店网址"
+        },
+        "placeholders": {
+          "description": "提供描述...",
+          "store-country": "选择...",
+          "store-region": "提供州或省...",
+          "store-email": "输入电子邮件",
+          "store-admin-email": "输入电子邮件",
+          "store-email-name": "提供商店名称...",
+          "store-admin-email-name": "输入管理员名称",
+          "fulfillment-center": "选择...",
+          "returns-fulfillment-center": "选择...",
+          "operational-timezone": "选择...",
+          "store-url": "输入网址"
+        }
+      },
+      "store-authentication": {
+        "title": "商店认证类型",
+        "active": "是否激活",
+        "name": "名称",
+        "no-data": "未找到认证类型"
+      },
+      "store-detail": {
+        "subtitle": "商店详情",
+        "labels": {
+          "code": "代码",
+          "name": "名称",
+          "catalog": "目录",
+          "state": "状态",
+          "language": "语言",
+          "currency": "货币",
+          "links": "链接",
+          "default-language": "默认语言",
+          "additional-languages": "附加语言",
+          "default-currency": "默认货币",
+          "additional-currencies": "附加货币",
+          "linked-stores": "链接的商店（客户可以使用他们的凭据访问这些商店）"
+        },
+        "placeholders": {
+          "code": "提供代码",
+          "name": "输入名称",
+          "catalog": "选择...",
+          "state": "选择...",
+          "default-language": "选择...",
+          "additional-languages": "选择...",
+          "default-currency": "选择...",
+          "additional-currencies": "选择...",
+          "linked-stores": "此商店没有链接的商店"
+        },
+        "descriptions": {
+          "code": "这将用作商店的主键，以及在前端应用程序中选择商店的URL的一部分",
+          "name": "此名称将在商店管理器中显示",
+          "catalog": "与此商店关联的任何物理或虚拟目录",
+          "state": "当前商店状态",
+          "default-language": "此商店的主要语言",
+          "default-currency": "此商店的主要货币"
+        }
+      },
+      "new-store-wizard": {
+        "title": "新商店",
+        "subtitle": "创建新商店"
+      },
+      "taxProvider-detail": {
+        "subtitle": "编辑税务提供商",
+        "labels": {
+          "name": "名称",
+          "code": "代码",
+          "description": "描述",
+          "settings": "设置"
+        },
+        "placeholders": {
+          "description": "提供描述..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "激活",
+          "tax-provider": "税务提供商"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "容器（商店）"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "资源"
+      },
+      "storeAdvancedWidget": {
+        "title": "高级属性",
+        "blade-subtitle": "高级属性"
+      },
+      "store-authentication-widget": {
+        "title": "认证"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "通知日志",
+        "blade-subtitle": "通知日志",
+        "blade-title": "商店 {{id}} 的通知日志"
+      },
+      "storeNotificationsWidget": {
+        "title": "通知",
+        "blade-subtitle": "通知服务",
+        "blade-title": "商店 {{id}} 的通知类型列表"
+      },
+      "storeSettingsWidget": {
+        "title": "设置",
+        "blade-subtitle": "设置"
+      },
+      "storeTaxingWidget": {
+        "title": "税务提供商",
+        "blade-subtitle": "税务提供商"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "确认删除",
+        "message": "您确定要删除此商店吗？"
+      },
+      "store-save": {
+        "title": "保存更改",
+        "message": "商店已被修改。您要保存更改吗？"
+      },
+      "tax-provider-save": {
+        "title": "保存更改",
+        "message": "税务提供商已被修改。您要保存更改吗？"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "选择...",
+        "loading": "加载中..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "打开商店菜单",
+    "store:create": "创建商店数据",
+    "store:read": "查看商店数据",
+    "store:update": "更新商店数据",
+    "store:delete": "删除商店数据",
+    "store:loginOnBehalf": "代表客户登录"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "状态",
+        "description": "此商店可能具有的状态"
+      },
+      "TaxCalculationEnabled": {
+        "title": "税务计算",
+        "description": "在前端应用程序中启用/禁用税务计算"
+      },
+      "AllowAnonymousUsers": {
+        "title": "匿名商店访问",
+        "description": "禁止/允许匿名用户访问商店"
+      },
+      "IsSpa": {
+        "title": "单页应用程序 (SPA)",
+        "description": "指定此商店是否为单页应用程序"
+      },
+      "SeoLinksType": {
+        "title": "SEO链接",
+        "description": "确定产品和类别的链接类型。示例：\n 1. 长链接:  /虚拟父类别/物理父类别/我的酷类别/我的酷产品,\n 2. 折叠链接: /虚拟父类别/我的酷类别/我的酷产品,\n 3. 短链接: /我的酷产品,\n 4. 无链接: /产品/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "电子邮件验证",
+        "description": "启用/禁用用户的电子邮件验证"
+      },
+      "EmailVerificationRequired": {
+        "title": "需要电子邮件验证",
+        "description": "启用/禁用用户的必需电子邮件验证"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "总计计算的价格四舍五入",
+        "description": "在订单和购物车模块中启用/禁用价格四舍五入"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "导出或导入具有所有相关数据的商店"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "在前端应用程序中提交表单",
+      "description": "客户在前端应用程序中提交表单（例如，联系我们表单）时会收到电子邮件通知"
+    }
+  }
+}

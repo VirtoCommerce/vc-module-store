@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "ストア",
+    "blades": {
+      "stores-list": {
+        "title": "ストア",
+        "labels": {
+          "no-stores": "まだストアはありません",
+          "name": "名前"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "説明",
+          "store-regional-settings": "ロケーション設定",
+          "store-country": "ストアの国",
+          "store-region": "ストアの州または県",
+          "store-email-settings": "メール設定",
+          "store-email": "メール",
+          "store-admin-email": "管理者メール",
+          "store-email-name": "名前",
+          "store-admin-email-name": "管理者名",
+          "fulfillment-center": "デフォルトのフルフィルメントセンター",
+          "returns-fulfillment-center": "デフォルトの返品フルフィルメントセンター",
+          "additional-fulfillment-centers": "利用可能なフルフィルメントセンター",
+          "additional-returns-fulfillment-centers": "利用可能な返品フルフィルメントセンター",
+          "operational-timezone": "運用タイムゾーン",
+          "store-url": "ストアのURL"
+        },
+        "placeholders": {
+          "description": "説明を提供...",
+          "store-country": "選択...",
+          "store-region": "州または県を提供...",
+          "store-email": "メールを入力",
+          "store-admin-email": "メールを入力",
+          "store-email-name": "ストア名を提供...",
+          "store-admin-email-name": "管理者名を入力",
+          "fulfillment-center": "選択...",
+          "returns-fulfillment-center": "選択...",
+          "operational-timezone": "選択...",
+          "store-url": "URLを入力"
+        }
+      },
+      "store-authentication": {
+        "title": "ストアの認証タイプ",
+        "active": "アクティブ",
+        "name": "名前",
+        "no-data": "認証タイプが見つかりません"
+      },
+      "store-detail": {
+        "subtitle": "ストアの詳細",
+        "labels": {
+          "code": "コード",
+          "name": "名前",
+          "catalog": "カタログ",
+          "state": "ステータス",
+          "language": "言語",
+          "currency": "通貨",
+          "links": "リンク",
+          "default-language": "デフォルトの言語",
+          "additional-languages": "追加の言語",
+          "default-currency": "デフォルトの通貨",
+          "additional-currencies": "追加の通貨",
+          "linked-stores": "リンクされたストア（顧客はこれらのストアにアクセスするために自分の資格情報を使用できます）"
+        },
+        "placeholders": {
+          "code": "コードを提供",
+          "name": "名前を入力",
+          "catalog": "選択...",
+          "state": "選択...",
+          "default-language": "選択...",
+          "additional-languages": "選択...",
+          "default-currency": "選択...",
+          "additional-currencies": "選択...",
+          "linked-stores": "このストアにはリンクされたストアがありません"
+        },
+        "descriptions": {
+          "code": "これはストアの主キーとして使用され、フロントエンドアプリケーションでのストア選択のURLの一部としても使用されます",
+          "name": "この名前はストアマネージャーに表示されます",
+          "catalog": "このストアに関連付けられた物理的または仮想的なカタログ",
+          "state": "現在のストアの状態",
+          "default-language": "このストアの主要言語",
+          "default-currency": "このストアの主要通貨"
+        }
+      },
+      "new-store-wizard": {
+        "title": "新しいストア",
+        "subtitle": "新しいストアを作成"
+      },
+      "taxProvider-detail": {
+        "subtitle": "税プロバイダーを編集",
+        "labels": {
+          "name": "名前",
+          "code": "コード",
+          "description": "説明",
+          "settings": "設定"
+        },
+        "placeholders": {
+          "description": "説明を提供..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "アクティブ",
+          "tax-provider": "税プロバイダー"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "コンテナ（ストア）"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "イラスト"
+      },
+      "storeAdvancedWidget": {
+        "title": "詳細プロパティ",
+        "blade-subtitle": "詳細プロパティ"
+      },
+      "store-authentication-widget": {
+        "title": "認証"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "通知ログ",
+        "blade-subtitle": "通知ログ",
+        "blade-title": "ストア {{id}} の通知ログ"
+      },
+      "storeNotificationsWidget": {
+        "title": "通知",
+        "blade-subtitle": "通知サービス",
+        "blade-title": "ストア {{id}} の通知タイプのリスト"
+      },
+      "storeSettingsWidget": {
+        "title": "設定",
+        "blade-subtitle": "設定"
+      },
+      "storeTaxingWidget": {
+        "title": "税プロバイダー",
+        "blade-subtitle": "税プロバイダー"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "削除を確認",
+        "message": "このストアを削除してもよろしいですか？"
+      },
+      "store-save": {
+        "title": "変更を保存",
+        "message": "ストアが変更されました。変更を保存しますか？"
+      },
+      "tax-provider-save": {
+        "title": "変更を保存",
+        "message": "税プロバイダーが変更されました。変更を保存しますか？"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "選択...",
+        "loading": "読み込み中..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "ストアメニューを開く",
+    "store:create": "ストアデータを作成",
+    "store:read": "ストアデータを表示",
+    "store:update": "ストアデータを更新",
+    "store:delete": "ストアデータを削除",
+    "store:loginOnBehalf": "顧客の代わりにログイン"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "ステータス",
+        "description": "このストアが持つ可能性のあるステータス"
+      },
+      "TaxCalculationEnabled": {
+        "title": "税計算",
+        "description": "フロントエンドアプリケーションでの税計算を有効/無効にする"
+      },
+      "AllowAnonymousUsers": {
+        "title": "匿名ストア訪問",
+        "description": "匿名ユーザーがストアを訪問することを禁止/許可する"
+      },
+      "IsSpa": {
+        "title": "シングルページアプリケーション (SPA)",
+        "description": "このストアがシングルページアプリケーションであるかどうかを指定する"
+      },
+      "SeoLinksType": {
+        "title": "SEOリンク",
+        "description": "製品とカテゴリのリンクタイプを決定します。例:\n 1. 長い:  /仮想親カテゴリ/物理親カテゴリ/私のクールなカテゴリ/私のクールな製品,\n 2. 折りたたまれた: /仮想親カテゴリ/私のクールなカテゴリ/私のクールな製品,\n 3. 短い: /私のクールな製品,\n 4. なし: /製品/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "メール確認",
+        "description": "ユーザーのメール確認を有効/無効にする"
+      },
+      "EmailVerificationRequired": {
+        "title": "メール確認が必要",
+        "description": "ユーザーのメール確認を必須にするかどうかを有効/無効にする"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "合計計算のための価格の四捨五入",
+        "description": "注文およびカートモジュールでの価格の四捨五入を有効/無効にする"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "関連データを持つストアをエクスポートまたはインポートする"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "フロントエンドアプリケーションでのフォームの送信",
+      "description": "顧客がフロントエンドアプリケーションでフォーム（例：お問い合わせフォーム）を送信すると、メール通知が届きます"
+    }
+  }
+}

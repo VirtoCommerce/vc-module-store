@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "Negozi",
+    "blades": {
+      "stores-list": {
+        "title": "Negozi",
+        "labels": {
+          "no-stores": "Non hai ancora negozi",
+          "name": "Nome"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "Descrizione",
+          "store-regional-settings": "Impostazioni di localizzazione",
+          "store-country": "Paese del negozio",
+          "store-region": "Stato o provincia del negozio",
+          "store-email-settings": "Impostazioni email",
+          "store-email": "Email",
+          "store-admin-email": "Email dell'amministratore",
+          "store-email-name": "Nome",
+          "store-admin-email-name": "Nome dell'amministratore",
+          "fulfillment-center": "Centro di evasione predefinito",
+          "returns-fulfillment-center": "Centro di restituzione predefinito",
+          "additional-fulfillment-centers": "Centri di evasione disponibili",
+          "additional-returns-fulfillment-centers": "Centri di restituzione disponibili",
+          "operational-timezone": "Fuso orario operativo",
+          "store-url": "URL del negozio"
+        },
+        "placeholders": {
+          "description": "Fornire descrizione...",
+          "store-country": "Selezionare...",
+          "store-region": "Fornire stato o provincia...",
+          "store-email": "Inserire email",
+          "store-admin-email": "Inserire email",
+          "store-email-name": "Fornire nome del negozio...",
+          "store-admin-email-name": "Inserire nome dell'amministratore",
+          "fulfillment-center": "Selezionare...",
+          "returns-fulfillment-center": "Selezionare...",
+          "operational-timezone": "Selezionare...",
+          "store-url": "Inserire URL"
+        }
+      },
+      "store-authentication": {
+        "title": "Tipi di autenticazione del negozio",
+        "active": "È attivo",
+        "name": "Nome",
+        "no-data": "Nessun tipo di autenticazione trovato"
+      },
+      "store-detail": {
+        "subtitle": "Dettagli del negozio",
+        "labels": {
+          "code": "Codice",
+          "name": "Nome",
+          "catalog": "Catalogo",
+          "state": "Stato",
+          "language": "Lingua",
+          "currency": "Valuta",
+          "links": "Collegamenti",
+          "default-language": "Lingua predefinita",
+          "additional-languages": "Lingue aggiuntive",
+          "default-currency": "Valuta predefinita",
+          "additional-currencies": "Valute aggiuntive",
+          "linked-stores": "Negozi collegati (i clienti possono utilizzare le proprie credenziali per accedere a questi negozi)"
+        },
+        "placeholders": {
+          "code": "Fornire codice",
+          "name": "Inserire nome",
+          "catalog": "Selezionare...",
+          "state": "Selezionare...",
+          "default-language": "Selezionare...",
+          "additional-languages": "Selezionare...",
+          "default-currency": "Selezionare...",
+          "additional-currencies": "Selezionare...",
+          "linked-stores": "Questo negozio non ha negozi collegati"
+        },
+        "descriptions": {
+          "code": "Questo sarà utilizzato come chiave primaria del negozio, nonché parte dell'URL per la selezione del negozio nell'applicazione Frontend",
+          "name": "Questo nome sarà visualizzato nel Gestore Negozi",
+          "catalog": "Qualsiasi catalogo fisico o virtuale associato a questo negozio",
+          "state": "Stato attuale del negozio",
+          "default-language": "Lingua principale per questo negozio",
+          "default-currency": "Valuta principale per questo negozio"
+        }
+      },
+      "new-store-wizard": {
+        "title": "Nuovo negozio",
+        "subtitle": "Crea nuovo negozio"
+      },
+      "taxProvider-detail": {
+        "subtitle": "Modifica fornitore di tasse",
+        "labels": {
+          "name": "Nome",
+          "code": "Codice",
+          "description": "Descrizione",
+          "settings": "Impostazioni"
+        },
+        "placeholders": {
+          "description": "Fornire descrizione..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "Attivo",
+          "tax-provider": "Fornitore di tasse"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Contenitore (negozio)"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "Risorse"
+      },
+      "storeAdvancedWidget": {
+        "title": "Proprietà avanzate",
+        "blade-subtitle": "Proprietà avanzate"
+      },
+      "store-authentication-widget": {
+        "title": "Autenticazione"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "Registro notifiche",
+        "blade-subtitle": "Registro notifiche",
+        "blade-title": "Registro notifiche per il negozio {{id}}"
+      },
+      "storeNotificationsWidget": {
+        "title": "Notifica",
+        "blade-subtitle": "Servizio di notifica",
+        "blade-title": "Elenco dei tipi di notifica per il negozio {{id}}"
+      },
+      "storeSettingsWidget": {
+        "title": "Impostazioni",
+        "blade-subtitle": "Impostazioni"
+      },
+      "storeTaxingWidget": {
+        "title": "Fornitori di tasse",
+        "blade-subtitle": "Fornitori di tasse"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "Conferma eliminazione",
+        "message": "Sei sicuro di voler eliminare questo negozio?"
+      },
+      "store-save": {
+        "title": "Salva modifiche",
+        "message": "Il negozio è stato modificato. Vuoi salvare le modifiche?"
+      },
+      "tax-provider-save": {
+        "title": "Salva modifiche",
+        "message": "Il fornitore di tasse è stato modificato. Vuoi salvare le modifiche?"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "Selezionare...",
+        "loading": "Caricamento..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "Apri il menu del negozio",
+    "store:create": "Crea dati del negozio",
+    "store:read": "Visualizza dati del negozio",
+    "store:update": "Aggiorna dati del negozio",
+    "store:delete": "Elimina dati del negozio",
+    "store:loginOnBehalf": "Accedi per conto di un cliente"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "Stati",
+        "description": "Stati che questo negozio può avere"
+      },
+      "TaxCalculationEnabled": {
+        "title": "Calcolo delle tasse",
+        "description": "Abilita / disabilita il calcolo delle tasse nell'applicazione Frontend"
+      },
+      "AllowAnonymousUsers": {
+        "title": "Visite anonime al negozio",
+        "description": "Proibire / consentire agli utenti anonimi di visitare il negozio"
+      },
+      "IsSpa": {
+        "title": "Applicazione a pagina singola (SPA)",
+        "description": "Specifica se questo negozio è un'applicazione a pagina singola"
+      },
+      "SeoLinksType": {
+        "title": "Link SEO",
+        "description": "Determina il tipo di link per il prodotto e la categoria. Esempi:\n 1. Lungo:  /categoria-genitore-virtuale/categoria-genitore-fisica/mia-categoria-cool/mio-prodotto-cool,\n 2. Collassato: /categoria-genitore-virtuale/mia-categoria-cool/mio-prodotto-cool,\n 3. Breve: /mio-prodotto-cool,\n 4. Nessuno: /prodotto/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "Verifica email",
+        "description": "Abilita / disabilita la verifica email per gli utenti"
+      },
+      "EmailVerificationRequired": {
+        "title": "Verifica email richiesta",
+        "description": "Abilita / disabilita la verifica email richiesta per gli utenti"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Arrotondamento dei prezzi per il calcolo dei totali",
+        "description": "Abilita / disabilita l'arrotondamento dei prezzi nei moduli Ordine e Carrello"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "Esporta o importa negozi con tutti i dati correlati"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Invio di moduli nell'applicazione Frontend",
+      "description": "Il cliente riceve una notifica via email quando invia un modulo (ad es. il modulo Contattaci) nell'applicazione Frontend"
+    }
+  }
+}

@@ -21,29 +21,29 @@
           "store-admin-email": "Admin-E-Mail",
           "store-email-name": "Name",
           "store-admin-email-name": "Admin-Name",
-          "fulfillment-center": "Standard-Versandzentrum",
-          "returns-fulfillment-center": "Standard-Retouren-Versandzentrum",
-          "additional-fulfillment-centers": "Verfügbare Versandzentren",
-          "additional-returns-fulfillment-centers": "Verfügbare Retouren-Versandzentren",
+          "fulfillment-center": "Standard-Logistikzentrum",
+          "returns-fulfillment-center": "Standard-Rückgabe-Logistikzentrum",
+          "additional-fulfillment-centers": "Verfügbare Logistikzentren",
+          "additional-returns-fulfillment-centers": "Verfügbare Rückgabe-Logistikzentren",
           "operational-timezone": "Betriebszeitzone",
           "store-url": "Geschäfts-URL"
         },
         "placeholders": {
-          "description": "Bitte geben Sie eine Beschreibung an...",
-          "store-country": "Bitte auswählen...",
-          "store-region": "Bitte Bundesland oder Provinz angeben...",
-          "store-email": "Bitte geben Sie eine E-Mail Adresse an",
-          "store-admin-email": "Bitte geben Sie eine E-Mail Adresse an",
-          "store-email-name": "Bitte geben Sie den Namen des Geschäfts an...",
-          "store-admin-email-name": "Bitte geben Sie den Namen des Admins ein",
-          "fulfillment-center": "Bitte auswählen...",
-          "returns-fulfillment-center": "Bitte auswählen...",
-          "operational-timezone": "Bitte auswählen...",
-          "store-url": "Bitte URL eingeben"
+          "description": "Beschreibung angeben...",
+          "store-country": "Auswählen...",
+          "store-region": "Bundesland oder Provinz angeben...",
+          "store-email": "E-Mail eingeben",
+          "store-admin-email": "E-Mail eingeben",
+          "store-email-name": "Geschäftsnamen angeben...",
+          "store-admin-email-name": "Admin-Namen eingeben",
+          "fulfillment-center": "Auswählen...",
+          "returns-fulfillment-center": "Auswählen...",
+          "operational-timezone": "Auswählen...",
+          "store-url": "URL eingeben"
         }
       },
       "store-authentication": {
-        "title": "Authentifizierungstypen des Geschäfts",
+        "title": "Authentifizierungstypen für Geschäfte",
         "active": "Aktiv",
         "name": "Name",
         "no-data": "Keine Authentifizierungstypen gefunden"
@@ -62,31 +62,31 @@
           "additional-languages": "Zusätzliche Sprachen",
           "default-currency": "Standardwährung",
           "additional-currencies": "Zusätzliche Währungen",
-          "linked-stores": "Verknüpfte Geschäfte (Kunden können ihre Zugangsdaten für diese Geschäfte verwenden)"
+          "linked-stores": "Verknüpfte Geschäfte (Kunden können ihre Anmeldeinformationen verwenden, um auf diese Geschäfte zuzugreifen)"
         },
         "placeholders": {
-          "code": "Bitte Code angeben",
-          "name": "Bitte Name eingeben",
-          "catalog": "Bitte auswählen...",
-          "state": "Bitte auswählen...",
-          "default-language": "Bitte auswählen...",
-          "additional-languages": "Bitte auswählen...",
-          "default-currency": "Bitte auswählen...",
-          "additional-currencies": "Bitte auswählen...",
+          "code": "Code angeben",
+          "name": "Namen eingeben",
+          "catalog": "Auswählen...",
+          "state": "Auswählen...",
+          "default-language": "Auswählen...",
+          "additional-languages": "Auswählen...",
+          "default-currency": "Auswählen...",
+          "additional-currencies": "Auswählen...",
           "linked-stores": "Dieses Geschäft hat keine verknüpften Geschäfte"
         },
         "descriptions": {
-          "code": "Dies wird als primärer Schlüssel des Geschäfts sowie als Teil der URL für die Geschäftsauswahl im Frontend verwendet",
+          "code": "Dies wird als Primärschlüssel des Geschäfts sowie als Teil der URL für die Geschäftsauswahl in der Frontend-Anwendung verwendet",
           "name": "Dieser Name wird im Store Manager angezeigt",
           "catalog": "Jeder physische oder virtuelle Katalog, der mit diesem Geschäft verbunden ist",
-          "state": "Aktueller Status des Geschäfts",
+          "state": "Aktueller Geschäftsstatus",
           "default-language": "Primäre Sprache für dieses Geschäft",
           "default-currency": "Primäre Währung für dieses Geschäft"
         }
       },
       "new-store-wizard": {
-        "title": "Neues Geschäft",
-        "subtitle": "Ein neues Geschäft erstellen"
+        "title": "Neuer Laden",
+        "subtitle": "Neuen Laden erstellen"
       },
       "taxProvider-detail": {
         "subtitle": "Steueranbieter bearbeiten",
@@ -97,7 +97,7 @@
           "settings": "Einstellungen"
         },
         "placeholders": {
-          "description": "Bitte Beschreibung angeben..."
+          "description": "Beschreibung angeben..."
         }
       },
       "taxProvider-list": {
@@ -115,7 +115,7 @@
     },
     "widgets": {
       "assetsWidget": {
-        "title": "Mediendateien"
+        "title": "Ressourcen"
       },
       "storeAdvancedWidget": {
         "title": "Erweiterte Eigenschaften",
@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Löschen bestätigen",
-        "message": "Möchten Sie dieses Geschäft wirklich löschen?"
+        "message": "Sind Sie sicher, dass Sie dieses Geschäft löschen möchten?"
       },
       "store-save": {
         "title": "Änderungen speichern",
@@ -159,18 +159,18 @@
     },
     "directives": {
       "store-selector": {
-        "placeholder": "Bitte Wählen Sie aus...",
-        "loading": "Ladeprozess..."
+        "placeholder": "Auswählen...",
+        "loading": "Laden..."
       }
     }
   },
   "permissions": {
-    "store:access": "Geschäftsmenü öffnen",
+    "store:access": "Öffnen Sie das Geschäftmenü",
     "store:create": "Geschäftsdaten erstellen",
     "store:read": "Geschäftsdaten anzeigen",
     "store:update": "Geschäftsdaten aktualisieren",
     "store:delete": "Geschäftsdaten löschen",
-    "store:loginOnBehalf": "Im Namen eines Kunden einloggen"
+    "store:loginOnBehalf": "Im Namen eines Kunden anmelden"
   },
   "settings": {
     "Stores": {
@@ -180,43 +180,43 @@
       },
       "TaxCalculationEnabled": {
         "title": "Steuerberechnung",
-        "description": "Steuerberechnung im Frontend aktivieren/deaktivieren"
+        "description": "Aktivieren/Deaktivieren der Steuerberechnung in der Frontend-Anwendung"
       },
       "AllowAnonymousUsers": {
-        "title": "Anonyme Besuche",
-        "description": "Anonymen Besuch verbieten/erlauben "
+        "title": "Anonyme Geschäftsbesuche",
+        "description": "Anonyme Benutzer den Besuch des Geschäfts verbieten/erlauben"
       },
       "IsSpa": {
         "title": "Single-Page-Anwendung (SPA)",
-        "description": "Angeben, ob dieses Geschäft eine SPA ist"
+        "description": "Geben Sie an, ob dieses Geschäft eine Single-Page-Anwendung ist"
       },
       "SeoLinksType": {
         "title": "SEO-Links",
-        "description": "Bestimmt die Art der Links für Produkte und Kategorien. Beispiele:\n 1. Lang:  /virtuelle-hauptkategorie/physische-hauptkategorie/meine-coole-kategorie/mein-cooles-produkt,\n 2. Zusammengefasst: /virtuelle-hauptkategorie/meine-coole-kategorie/mein-cooles-produkt,\n 3. Kurz: /mein-cooles-produkt,\n 4. Keine: /produkt/123"
+        "description": "Bestimmen Sie den Linktyp für Produkt und Kategorie. Beispiele:\n 1. Lang:  /virtuelle-Elternkategorie/physische-Elternkategorie/meine-coole-kategorie/mein-cooles-produkt,\n 2. Zusammengeklappt: /virtuelle-Elternkategorie/meine-coole-kategorie/mein-cooles-produkt,\n 3. Kurz: /mein-cooles-produkt,\n 4. Keine: /produkt/123"
       },
       "EmailVerificationEnabled": {
         "title": "E-Mail-Verifizierung",
-        "description": "E-Mail-Prüfung für Benutzer aktivieren/deaktivieren"
+        "description": "Aktivieren/Deaktivieren der E-Mail-Verifizierung für Benutzer"
       },
       "EmailVerificationRequired": {
         "title": "Erforderliche E-Mail-Verifizierung",
-        "description": "E-Mail-Prüfung für Benutzer aktivieren/deaktivieren"
+        "description": "Aktivieren/Deaktivieren der erforderlichen E-Mail-Verifizierung für Benutzer"
       },
       "EnablePriceRoundingForTotalsCalculation": {
-        "title": "Preise für Gesamtsummenberechnung runden",
-        "description": "Preisrundung in den Modulen Bestellung und Warenkorb aktivieren/deaktivieren"
+        "title": "Preisabrundung für die Gesamtrechnung",
+        "description": "Aktivieren/Deaktivieren der Preisabrundung in den Bestell- und Warenkorbmodulen"
       }
     }
   },
   "module": {
     "VirtoCommerce.Store": {
-      "description": "Geschäfte mit allen zugehörigen Daten exportieren oder importieren"
+      "description": "Exportieren oder Importieren von Geschäften mit allen zugehörigen Daten"
     }
   },
   "notificationTypes": {
     "StoreDynamicEmailNotification": {
-      "displayName": "Formulareinsendungen im Frontend",
-      "description": "Der Kunde erhält eine E-Mail-Benachrichtigung, wenn er ein Formular (z. B. das Kontaktformular) im Frontend absendet"
+      "displayName": "Formulare im Frontend einreichen",
+      "description": "Der Kunde erhält eine E-Mail-Benachrichtigung, wenn er ein Formular (z. B. das Kontaktformular) im Frontend einreicht"
     }
   }
 }

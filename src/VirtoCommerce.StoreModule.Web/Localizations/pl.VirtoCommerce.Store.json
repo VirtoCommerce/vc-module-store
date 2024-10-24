@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "Sklepy",
+    "blades": {
+      "stores-list": {
+        "title": "Sklepy",
+        "labels": {
+          "no-stores": "Nie masz jeszcze żadnych sklepów",
+          "name": "Nazwa"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "Opis",
+          "store-regional-settings": "Ustawienia lokalizacji",
+          "store-country": "Kraj sklepu",
+          "store-region": "Stan lub prowincja sklepu",
+          "store-email-settings": "Ustawienia e-mail",
+          "store-email": "E-mail",
+          "store-admin-email": "E-mail administratora",
+          "store-email-name": "Nazwa",
+          "store-admin-email-name": "Nazwa administratora",
+          "fulfillment-center": "Domyślny centrum realizacji",
+          "returns-fulfillment-center": "Domyślne centrum zwrotów",
+          "additional-fulfillment-centers": "Dostępne centra realizacji",
+          "additional-returns-fulfillment-centers": "Dostępne centra zwrotów",
+          "operational-timezone": "Strefa czasowa operacyjna",
+          "store-url": "URL sklepu"
+        },
+        "placeholders": {
+          "description": "Podaj opis...",
+          "store-country": "Wybierz...",
+          "store-region": "Podaj stan lub prowincję...",
+          "store-email": "Wprowadź e-mail",
+          "store-admin-email": "Wprowadź e-mail",
+          "store-email-name": "Podaj nazwę sklepu...",
+          "store-admin-email-name": "Wprowadź nazwę administratora",
+          "fulfillment-center": "Wybierz...",
+          "returns-fulfillment-center": "Wybierz...",
+          "operational-timezone": "Wybierz...",
+          "store-url": "Wprowadź URL"
+        }
+      },
+      "store-authentication": {
+        "title": "Typy uwierzytelniania sklepu",
+        "active": "Jest aktywne",
+        "name": "Nazwa",
+        "no-data": "Nie znaleziono typów uwierzytelniania"
+      },
+      "store-detail": {
+        "subtitle": "Szczegóły sklepu",
+        "labels": {
+          "code": "Kod",
+          "name": "Nazwa",
+          "catalog": "Katalog",
+          "state": "Status",
+          "language": "Język",
+          "currency": "Waluta",
+          "links": "Linki",
+          "default-language": "Język domyślny",
+          "additional-languages": "Dodatkowe języki",
+          "default-currency": "Waluta domyślna",
+          "additional-currencies": "Dodatkowe waluty",
+          "linked-stores": "Połączone sklepy (klienci mogą używać swoich danych logowania, aby uzyskać dostęp do tych sklepów)"
+        },
+        "placeholders": {
+          "code": "Podaj kod",
+          "name": "Wprowadź nazwę",
+          "catalog": "Wybierz...",
+          "state": "Wybierz...",
+          "default-language": "Wybierz...",
+          "additional-languages": "Wybierz...",
+          "default-currency": "Wybierz...",
+          "additional-currencies": "Wybierz...",
+          "linked-stores": "Ten sklep nie ma połączonych sklepów"
+        },
+        "descriptions": {
+          "code": "To będzie używane jako klucz główny sklepu, a także jako część URL do wyboru sklepu w aplikacji Frontend",
+          "name": "Ta nazwa będzie wyświetlana w Menedżerze Sklepów",
+          "catalog": "Każdy fizyczny lub wirtualny katalog związany z tym sklepem",
+          "state": "Aktualny stan sklepu",
+          "default-language": "Główny język dla tego sklepu",
+          "default-currency": "Główna waluta dla tego sklepu"
+        }
+      },
+      "new-store-wizard": {
+        "title": "Nowy sklep",
+        "subtitle": "Utwórz nowy sklep"
+      },
+      "taxProvider-detail": {
+        "subtitle": "Edytuj dostawcę podatków",
+        "labels": {
+          "name": "Nazwa",
+          "code": "Kod",
+          "description": "Opis",
+          "settings": "Ustawienia"
+        },
+        "placeholders": {
+          "description": "Podaj opis..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "Aktywny",
+          "tax-provider": "Dostawca podatków"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Kontener (sklep)"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "Zasoby"
+      },
+      "storeAdvancedWidget": {
+        "title": "Zaawansowane właściwości",
+        "blade-subtitle": "Zaawansowane właściwości"
+      },
+      "store-authentication-widget": {
+        "title": "Uwierzytelnianie"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "Dziennik powiadomień",
+        "blade-subtitle": "Dziennik powiadomień",
+        "blade-title": "Dziennik powiadomień dla sklepu {{id}}"
+      },
+      "storeNotificationsWidget": {
+        "title": "Powiadomienie",
+        "blade-subtitle": "Usługa powiadomień",
+        "blade-title": "Lista typów powiadomień dla sklepu {{id}}"
+      },
+      "storeSettingsWidget": {
+        "title": "Ustawienia",
+        "blade-subtitle": "Ustawienia"
+      },
+      "storeTaxingWidget": {
+        "title": "Dostawcy podatków",
+        "blade-subtitle": "Dostawcy podatków"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "Potwierdź usunięcie",
+        "message": "Czy na pewno chcesz usunąć ten sklep?"
+      },
+      "store-save": {
+        "title": "Zapisz zmiany",
+        "message": "Sklep został zmodyfikowany. Czy chcesz zapisać zmiany?"
+      },
+      "tax-provider-save": {
+        "title": "Zapisz zmiany",
+        "message": "Dostawca podatków został zmodyfikowany. Czy chcesz zapisać zmiany?"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "Wybierz...",
+        "loading": "Ładowanie..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "Otwórz menu sklepu",
+    "store:create": "Utwórz dane sklepu",
+    "store:read": "Wyświetl dane sklepu",
+    "store:update": "Zaktualizuj dane sklepu",
+    "store:delete": "Usuń dane sklepu",
+    "store:loginOnBehalf": "Zaloguj się w imieniu klienta"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "Statusy",
+        "description": "Statusy, które ten sklep może mieć"
+      },
+      "TaxCalculationEnabled": {
+        "title": "Obliczanie podatków",
+        "description": "Włącz/wyłącz obliczanie podatków w aplikacji Frontend"
+      },
+      "AllowAnonymousUsers": {
+        "title": "Anonimowe wizyty w sklepie",
+        "description": "Zabroń/zezwól anonimowym użytkownikom na odwiedzanie sklepu"
+      },
+      "IsSpa": {
+        "title": "Aplikacja jednostronicowa (SPA)",
+        "description": "Określ, czy ten sklep jest aplikacją jednostronicową"
+      },
+      "SeoLinksType": {
+        "title": "Linki SEO",
+        "description": "Określ typ linku dla produktu i kategorii. Przykłady:\n 1. Długi:  /kategoria-rodzic-wirtualny/kategoria-rodzic-fizyczny/moja-fajna-kategoria/moj-fajny-produkt,\n 2. Złożony: /kategoria-rodzic-wirtualny/moja-fajna-kategoria/moj-fajny-produkt,\n 3. Krótki: /moj-fajny-produkt,\n 4. Żaden: /produkt/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "Weryfikacja e-mail",
+        "description": "Włącz/wyłącz weryfikację e-mail dla użytkowników"
+      },
+      "EmailVerificationRequired": {
+        "title": "Wymagana weryfikacja e-mail",
+        "description": "Włącz/wyłącz wymaganą weryfikację e-mail dla użytkowników"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Zaokrąglanie cen do obliczeń całkowitych",
+        "description": "Włącz/wyłącz zaokrąglanie cen w modułach Zamówienia i Koszyk"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "Eksportuj lub importuj sklepy ze wszystkimi powiązanymi danymi"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Przesyłanie formularzy w aplikacji Frontend",
+      "description": "Klient otrzymuje powiadomienie e-mail, gdy przesyła formularz (np. formularz kontaktowy) w aplikacji Frontend"
+    }
+  }
+}
