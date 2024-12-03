@@ -1,11 +1,11 @@
 {
   "stores": {
-    "main-menu-title": "Geschäfte",
+    "main-menu-title": "Shops",
     "blades": {
       "stores-list": {
-        "title": "Geschäfte",
+        "title": "Shops",
         "labels": {
-          "no-stores": "Sie haben noch keine Geschäfte",
+          "no-stores": "Sie haben noch keine Shops",
           "name": "Name"
         }
       },
@@ -14,8 +14,8 @@
         "labels": {
           "description": "Beschreibung",
           "store-regional-settings": "Standorteinstellungen",
-          "store-country": "Land des Geschäfts",
-          "store-region": "Bundesland oder Provinz des Geschäfts",
+          "store-country": "Land des Shops",
+          "store-region": "Bundesland oder Provinz des Shops",
           "store-email-settings": "E-Mail-Einstellungen",
           "store-email": "E-Mail",
           "store-admin-email": "Admin-E-Mail",
@@ -26,7 +26,7 @@
           "additional-fulfillment-centers": "Verfügbare Logistikzentren",
           "additional-returns-fulfillment-centers": "Verfügbare Rückgabe-Logistikzentren",
           "operational-timezone": "Betriebszeitzone",
-          "store-url": "Geschäfts-URL"
+          "store-url": "Shop-URL"
         },
         "placeholders": {
           "description": "Beschreibung angeben...",
@@ -34,7 +34,7 @@
           "store-region": "Bundesland oder Provinz angeben...",
           "store-email": "E-Mail eingeben",
           "store-admin-email": "E-Mail eingeben",
-          "store-email-name": "Geschäftsnamen angeben...",
+          "store-email-name": "Shopnamen angeben...",
           "store-admin-email-name": "Admin-Namen eingeben",
           "fulfillment-center": "Auswählen...",
           "returns-fulfillment-center": "Auswählen...",
@@ -43,13 +43,13 @@
         }
       },
       "store-authentication": {
-        "title": "Authentifizierungstypen für Geschäfte",
+        "title": "Authentifizierungstypen für Shops",
         "active": "Aktiv",
         "name": "Name",
         "no-data": "Keine Authentifizierungstypen gefunden"
       },
       "store-detail": {
-        "subtitle": "Geschäftsdetails",
+        "subtitle": "Shop-Details",
         "labels": {
           "code": "Code",
           "name": "Name",
@@ -62,7 +62,7 @@
           "additional-languages": "Zusätzliche Sprachen",
           "default-currency": "Standardwährung",
           "additional-currencies": "Zusätzliche Währungen",
-          "linked-stores": "Verknüpfte Geschäfte (Kunden können ihre Anmeldeinformationen verwenden, um auf diese Geschäfte zuzugreifen)"
+          "linked-stores": "Verknüpfte Shops (Kunden können ihre Anmeldeinformationen verwenden, um auf diese Shops zuzugreifen)"
         },
         "placeholders": {
           "code": "Code angeben",
@@ -73,15 +73,15 @@
           "additional-languages": "Auswählen...",
           "default-currency": "Auswählen...",
           "additional-currencies": "Auswählen...",
-          "linked-stores": "Dieses Geschäft hat keine verknüpften Geschäfte"
+          "linked-stores": "Dieser Shop hat keine verknüpften Shops"
         },
         "descriptions": {
-          "code": "Dies wird als Primärschlüssel des Geschäfts sowie als Teil der URL für die Geschäftsauswahl in der Frontend-Anwendung verwendet",
+          "code": "Dies wird als Primärschlüssel des Shops sowie als Teil der URL für die Shop-Auswahl in der Frontend-Anwendung verwendet",
           "name": "Dieser Name wird im Store Manager angezeigt",
-          "catalog": "Jeder physische oder virtuelle Katalog, der mit diesem Geschäft verbunden ist",
-          "state": "Aktueller Geschäftsstatus",
-          "default-language": "Primäre Sprache für dieses Geschäft",
-          "default-currency": "Primäre Währung für dieses Geschäft"
+          "catalog": "Jeder physische oder virtuelle Katalog, der mit diesem Shop verbunden ist",
+          "state": "Aktueller Shop-Status",
+          "default-language": "Hauptsprache für diesen Shop",
+          "default-currency": "Hauptwährung für diesen Shop"
         }
       },
       "new-store-wizard": {
@@ -109,7 +109,7 @@
       },
       "account-detail": {
         "labels": {
-          "container-id": "Container (Geschäft)"
+          "container-id": "Container (Shop)"
         }
       }
     },
@@ -127,12 +127,12 @@
       "storeNotificationsLogWidget": {
         "title": "Benachrichtigungsprotokoll",
         "blade-subtitle": "Benachrichtigungsprotokoll",
-        "blade-title": "Benachrichtigungsprotokoll für Geschäft {{id}}"
+        "blade-title": "Benachrichtigungsprotokoll für Shop {{id}}"
       },
       "storeNotificationsWidget": {
         "title": "Benachrichtigung",
         "blade-subtitle": "Benachrichtigungsdienst",
-        "blade-title": "Liste der Benachrichtigungstypen für Geschäft {{id}}"
+        "blade-title": "Liste der Benachrichtigungstypen für Shop {{id}}"
       },
       "storeSettingsWidget": {
         "title": "Einstellungen",
@@ -146,11 +146,11 @@
     "dialogs": {
       "store-delete": {
         "title": "Löschen bestätigen",
-        "message": "Sind Sie sicher, dass Sie dieses Geschäft löschen möchten?"
+        "message": "Sind Sie sicher, dass Sie diesen Shop löschen möchten?"
       },
       "store-save": {
         "title": "Änderungen speichern",
-        "message": "Das Geschäft wurde geändert. Möchten Sie die Änderungen speichern?"
+        "message": "Der Shop wurde geändert. Möchten Sie die Änderungen speichern?"
       },
       "tax-provider-save": {
         "title": "Änderungen speichern",
@@ -165,30 +165,30 @@
     }
   },
   "permissions": {
-    "store:access": "Öffnen Sie das Geschäftmenü",
-    "store:create": "Geschäftsdaten erstellen",
-    "store:read": "Geschäftsdaten anzeigen",
-    "store:update": "Geschäftsdaten aktualisieren",
-    "store:delete": "Geschäftsdaten löschen",
+    "store:access": "Öffnen Sie das Shop-Menü",
+    "store:create": "Shop-Daten erstellen",
+    "store:read": "Shop-Daten anzeigen",
+    "store:update": "Shop-Daten aktualisieren",
+    "store:delete": "Shop-Daten löschen",
     "store:loginOnBehalf": "Im Namen eines Kunden anmelden"
   },
   "settings": {
     "Stores": {
       "States": {
         "title": "Status",
-        "description": "Status, den dieses Geschäft haben kann"
+        "description": "Status, den diesen Shop haben kann"
       },
       "TaxCalculationEnabled": {
         "title": "Steuerberechnung",
         "description": "Aktivieren/Deaktivieren der Steuerberechnung in der Frontend-Anwendung"
       },
       "AllowAnonymousUsers": {
-        "title": "Anonyme Geschäftsbesuche",
-        "description": "Anonyme Benutzer den Besuch des Geschäfts verbieten/erlauben"
+        "title": "Anonyme Shop-Besuche",
+        "description": "Anonyme Benutzer den Besuch des Shops verbieten/erlauben"
       },
       "IsSpa": {
         "title": "Single-Page-Anwendung (SPA)",
-        "description": "Geben Sie an, ob dieses Geschäft eine Single-Page-Anwendung ist"
+        "description": "Geben Sie an, ob dieser Shop eine Single-Page-Anwendung ist"
       },
       "SeoLinksType": {
         "title": "SEO-Links",
@@ -210,7 +210,7 @@
   },
   "module": {
     "VirtoCommerce.Store": {
-      "description": "Exportieren oder Importieren von Geschäften mit allen zugehörigen Daten"
+      "description": "Exportieren oder Importieren von Shops mit allen zugehörigen Daten"
     }
   },
   "notificationTypes": {
