@@ -16,14 +16,14 @@ VirtoCommerce.Store module represents stores management system.
 
 ## Documentation
 
-* [Store Module Documentation](https://docs.virtocommerce.org/platform/user-guide/store/overview/)
+* [Store module user documentation](https://docs.virtocommerce.org/platform/user-guide/store/overview/)
+* [GraphQL API documentation](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Store/overview/)
 * [View on GitHub](https://github.com/VirtoCommerce/vc-module-store)
 
 ## Available resources
 
 * Module related service implementations as a <a href="https://www.nuget.org/packages/VirtoCommerce.StoreModule.Data" target="_blank">NuGet package</a>
 * API client as a <a href="https://www.nuget.org/packages/VirtoCommerce.StoreModule.Client" target="_blank">NuGet package</a>
-* [API client documentation](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Store/overview/)
 
 ## References
 
