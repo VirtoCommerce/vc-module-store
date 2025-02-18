@@ -4,34 +4,34 @@
 
 VirtoCommerce.Store module represents stores management system.
 
-## Key Features
+## Key features
 
-1. Multiple stores;
-1. SEO management;
-1. Individual payment and shipping methods;
-1. Tax providers management;
-1. Individual settings for each store;
-1. Customer account linking between stores;
-1. Store asset management.
+* Multiple stores
+* SEO management
+* Individual payment and shipping methods
+* Tax providers management
+* Individual settings for each store
+* Customer account linking between stores
+* Store asset management
 
 ## Documentation
 
-* [Store Module Document](/docs/index.md)
+* [Store module user documentation](https://docs.virtocommerce.org/platform/user-guide/store/overview/)
+* [GraphQL API documentation](https://docs.virtocommerce.org/platform/developer-guide/GraphQL-Storefront-API-Reference-xAPI/Store/overview/)
 * [View on GitHub](https://github.com/VirtoCommerce/vc-module-store)
 
 ## Available resources
 
 * Module related service implementations as a <a href="https://www.nuget.org/packages/VirtoCommerce.StoreModule.Data" target="_blank">NuGet package</a>
 * API client as a <a href="https://www.nuget.org/packages/VirtoCommerce.StoreModule.Client" target="_blank">NuGet package</a>
-* API client documentation http://demo.virtocommerce.com/admin/docs/ui/index#!/Store_module
 
 ## References
 
-* Deploy: https://virtocommerce.com/docs/latest/developer-guide/deploy-module-from-source-code/
-I* nstallation: https://www.virtocommerce.com/docs/latest/user-guide/modules/
-* Home: https://virtocommerce.com
-* Community: https://www.virtocommerce.org
-* [Download Latest Release](https://github.com/VirtoCommerce/vc-module-store/releases/)
+* [Deployment](https://docs.virtocommerce.org/platform/developer-guide/Tutorials-and-How-tos/Tutorials/deploy-module-from-source-code/)
+* [Installation](https://docs.virtocommerce.org/platform/user-guide/modules-installation/)
+* [Home](https://virtocommerce.com)
+* [Community](https://www.virtocommerce.org)
+* [Download latest release](https://github.com/VirtoCommerce/vc-module-store/releases/latest)
 
 ## License
 
