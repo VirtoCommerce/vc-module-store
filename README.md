@@ -27,10 +27,10 @@ VirtoCommerce.Store module represents stores management system.
 
 ## References
 
-* Deployment: https://docs.virtocommerce.org/platform/developer-guide/Tutorials-and-How-tos/Tutorials/deploy-module-from-source-code/
-* Installation: https://docs.virtocommerce.org/platform/user-guide/modules-installation/
-* Home: https://virtocommerce.com
-* Community: https://www.virtocommerce.org
+* [Deployment](https://docs.virtocommerce.org/platform/developer-guide/Tutorials-and-How-tos/Tutorials/deploy-module-from-source-code/)
+* [Installation](https://docs.virtocommerce.org/platform/user-guide/modules-installation/)
+* [Home](https://virtocommerce.com)
+* [Community](https://www.virtocommerce.org)
 * [Download latest release](https://github.com/VirtoCommerce/vc-module-store/releases/latest)
 
 ## License
