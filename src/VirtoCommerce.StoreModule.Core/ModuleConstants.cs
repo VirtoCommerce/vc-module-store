@@ -102,13 +102,18 @@ namespace VirtoCommerce.StoreModule.Core
 
             public static class SEO
             {
+                public const string SeoNone = "None";
+                public const string SeoShort = "Short";
+                public const string SeoCollapsed = "Collapsed";
+                public const string SeoLong = "Long";
+
                 public static SettingDescriptor SeoLinksType = new SettingDescriptor
                 {
                     Name = "Stores.SeoLinksType",
                     GroupName = "Store|SEO",
                     ValueType = SettingValueType.ShortText,
-                    DefaultValue = "Collapsed",
-                    AllowedValues = new[] { "None", "Short", "Collapsed", "Long" }
+                    DefaultValue = SeoCollapsed,
+                    AllowedValues = [SeoNone, SeoShort, SeoCollapsed, SeoLong],
                 };
 
                 public static IEnumerable<SettingDescriptor> AllSettings
