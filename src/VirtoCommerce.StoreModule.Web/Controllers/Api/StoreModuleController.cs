@@ -31,7 +31,8 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         INotificationSender notificationSender,
         SignInManager<ApplicationUser> signInManager,
         IAuthorizationService authorizationService,
-        IPublicStoreSettings publicStoreSettings) : Controller
+        IPublicStoreSettings publicStoreSettings
+        ) : Controller
     {
         /// <summary>
         /// Search stores
