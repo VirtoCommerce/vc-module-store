@@ -276,7 +276,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 return BadRequest();
             }
 
-            var store = await storeService.GetNoCloneAsync(id);
+            var store = await storeService.GetByIdAsync(id);
             if (store == null)
             {
                 return NotFound();
