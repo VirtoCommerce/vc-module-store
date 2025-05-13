@@ -32,6 +32,8 @@ using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Data.SqlServer;
 using VirtoCommerce.StoreModule.Web.Authorization;
 
+using ISeoResolver = VirtoCommerce.Seo.Core.Services.ISeoResolver;
+
 namespace VirtoCommerce.StoreModule.Web
 {
     public class Module : IModule, IExportSupport, IImportSupport, IHasConfiguration
@@ -69,7 +71,10 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreService, StoreService>();
             serviceCollection.AddTransient<IStoreSearchService, StoreSearchService>();
             serviceCollection.AddTransient<StoreExportImport>();
+            serviceCollection.AddTransient<ISeoResolver, StoreSeoResolver>();
+#pragma warning disable VC0011 // Obsolete interface
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
+#pragma warning restore VC0011 // Obsolete interface
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
             serviceCollection.AddTransient<IStoreCurrencyResolver, StoreCurrencyResolver>();
             serviceCollection.AddTransient<IPublicStoreSettings, PublicStoreSettings>();
