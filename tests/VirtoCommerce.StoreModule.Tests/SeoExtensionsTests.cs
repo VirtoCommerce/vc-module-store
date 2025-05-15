@@ -105,7 +105,7 @@ namespace VirtoCommerce.StoreModule.Tests
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "product1");
+            var result = seoInfos.GetBestMatchingSeoInfo(store.Id, store.DefaultLanguage, language: "en-US", slug: "product1");
 
             // Assert
             Assert.NotNull(result);
