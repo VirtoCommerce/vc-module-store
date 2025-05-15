@@ -51,26 +51,30 @@ public static class SeoExtensions
         // so, the array should be reversed to have the lowest priority at the end
         var priorities = prioritiesSettings.Reverse().ToArray();
 
-        var scores = seoInfos
+        return seoInfos
             ?.Select(seoInfo => new
             {
                 SeoRecord = seoInfo,
                 ObjectTypePriority = Array.IndexOf(priorities, seoInfo.ObjectType),
                 Score = seoInfo.CalculateScore(storeId, storeDefaultLanguage, language, slug, permalink),
-            }).ToList();
-
-        var result = scores?
+            })
+            .Where(x => x.Score > 0)
             .OrderByDescending(x => x.Score)
             .ThenByDescending(x => x.ObjectTypePriority)
             .Select(x => x.SeoRecord)
             .FirstOrDefault();
-
-        return result;
     }
-
 
     private static int CalculateScore(this SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
     {
+        // some conditions should be checked before calculating the score 
+        if ((!seoInfo.StoreId.IsNullOrEmpty() && seoInfo.StoreId != storeId)
+            || (!seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) && !seoInfo.SemanticUrl.EqualsWithoutSlash(slug))
+            || (!seoInfo.LanguageCode.IsNullOrEmpty() && !seoInfo.LanguageCode.EqualsIgnoreCase(language) && !seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage)))
+        {
+            return 0;
+        }
+
         // the order of this array is important
         // the first element has the highest priority
         // so, we need to reverse it before calculating the score
