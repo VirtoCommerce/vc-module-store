@@ -91,5 +91,25 @@ namespace VirtoCommerce.StoreModule.Tests
             Assert.NotNull(result);
             Assert.Null(result.LanguageCode);
         }
+
+        [Fact]
+        public void GetBestMatchingSeoInfo_WithObjectType_ReturnsSeoInfoWithHighPriority()
+        {
+            // Arrange
+            var store = new Store { Id = "Store1", DefaultLanguage = "en-US", };
+
+            var seoInfos = new List<SeoInfo>
+            {
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Category"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Pages"},
+            };
+
+            // Act
+            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "de-DE", slug: "product1");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Pages", result.ObjectType);
+        }
     }
 }

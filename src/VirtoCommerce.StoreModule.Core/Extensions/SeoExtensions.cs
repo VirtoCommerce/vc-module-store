@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.CoreModule.Core.Seo;
@@ -37,20 +38,30 @@ public static class SeoExtensions
     /// </summary>
     public static SeoInfo GetBestMatchingSeoInfo(this IEnumerable<SeoInfo> seoInfos, string storeId, string storeDefaultLanguage, string language, string slug = null, string permalink = null)
     {
-        if (string.IsNullOrEmpty(storeId) ||
-            string.IsNullOrEmpty(storeDefaultLanguage) ||
-            string.IsNullOrEmpty(language))
+        // this is impossible situation
+        if (storeId == null || storeDefaultLanguage == null)
         {
             return null;
         }
 
-        var result = seoInfos
+        // todo: should me moved to settings
+        var prioritiesSettings = new[] { "ContentFile", "Pages", "Catalog", "Category", "CatalogProduct" };
+
+        // unknown object types should have the lowest priority
+        // so, the array should be reversed to have the lowest priority at the end
+        var priorities = prioritiesSettings.Reverse().ToArray();
+
+        var scores = seoInfos
             ?.Select(seoInfo => new
             {
                 SeoRecord = seoInfo,
+                ObjectTypePriority = Array.IndexOf(priorities, seoInfo.ObjectType),
                 Score = seoInfo.CalculateScore(storeId, storeDefaultLanguage, language, slug, permalink),
-            })
+            }).ToList();
+
+        var result = scores?
             .OrderByDescending(x => x.Score)
+            .ThenByDescending(x => x.ObjectTypePriority)
             .Select(x => x.SeoRecord)
             .FirstOrDefault();
 
@@ -60,6 +71,9 @@ public static class SeoExtensions
 
     private static int CalculateScore(this SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
     {
+        // the order of this array is important
+        // the first element has the highest priority
+        // so, we need to reverse it before calculating the score
         var score = new[]
             {
                 seoInfo.IsActive,
@@ -73,6 +87,12 @@ public static class SeoExtensions
             .Reverse()
             .Select((valid, index) => valid ? 1 << index : 0)
             .Sum();
+
+        // the example of the score calculation:
+        // seoInfo = { IsActive = true, SemanticUrl = "blog/article", StoreId = "Store", LanguageCode = null }
+        // method parameters are: storeId = "Store", storeDefaultLanguage = "en-US", language = "en-US", slug = null, permalink = "blog/article"
+        // result array is: [true, true, false, true, false, false, true]
+        // it transforms into binary: 1101001b = 105d
 
         return score;
     }
