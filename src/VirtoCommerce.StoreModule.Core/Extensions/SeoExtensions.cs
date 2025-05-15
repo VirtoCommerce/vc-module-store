@@ -44,7 +44,7 @@ public static class SeoExtensions
             return null;
         }
 
-        // todo: should me moved to settings
+        // todo: should be moved to settings
         var prioritiesSettings = new[] { "ContentFile", "Pages", "Catalog", "Category", "CatalogProduct" };
 
         // unknown object types should have the lowest priority
