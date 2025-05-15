@@ -77,7 +77,7 @@ public static class SeoExtensions
 
         // the order of this array is important
         // the first element has the highest priority
-        // so, we need to reverse it before calculating the score
+        // the array is reversed below using the .Reverse() method to prioritize elements correctly
         var score = new[]
             {
                 seoInfo.IsActive,
