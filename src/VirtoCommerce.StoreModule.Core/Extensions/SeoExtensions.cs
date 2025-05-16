@@ -33,26 +33,34 @@ public static class SeoExtensions
         return seoSupport?.SeoInfos?.GetBestMatchingSeoInfo(storeId, storeDefaultLanguage, language, slug, permalink);
     }
 
+    // unknown object types should have the lowest priority
+    // so, the array should be reversed to have the lowest priority at the end
+    // todo: should be moved to settings and has reverse order
+    private static readonly string[] PrioritiesSettings =
+    [
+        "CatalogProduct",
+        "Category",
+        "Catalog",
+        "Pages",
+        "ContentFile"
+    ];
+
     /// <summary>
     /// Returns SEO record with the highest score
     /// </summary>
     public static SeoInfo GetBestMatchingSeoInfo(this IEnumerable<SeoInfo> seoInfos, string storeId, string storeDefaultLanguage, string language, string slug = null, string permalink = null)
     {
         // this is impossible situation
-        if (storeId == null || storeDefaultLanguage == null)
+        if (storeId.IsNullOrEmpty() || storeDefaultLanguage.IsNullOrEmpty())
         {
             return null;
         }
 
-        // todo: should be moved to settings
-        var prioritiesSettings = new[] { "ContentFile", "Pages", "Catalog", "Category", "CatalogProduct" };
-
-        // unknown object types should have the lowest priority
-        // so, the array should be reversed to have the lowest priority at the end
-        var priorities = prioritiesSettings.Reverse().ToArray();
+        var priorities = PrioritiesSettings; // .Reverse().ToArray();
 
         return seoInfos
-            ?.Select(seoInfo => new
+            ?.Where(x => SeoCanBeFound(x, storeId, storeDefaultLanguage, language, slug, permalink))
+            .Select(seoInfo => new
             {
                 SeoRecord = seoInfo,
                 ObjectTypePriority = Array.IndexOf(priorities, seoInfo.ObjectType),
@@ -67,14 +75,6 @@ public static class SeoExtensions
 
     private static int CalculateScore(this SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
     {
-        // some conditions should be checked before calculating the score 
-        if ((!seoInfo.StoreId.IsNullOrEmpty() && seoInfo.StoreId != storeId)
-            || (!seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) && !seoInfo.SemanticUrl.EqualsWithoutSlash(slug))
-            || (!seoInfo.LanguageCode.IsNullOrEmpty() && !seoInfo.LanguageCode.EqualsIgnoreCase(language) && !seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage)))
-        {
-            return 0;
-        }
-
         // the order of this array is important
         // the first element has the highest priority
         // the array is reversed below using the .Reverse() method to prioritize elements correctly
@@ -99,6 +99,14 @@ public static class SeoExtensions
         // it transforms into binary: 1101001b = 105d
 
         return score;
+    }
+
+    private static bool SeoCanBeFound(SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
+    {
+        // some conditions should be checked before calculating the score 
+        return (seoInfo.StoreId.IsNullOrEmpty() || seoInfo.StoreId == storeId)
+                && (seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) || seoInfo.SemanticUrl.EqualsWithoutSlash(slug))
+                && (seoInfo.LanguageCode.IsNullOrEmpty() || seoInfo.LanguageCode.EqualsIgnoreCase(language) || seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage));
     }
 
     private static bool EqualsWithoutSlash(this string a, string b)
