@@ -17,7 +17,7 @@ namespace VirtoCommerce.StoreModule.Data.PostgreSql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -331,6 +331,8 @@ namespace VirtoCommerce.StoreModule.Data.PostgreSql.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OuterId");
 
                     b.ToTable("Store", (string)null);
                 });

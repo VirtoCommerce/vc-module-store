@@ -69,7 +69,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             }
             if (string.IsNullOrEmpty(criteria.ResponseGroup))
             {
-                criteria.ResponseGroup = StoreResponseGroup.StoreInfo.ToString();
+                criteria.ResponseGroup = nameof(StoreResponseGroup.StoreInfo);
             }
             var result = await _storeSearchService.SearchNoCloneAsync(criteria);
             return result;
@@ -106,7 +106,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("{id}")]
         public async Task<ActionResult<Store>> GetStoreById(string id)
         {
-            var store = await _storeService.GetNoCloneAsync(id, StoreResponseGroup.Full.ToString());
+            var store = await _storeService.GetNoCloneAsync(id, nameof(StoreResponseGroup.Full));
 
             if (store == null)
             {
@@ -122,6 +122,29 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             return Ok(store);
         }
 
+        /// <summary>
+        /// Gets store by outer id.
+        /// </summary>
+        /// <remarks>Gets store by outer id (integration key) with full information loaded</remarks>
+        /// <param name="outerId">Store outer id</param>
+        [HttpGet]
+        [Route("outer/{outerId}")]
+        public async Task<ActionResult<Store>> GetStoreByOuterId(string outerId)
+        {
+            var store = await _storeService.GetByOuterIdNoCloneAsync(outerId, nameof(StoreResponseGroup.Full));
+            if (store == null)
+            {
+                return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            return Ok(store);
+        }
 
         /// <summary>
         /// Create store
@@ -132,7 +155,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Create)]
         public async Task<ActionResult<Store>> CreateStore([FromBody] Store store)
         {
-            await _storeService.SaveChangesAsync(new[] { store });
+            await _storeService.SaveChangesAsync([store]);
             return Ok(store);
         }
 
@@ -150,7 +173,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 return Forbid();
             }
-            await _storeService.SaveChangesAsync(new[] { store });
+            await _storeService.SaveChangesAsync([store]);
             return NoContent();
         }
 
@@ -180,7 +203,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPost]
         [Route("send/dynamicnotification")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody] SendDynamicNotificationRequest request)
+        public async Task<ActionResult> SendDynamicNotificationToStoreEmail([FromBody] SendDynamicNotificationRequest request)
         {
             var store = await _storeService.GetNoCloneAsync(request.StoreId);
 
@@ -213,7 +236,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             if (notification != null)
             {
                 notification.To = store.EmailWithName ?? store.AdminEmailWithName;
-                notification.From = user.Email;
+                notification.From = user!.Email;
                 notification.FormType = request.Type;
                 notification.Fields = request.Fields;
                 notification.LanguageCode = request.Language;
@@ -267,7 +290,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             if (user != null)
             {
                 var storeIds = await _storeService.GetUserAllowedStoreIdsAsync(user);
-                var stores = await _storeService.GetNoCloneAsync(storeIds, StoreResponseGroup.StoreInfo.ToString());
+                var stores = await _storeService.GetNoCloneAsync(storeIds, nameof(StoreResponseGroup.StoreInfo));
                 return Ok(stores);
             }
 

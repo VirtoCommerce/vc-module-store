@@ -18,7 +18,7 @@ using VirtoCommerce.StoreModule.Data.Services.Validation;
 
 namespace VirtoCommerce.StoreModule.Data.Services
 {
-    public class StoreService : CrudService<Store, StoreEntity, StoreChangeEvent, StoreChangedEvent>, IStoreService
+    public class StoreService : OuterEntityService<Store, StoreEntity, StoreChangeEvent, StoreChangedEvent>, IStoreService
     {
         private readonly Func<IStoreRepository> _repositoryFactory;
         private readonly IEventPublisher _eventPublisher;
@@ -42,7 +42,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
             if (user?.StoreId != null)
             {
-                var store = await this.GetNoCloneAsync(user.StoreId, StoreResponseGroup.StoreInfo.ToString());
+                var store = await this.GetNoCloneAsync(user.StoreId, nameof(StoreResponseGroup.StoreInfo));
                 if (store != null)
                 {
                     retVal.Add(store.Id);
@@ -58,31 +58,35 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
         public override async Task DeleteAsync(IList<string> ids, bool softDelete = false)
         {
-            using (var repository = _repositoryFactory())
-            {
-                var changedEntries = new List<GenericChangedEntry<Store>>();
-                var stores = await GetAsync(ids, StoreResponseGroup.StoreInfo.ToString());
-                var dbStores = await repository.GetByIdsAsync(ids);
+            using var repository = _repositoryFactory();
+            var changedEntries = new List<GenericChangedEntry<Store>>();
+            var stores = await GetAsync(ids, nameof(StoreResponseGroup.StoreInfo));
+            var dbStores = await repository.GetByIdsAsync(ids);
 
-                foreach (var store in stores)
+            foreach (var store in stores)
+            {
+                var dbStore = dbStores.FirstOrDefault(x => x.Id == store.Id);
+                if (dbStore != null)
                 {
-                    var dbStore = dbStores.FirstOrDefault(x => x.Id == store.Id);
-                    if (dbStore != null)
-                    {
-                        repository.Remove(dbStore);
-                        changedEntries.Add(new GenericChangedEntry<Store>(store, EntryState.Deleted));
-                    }
+                    repository.Remove(dbStore);
+                    changedEntries.Add(new GenericChangedEntry<Store>(store, EntryState.Deleted));
                 }
-                await repository.UnitOfWork.CommitAsync();
-                await _settingsManager.DeepRemoveSettingsAsync(stores);
-                ClearCache(stores);
-                await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
             }
+
+            await repository.UnitOfWork.CommitAsync();
+            await _settingsManager.DeepRemoveSettingsAsync(stores);
+            ClearCache(stores);
+            await _eventPublisher.Publish(new StoreChangedEvent(changedEntries));
         }
 
         protected override Task<IList<StoreEntity>> LoadEntities(IRepository repository, IList<string> ids, string responseGroup)
         {
             return ((IStoreRepository)repository).GetByIdsAsync(ids, responseGroup);
+        }
+
+        protected override IQueryable<StoreEntity> GetEntitiesQuery(IRepository repository)
+        {
+            return ((IStoreRepository)repository).Stores;
         }
 
         protected override Store ProcessModel(string responseGroup, StoreEntity entity, Store model)
@@ -102,12 +106,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
             return _settingsManager.DeepSaveSettingsAsync(models);
         }
 
-        private void ValidateStoresProperties(IEnumerable<Store> stores)
+        private static void ValidateStoresProperties(IEnumerable<Store> stores)
         {
-            if (stores == null)
-            {
-                throw new ArgumentNullException(nameof(stores));
-            }
+            ArgumentNullException.ThrowIfNull(stores);
 
             var validator = new StoreValidator();
             foreach (var store in stores)

@@ -6,7 +6,7 @@ using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Core.Services
 {
-    public interface IStoreService : ICrudService<Store>
+    public interface IStoreService : IOuterEntityService<Store>
     {
         /// <summary>
         /// Returns list of store ids which passed user can sign in to
