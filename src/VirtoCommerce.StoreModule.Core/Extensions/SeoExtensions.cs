@@ -35,7 +35,7 @@ public static class SeoExtensions
 
     // unknown object types should have the lowest priority
     // so, the array should be reversed to have the lowest priority at the end
-    private static readonly string[] OrderedObjectTypes =
+    private static readonly string[] _orderedObjectTypes =
     [
         "CatalogProduct",
         "Category",
@@ -43,14 +43,6 @@ public static class SeoExtensions
         "Pages",
         "ContentFile"
     ];
-
-    private static bool SeoCanBeFound(SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
-    {
-        // some conditions should be checked before calculating the score 
-        return (seoInfo.StoreId.IsNullOrEmpty() || seoInfo.StoreId == storeId) &&
-               (seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) || seoInfo.SemanticUrl.EqualsWithoutSlash(slug)) &&
-               (seoInfo.LanguageCode.IsNullOrEmpty() || seoInfo.LanguageCode.EqualsIgnoreCase(language) || seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage));
-    }
 
     /// <summary>
     /// Returns SEO record with the highest score
@@ -68,7 +60,7 @@ public static class SeoExtensions
             .Select(seoInfo => new
             {
                 SeoRecord = seoInfo,
-                ObjectTypePriority = Array.IndexOf(OrderedObjectTypes, seoInfo.ObjectType),
+                ObjectTypePriority = Array.IndexOf(_orderedObjectTypes, seoInfo.ObjectType),
                 Score = seoInfo.CalculateScore(storeId, storeDefaultLanguage, language, slug, permalink),
             })
             .Where(x => x.Score > 0)
@@ -76,6 +68,14 @@ public static class SeoExtensions
             .ThenByDescending(x => x.ObjectTypePriority)
             .Select(x => x.SeoRecord)
             .FirstOrDefault();
+    }
+
+    private static bool SeoCanBeFound(SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
+    {
+        // some conditions should be checked before calculating the score 
+        return (seoInfo.StoreId.IsNullOrEmpty() || seoInfo.StoreId == storeId) &&
+               (seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) || seoInfo.SemanticUrl.EqualsWithoutSlash(slug)) &&
+               (seoInfo.LanguageCode.IsNullOrEmpty() || seoInfo.LanguageCode.EqualsIgnoreCase(language) || seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage));
     }
 
     private static int CalculateScore(this SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
