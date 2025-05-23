@@ -72,9 +72,9 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreSearchService, StoreSearchService>();
             serviceCollection.AddTransient<StoreExportImport>();
             serviceCollection.AddTransient<ISeoResolver, StoreSeoResolver>();
-#pragma warning disable VC0011 // Obsolete interface
+#pragma warning disable VC0010 // Obsolete interface
             serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
-#pragma warning restore VC0011 // Obsolete interface
+#pragma warning restore VC0010 // Obsolete interface
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
             serviceCollection.AddTransient<IStoreCurrencyResolver, StoreCurrencyResolver>();
             serviceCollection.AddTransient<IPublicStoreSettings, PublicStoreSettings>();

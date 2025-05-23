@@ -67,7 +67,7 @@ namespace VirtoCommerce.StoreModule.Data.Services
 
             var allCurrencies = await GetAllStoreCurrenciesAsync(storeId, cultureName);
 
-            var currency = allCurrencies.FirstOrDefault(x => x.Code.EqualsInvariant(currencyCode));
+            var currency = allCurrencies.FirstOrDefault(x => x.Code.EqualsIgnoreCase(currencyCode));
             if (currency == null)
             {
                 throw new InvalidOperationException($"requested currency {currencyCode} is not registered in the system");
