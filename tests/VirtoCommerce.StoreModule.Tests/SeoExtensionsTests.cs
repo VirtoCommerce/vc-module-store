@@ -123,12 +123,12 @@ namespace VirtoCommerce.StoreModule.Tests
 
             var seoInfos = new List<SeoInfo>
             {
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Category"},
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Pages"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Category"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Pages"},
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store.Id, store.DefaultLanguage, language: "en-US", slug: "product1");
+            var result = seoInfos.GetBestMatchingSeoInfo(store.Id, store.DefaultLanguage, language: "en-US", slug: "page1");
 
             // Assert
             Assert.NotNull(result);
@@ -143,12 +143,12 @@ namespace VirtoCommerce.StoreModule.Tests
 
             var seoInfos = new List<SeoInfo>
             {
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Category"},
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Pages"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Category"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Pages"},
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", permalink: "product2");
+            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", permalink: "page2");
 
             // Assert
             Assert.Null(result);
@@ -162,12 +162,12 @@ namespace VirtoCommerce.StoreModule.Tests
 
             var seoInfos = new List<SeoInfo>
             {
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Category"},
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Pages"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Category"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Pages"},
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "product2");
+            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "page2");
 
             // Assert
             Assert.Null(result);
@@ -181,12 +181,12 @@ namespace VirtoCommerce.StoreModule.Tests
 
             var seoInfos = new List<SeoInfo>
             {
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Category"},
-                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Pages"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Category"},
+                new() { StoreId = "Store1", LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Pages"},
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "product1");
+            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "page1");
 
             // Assert
             Assert.Null(result);
@@ -200,12 +200,12 @@ namespace VirtoCommerce.StoreModule.Tests
 
             var seoInfos = new List<SeoInfo>
             {
-                new() { StoreId = "Store1", LanguageCode = "de-DE", SemanticUrl = "product1", ObjectType = "Category"},
-                new() { StoreId = "Store1", LanguageCode = "de-DE", SemanticUrl = "product1", ObjectType = "Pages"},
+                new() { StoreId = "Store1", LanguageCode = "de-DE", SemanticUrl = "page1", ObjectType = "Category"},
+                new() { StoreId = "Store1", LanguageCode = "de-DE", SemanticUrl = "page1", ObjectType = "Pages"},
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "product1");
+            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "page1");
 
             // Assert
             Assert.Null(result);
@@ -219,12 +219,12 @@ namespace VirtoCommerce.StoreModule.Tests
 
             var seoInfos = new List<SeoInfo>
             {
-                new() { StoreId = null, LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Category"},
-                new() { StoreId = null, LanguageCode = "en-US", SemanticUrl = "product1", ObjectType = "Pages"},
+                new() { StoreId = null, LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Category"},
+                new() { StoreId = null, LanguageCode = "en-US", SemanticUrl = "page1", ObjectType = "Pages"},
             };
 
             // Act
-            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "product1");
+            var result = seoInfos.GetBestMatchingSeoInfo(store, language: "en-US", slug: "page1");
 
             // Assert
             Assert.NotNull(result);
