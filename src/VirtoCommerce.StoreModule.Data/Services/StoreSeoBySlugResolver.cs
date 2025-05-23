@@ -12,6 +12,7 @@ using VirtoCommerce.StoreModule.Data.Repositories;
 
 namespace VirtoCommerce.StoreModule.Data.Services
 {
+    [Obsolete("Use VirtoCommerce.Seo.Core.Services.ISeoResolver", DiagnosticId = "VC0010", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions/")]
     public class StoreSeoBySlugResolver : ISeoBySlugResolver
     {
         private readonly IPlatformMemoryCache _platformMemoryCache;
@@ -34,7 +35,30 @@ namespace VirtoCommerce.StoreModule.Data.Services
                     // Find seo entries for specified keyword. Also add other seo entries related to found object.
                     result = (await repository.SeoInfos.Where(x => x.Keyword == slug)
                                                                .Join(repository.SeoInfos, x => x.StoreId, y => y.StoreId, (x, y) => y)
-                                                               .ToArrayAsync()).Select(x => x.ToModel(AbstractTypeFactory<SeoInfo>.TryCreateInstance())).ToList();
+                                                               .ToArrayAsync()).Select(x =>
+                    {
+                        // this is obsolete code, but we need to keep it for backward compatibility
+                        // the old ToModel method cannot be used
+                        var result = AbstractTypeFactory<SeoInfo>.TryCreateInstance();
+
+                        result.Id = x.Id;
+                        result.CreatedBy = x.CreatedBy;
+                        result.CreatedDate = x.CreatedDate;
+                        result.ModifiedBy = x.ModifiedBy;
+                        result.ModifiedDate = x.ModifiedDate;
+                        result.LanguageCode = x.Language;
+                        result.SemanticUrl = x.Keyword;
+                        result.PageTitle = x.Title;
+                        result.ImageAltDescription = x.ImageAltDescription;
+                        result.IsActive = x.IsActive;
+                        result.MetaDescription = x.MetaDescription;
+                        result.MetaKeywords = x.MetaKeywords;
+                        result.ObjectId = x.StoreId;
+                        result.ObjectType = "Store";
+                        result.StoreId = x.StoreId;
+
+                        return result;
+                    }).ToList();
                 }
                 return result.ToArray();
             });
