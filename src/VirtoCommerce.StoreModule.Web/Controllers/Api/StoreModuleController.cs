@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using VirtoCommerce.NotificationsModule.Core.Model;
 using VirtoCommerce.NotificationsModule.Core.Services;
@@ -22,39 +23,17 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
 
     [Route("api/stores")]
     [Authorize]
-    public class StoreModuleController : Controller
+    public class StoreModuleController(
+        IStoreService storeService,
+        IStoreSearchService storeSearchService,
+        UserManager<ApplicationUser> userManager,
+        INotificationSearchService notificationSearchService,
+        INotificationSender notificationSender,
+        SignInManager<ApplicationUser> signInManager,
+        IAuthorizationService authorizationService,
+        IPublicStoreSettings publicStoreSettings
+        ) : Controller
     {
-        private readonly IStoreService _storeService;
-        private readonly IStoreSearchService _storeSearchService;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IAuthorizationService _authorizationService;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-
-        private readonly INotificationSearchService _notificationSearchService;
-        private readonly INotificationSender _notificationSender;
-
-        private readonly IPublicStoreSettings _publicStoreSettings;
-
-        public StoreModuleController(
-            IStoreService storeService,
-            IStoreSearchService storeSearchService,
-            UserManager<ApplicationUser> userManager,
-            INotificationSearchService notificationSearchService,
-            INotificationSender notificationSender,
-            SignInManager<ApplicationUser> signInManager,
-            IAuthorizationService authorizationService,
-            IPublicStoreSettings publicStoreSettings)
-        {
-            _storeService = storeService;
-            _storeSearchService = storeSearchService;
-            _userManager = userManager;
-            _notificationSearchService = notificationSearchService;
-            _notificationSender = notificationSender;
-            _signInManager = signInManager;
-            _authorizationService = authorizationService;
-            _publicStoreSettings = publicStoreSettings;
-        }
-
         /// <summary>
         /// Search stores
         /// </summary>
@@ -62,7 +41,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("search")]
         public async Task<ActionResult<StoreSearchResult>> SearchStores([FromBody] StoreSearchCriteria criteria)
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
@@ -71,7 +50,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 criteria.ResponseGroup = StoreResponseGroup.StoreInfo.ToString();
             }
-            var result = await _storeSearchService.SearchNoCloneAsync(criteria);
+            var result = await storeSearchService.SearchNoCloneAsync(criteria);
             return result;
         }
 
@@ -89,12 +68,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 Take = int.MaxValue
             };
 
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
             }
-            var result = await _storeSearchService.SearchNoCloneAsync(criteria);
+            var result = await storeSearchService.SearchNoCloneAsync(criteria);
             return result.Stores.ToArray();
         }
 
@@ -106,14 +85,14 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("{id}")]
         public async Task<ActionResult<Store>> GetStoreById(string id)
         {
-            var store = await _storeService.GetNoCloneAsync(id, StoreResponseGroup.Full.ToString());
+            var store = await storeService.GetNoCloneAsync(id, StoreResponseGroup.Full.ToString());
 
             if (store == null)
             {
                 return null;
             }
 
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
@@ -132,7 +111,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Authorize(ModuleConstants.Security.Permissions.Create)]
         public async Task<ActionResult<Store>> CreateStore([FromBody] Store store)
         {
-            await _storeService.SaveChangesAsync(new[] { store });
+            await storeService.SaveChangesAsync([store]);
             return Ok(store);
         }
 
@@ -145,12 +124,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> UpdateStore([FromBody] Store store)
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
             }
-            await _storeService.SaveChangesAsync(new[] { store });
+            await storeService.SaveChangesAsync([store]);
             return NoContent();
         }
 
@@ -163,12 +142,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteStore([FromQuery] string[] ids)
         {
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete));
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, ids, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Delete));
             if (!authorizationResult.Succeeded)
             {
                 return Forbid();
             }
-            await _storeService.DeleteAsync(ids);
+            await storeService.DeleteAsync(ids);
             return NoContent();
         }
 
@@ -182,7 +161,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
         public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody] SendDynamicNotificationRequest request)
         {
-            var store = await _storeService.GetNoCloneAsync(request.StoreId);
+            var store = await storeService.GetNoCloneAsync(request.StoreId);
 
             if (store == null)
             {
@@ -194,7 +173,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 throw new InvalidOperationException(string.Concat("Both store email and admin email are empty. StoreId: ", request.StoreId));
             }
 
-            var notificationsSearchResult = await _notificationSearchService.SearchNotificationsAsync(
+            var notificationsSearchResult = await notificationSearchService.SearchNotificationsAsync(
                 new NotificationSearchCriteria
                 {
                     NotificationType = nameof(StoreDynamicEmailNotification),
@@ -208,7 +187,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 throw new InvalidOperationException(string.Concat("There is no active notifications of type StoreDynamicEmailNotification. StoreId: ", request.StoreId));
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);
             var notification = (StoreDynamicEmailNotification)notificationsSearchResult.Results.FirstOrDefault();
             if (notification != null)
             {
@@ -218,7 +197,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 notification.Fields = request.Fields;
                 notification.LanguageCode = request.Language;
 
-                await _notificationSender.SendNotificationAsync(notification);
+                await notificationSender.SendNotificationAsync(notification);
             }
 
             return NoContent();
@@ -238,15 +217,15 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             {
                 UserName = id
             };
-            var store = await _storeService.GetNoCloneAsync(storeId);
+            var store = await storeService.GetNoCloneAsync(storeId);
             if (store != null)
             {
-                var user = await _userManager.FindByIdAsync(id);
+                var user = await userManager.FindByIdAsync(id);
                 if (user != null)
                 {
-                    var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+                    var userPrincipal = await signInManager.CreateUserPrincipalAsync(user);
                     // VP-6462: Here we intentionally use inlined platform "platform:security:loginOnBehalf" permission to not create a dependency on the latest platform
-                    var authorizationResult = await _authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement("platform:security:loginOnBehalf"));
+                    var authorizationResult = await authorizationService.AuthorizeAsync(userPrincipal, store, new StoreAuthorizationRequirement("platform:security:loginOnBehalf"));
                     result.CanLoginOnBehalf = authorizationResult.Succeeded;
                 }
             }
@@ -263,11 +242,11 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [Route("allowed/{userId}")]
         public async Task<ActionResult<Store[]>> GetUserAllowedStores(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByIdAsync(userId);
             if (user != null)
             {
-                var storeIds = await _storeService.GetUserAllowedStoreIdsAsync(user);
-                var stores = await _storeService.GetNoCloneAsync(storeIds, StoreResponseGroup.StoreInfo.ToString());
+                var storeIds = await storeService.GetUserAllowedStoreIdsAsync(user);
+                var stores = await storeService.GetNoCloneAsync(storeIds, StoreResponseGroup.StoreInfo.ToString());
                 return Ok(stores);
             }
 
@@ -279,8 +258,47 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [AllowAnonymous]
         public async Task<ActionResult<ModulePublicStoreSettings[]>> GetStorePublicSettingsById(string id)
         {
-            var settings = await _publicStoreSettings.GetSettings(id);
+            var settings = await publicStoreSettings.GetSettings(id);
             return settings.ToArray();
+        }
+
+        /// <summary>
+        /// Partial update for the specified store by id
+        /// </summary>
+        /// <param name="id">Store id</param>
+        /// <param name="patchDocument">JsonPatchDocument object with fields to update</param>
+        [HttpPatch]
+        [Route("{id}")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> PatchStore(string id, [FromBody] JsonPatchDocument<Store> patchDocument)
+        {
+            if (patchDocument == null)
+            {
+                return BadRequest();
+            }
+
+            var store = await storeService.GetByIdAsync(id);
+            if (store == null)
+            {
+                return NotFound();
+            }
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Update));
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            patchDocument.ApplyTo(store, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await storeService.SaveChangesAsync([store]);
+
+            return NoContent();
         }
     }
 }
