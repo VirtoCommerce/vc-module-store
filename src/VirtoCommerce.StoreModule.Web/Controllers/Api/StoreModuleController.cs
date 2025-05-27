@@ -81,12 +81,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// Get store by id
         /// </summary>
         /// <param name="id">Store id</param>
+        /// <param name="responseGroup">Response group</param>
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<Store>> GetStoreById(string id)
+        public async Task<ActionResult<Store>> GetStoreById([FromRoute] string id, [FromQuery] string responseGroup = null)
         {
-            var store = await storeService.GetNoCloneAsync(id, nameof(StoreResponseGroup.Full));
-
+            var store = await storeService.GetNoCloneAsync(id, responseGroup);
             if (store == null)
             {
                 return null;
@@ -106,11 +106,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// </summary>
         /// <remarks>Gets store by outer id (integration key) with full information loaded</remarks>
         /// <param name="outerId">Store outer id</param>
+        /// <param name="responseGroup">Response group</param>
         [HttpGet]
         [Route("outer/{outerId}")]
-        public async Task<ActionResult<Store>> GetStoreByOuterId(string outerId)
+        public async Task<ActionResult<Store>> GetStoreByOuterId([FromRoute] string outerId, [FromQuery] string responseGroup = null)
         {
-            var store = await storeService.GetByOuterIdNoCloneAsync(outerId, nameof(StoreResponseGroup.Full));
+            var store = await storeService.GetByOuterIdNoCloneAsync(outerId, responseGroup);
             if (store == null)
             {
                 return NotFound();
