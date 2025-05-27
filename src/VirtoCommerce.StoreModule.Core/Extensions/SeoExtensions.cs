@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.CoreModule.Core.Seo;
@@ -32,34 +33,56 @@ public static class SeoExtensions
         return seoSupport?.SeoInfos?.GetBestMatchingSeoInfo(storeId, storeDefaultLanguage, language, slug, permalink);
     }
 
+    // unknown object types should have the lowest priority
+    // so, the array should be reversed to have the lowest priority at the end
+    private static readonly string[] _orderedObjectTypes =
+    [
+        "CatalogProduct",
+        "Category",
+        "Catalog",
+        "Pages",
+        "ContentFile"
+    ];
+
     /// <summary>
     /// Returns SEO record with the highest score
     /// </summary>
     public static SeoInfo GetBestMatchingSeoInfo(this IEnumerable<SeoInfo> seoInfos, string storeId, string storeDefaultLanguage, string language, string slug = null, string permalink = null)
     {
-        if (string.IsNullOrEmpty(storeId) ||
-            string.IsNullOrEmpty(storeDefaultLanguage) ||
-            string.IsNullOrEmpty(language))
+        // this is impossible situation
+        if (storeId.IsNullOrEmpty() || storeDefaultLanguage.IsNullOrEmpty())
         {
             return null;
         }
 
-        var result = seoInfos
-            ?.Select(seoInfo => new
+        return seoInfos
+            ?.Where(x => SeoCanBeFound(x, storeId, storeDefaultLanguage, language, slug, permalink))
+            .Select(seoInfo => new
             {
                 SeoRecord = seoInfo,
+                ObjectTypePriority = Array.IndexOf(_orderedObjectTypes, seoInfo.ObjectType),
                 Score = seoInfo.CalculateScore(storeId, storeDefaultLanguage, language, slug, permalink),
             })
+            .Where(x => x.Score > 0)
             .OrderByDescending(x => x.Score)
+            .ThenByDescending(x => x.ObjectTypePriority)
             .Select(x => x.SeoRecord)
             .FirstOrDefault();
-
-        return result;
     }
 
+    private static bool SeoCanBeFound(SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
+    {
+        // some conditions should be checked before calculating the score 
+        return (seoInfo.StoreId.IsNullOrEmpty() || seoInfo.StoreId == storeId) &&
+               (seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) || seoInfo.SemanticUrl.EqualsWithoutSlash(slug)) &&
+               (seoInfo.LanguageCode.IsNullOrEmpty() || seoInfo.LanguageCode.EqualsIgnoreCase(language) || seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage));
+    }
 
     private static int CalculateScore(this SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
     {
+        // the order of this array is important
+        // the first element has the highest priority
+        // the array is reversed below using the .Reverse() method to prioritize elements correctly
         var score = new[]
             {
                 seoInfo.IsActive,
@@ -73,6 +96,12 @@ public static class SeoExtensions
             .Reverse()
             .Select((valid, index) => valid ? 1 << index : 0)
             .Sum();
+
+        // the example of the score calculation:
+        // seoInfo = { IsActive = true, SemanticUrl = "blog/article", StoreId = "Store", LanguageCode = null }
+        // method parameters are: storeId = "Store", storeDefaultLanguage = "en-US", language = "en-US", slug = null, permalink = "blog/article"
+        // result array is: [true, true, false, true, false, false, true]
+        // it transforms into binary: 1101001b = 105d
 
         return score;
     }
