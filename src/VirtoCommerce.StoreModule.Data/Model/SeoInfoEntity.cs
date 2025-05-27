@@ -1,11 +1,11 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Domain;
 
 namespace VirtoCommerce.StoreModule.Data.Model
 {
-    public class SeoInfoEntity : AuditableEntity
+    public class SeoInfoEntity : AuditableEntity, IDataEntity<SeoInfoEntity, SeoInfo>
     {
         [StringLength(255)]
         [Required]
