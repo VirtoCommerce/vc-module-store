@@ -31,13 +31,9 @@ namespace VirtoCommerce.StoreModule.Data.Services
         {
             if (cultureName == null)
             {
-                if (storeId == null)
-                {
-                    throw new ArgumentNullException(nameof(storeId));
-                }
+                ArgumentNullException.ThrowIfNull(storeId);
 
                 var store = await _storeService.GetNoCloneAsync(storeId);
-
                 cultureName = store.DefaultLanguage ?? Language.InvariantLanguage.CultureName;
             }
 
@@ -61,7 +57,6 @@ namespace VirtoCommerce.StoreModule.Data.Services
             if (string.IsNullOrWhiteSpace(currencyCode))
             {
                 var store = await _storeService.GetNoCloneAsync(storeId);
-
                 currencyCode = store.DefaultCurrency;
             }
 
