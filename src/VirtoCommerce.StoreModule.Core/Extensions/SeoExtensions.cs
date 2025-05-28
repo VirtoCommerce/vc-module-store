@@ -72,10 +72,12 @@ public static class SeoExtensions
 
     private static bool SeoCanBeFound(SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
     {
+        var url = permalink.EmptyToNull() ?? slug;
+
         // some conditions should be checked before calculating the score
         return seoInfo.StoreId.Matches(storeId) &&
                seoInfo.LanguageCode.MatchesAny(storeDefaultLanguage, language) &&
-               seoInfo.SemanticUrl.MatchesWithoutSlashAny(permalink, slug);
+               seoInfo.SemanticUrl.MatchesWithoutSlash(url);
     }
 
     private static int CalculateScore(this SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
@@ -106,11 +108,9 @@ public static class SeoExtensions
         return score;
     }
 
-    private static bool MatchesWithoutSlashAny(this string a, string permalink, string slug)
+    private static bool MatchesWithoutSlash(this string a, string b)
     {
-        // Permalink has higher priority than slug
-        var url = permalink.EmptyToNull() ?? slug;
-        return a.Matches(url) || a.EqualsWithoutSlash(url);
+        return a.Matches(b) || a.EqualsWithoutSlash(b);
     }
 
     private static bool EqualsWithoutSlash(this string a, string b)
