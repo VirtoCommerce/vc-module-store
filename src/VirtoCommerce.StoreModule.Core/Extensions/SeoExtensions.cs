@@ -72,9 +72,9 @@ public static class SeoExtensions
 
     private static bool SeoCanBeFound(SeoInfo seoInfo, string storeId, string storeDefaultLanguage, string language, string slug, string permalink)
     {
-        // some conditions should be checked before calculating the score 
+        // some conditions should be checked before calculating the score
         return (seoInfo.StoreId.IsNullOrEmpty() || seoInfo.StoreId == storeId) &&
-               (seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) || seoInfo.SemanticUrl.EqualsWithoutSlash(slug)) &&
+               (permalink.IsNullOrEmpty() && slug.IsNullOrEmpty() || seoInfo.SemanticUrl.EqualsWithoutSlash(permalink) || seoInfo.SemanticUrl.EqualsWithoutSlash(slug)) &&
                (seoInfo.LanguageCode.IsNullOrEmpty() || seoInfo.LanguageCode.EqualsIgnoreCase(language) || seoInfo.LanguageCode.EqualsIgnoreCase(storeDefaultLanguage));
     }
 
