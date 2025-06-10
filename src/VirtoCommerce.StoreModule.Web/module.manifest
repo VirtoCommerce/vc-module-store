@@ -8,7 +8,7 @@
   <dependencies>
     <dependency id="VirtoCommerce.Core" version="3.821.0" />
     <dependency id="VirtoCommerce.Notifications" version="3.809.0" />
-    <dependency id="VirtoCommerce.Seo" version="3.800.0" />
+    <dependency id="VirtoCommerce.Seo" version="3.801.0" />
   </dependencies>
 
   <title>Store</title>
