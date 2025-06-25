@@ -48,7 +48,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             }
             if (string.IsNullOrEmpty(criteria.ResponseGroup))
             {
-                criteria.ResponseGroup = StoreResponseGroup.StoreInfo.ToString();
+                criteria.ResponseGroup = nameof(StoreResponseGroup.StoreInfo);
             }
             var result = await storeSearchService.SearchNoCloneAsync(criteria);
             return result;
@@ -81,12 +81,12 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         /// Get store by id
         /// </summary>
         /// <param name="id">Store id</param>
+        /// <param name="responseGroup">Response group</param>
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<Store>> GetStoreById(string id)
+        public async Task<ActionResult<Store>> GetStoreById([FromRoute] string id, [FromQuery] string responseGroup = null)
         {
-            var store = await storeService.GetNoCloneAsync(id, StoreResponseGroup.Full.ToString());
-
+            var store = await storeService.GetNoCloneAsync(id, responseGroup);
             if (store == null)
             {
                 return null;
@@ -101,6 +101,30 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             return Ok(store);
         }
 
+        /// <summary>
+        /// Gets store by outer id.
+        /// </summary>
+        /// <remarks>Gets store by outer id (integration key) with full information loaded</remarks>
+        /// <param name="outerId">Store outer id</param>
+        /// <param name="responseGroup">Response group</param>
+        [HttpGet]
+        [Route("outer/{outerId}")]
+        public async Task<ActionResult<Store>> GetStoreByOuterId([FromRoute] string outerId, [FromQuery] string responseGroup = null)
+        {
+            var store = await storeService.GetByOuterIdNoCloneAsync(outerId, responseGroup);
+            if (store == null)
+            {
+                return NotFound();
+            }
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, store, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            return Ok(store);
+        }
 
         /// <summary>
         /// Create store
@@ -159,7 +183,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         [HttpPost]
         [Route("send/dynamicnotification")]
         [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
-        public async Task<ActionResult> SendDynamicNotificationAnStoreEmail([FromBody] SendDynamicNotificationRequest request)
+        public async Task<ActionResult> SendDynamicNotificationToStoreEmail([FromBody] SendDynamicNotificationRequest request)
         {
             var store = await storeService.GetNoCloneAsync(request.StoreId);
 
@@ -192,7 +216,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             if (notification != null)
             {
                 notification.To = store.EmailWithName ?? store.AdminEmailWithName;
-                notification.From = user.Email;
+                notification.From = user!.Email;
                 notification.FormType = request.Type;
                 notification.Fields = request.Fields;
                 notification.LanguageCode = request.Language;
@@ -246,7 +270,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
             if (user != null)
             {
                 var storeIds = await storeService.GetUserAllowedStoreIdsAsync(user);
-                var stores = await storeService.GetNoCloneAsync(storeIds, StoreResponseGroup.StoreInfo.ToString());
+                var stores = await storeService.GetNoCloneAsync(storeIds, nameof(StoreResponseGroup.StoreInfo));
                 return Ok(stores);
             }
 

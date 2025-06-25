@@ -2,10 +2,10 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Domain;
 using VirtoCommerce.Platform.Core.DynamicProperties;
+using VirtoCommerce.Seo.Core.Models;
 using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Data.Model
@@ -94,10 +94,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
 
         public virtual Store ToModel(Store store)
         {
-            if (store == null)
-            {
-                throw new ArgumentNullException(nameof(store));
-            }
+            ArgumentNullException.ThrowIfNull(store);
 
             store.Id = Id;
             store.CreatedBy = CreatedBy;
@@ -145,8 +142,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
 
         public virtual StoreEntity FromModel(Store store, PrimaryKeyResolvingMap pkMap)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
+            ArgumentNullException.ThrowIfNull(store);
 
             pkMap.AddPair(store, this);
 
@@ -252,9 +248,9 @@ namespace VirtoCommerce.StoreModule.Data.Model
 
         public virtual void Patch(StoreEntity target)
         {
-            if (target == null)
-                throw new ArgumentNullException(nameof(target));
+            ArgumentNullException.ThrowIfNull(target);
 
+            target.OuterId = OuterId;
             target.AdminEmail = AdminEmail;
             target.AdminEmailName = AdminEmailName;
             target.Catalog = Catalog;
