@@ -62,7 +62,7 @@
           "additional-languages": "Zusätzliche Sprachen",
           "default-currency": "Standardwährung",
           "additional-currencies": "Zusätzliche Währungen",
-          "linked-stores": "Verknüpfte Shops (Kunden können ihre Anmeldeinformationen verwenden, um auf diese Shops zuzugreifen)"
+          "linked-stores": "Verknüpfte Shops (Kunden dieser Shops können ihre Zugangsdaten zur Anmeldung verwenden)"
         },
         "placeholders": {
           "code": "Code angeben",
