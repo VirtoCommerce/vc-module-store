@@ -62,7 +62,7 @@
           "additional-languages": "追加の言語",
           "default-currency": "デフォルトの通貨",
           "additional-currencies": "追加の通貨",
-          "linked-stores": "リンクされたストア（顧客はこれらのストアにアクセスするために自分の資格情報を使用できます）"
+          "linked-stores": "連携ストア（これらのストアの顧客は自分の認証情報でサインインできます）"
         },
         "placeholders": {
           "code": "コードを提供",
