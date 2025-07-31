@@ -62,7 +62,7 @@
           "additional-languages": "Idiomas adicionais",
           "default-currency": "Moeda padrão",
           "additional-currencies": "Moedas adicionais",
-          "linked-stores": "Lojas vinculadas (os clientes podem usar suas credenciais para acessar essas lojas)"
+          "linked-stores": "Lojas vinculadas (clientes dessas lojas podem usar suas credenciais para fazer login)"
         },
         "placeholders": {
           "code": "Fornecer código",

@@ -62,7 +62,7 @@
           "additional-languages": "附加语言",
           "default-currency": "默认货币",
           "additional-currencies": "附加货币",
-          "linked-stores": "链接的商店（客户可以使用他们的凭据访问这些商店）"
+          "linked-stores": "关联商店（这些商店的客户可以使用其凭证登录）"
         },
         "placeholders": {
           "code": "提供代码",
