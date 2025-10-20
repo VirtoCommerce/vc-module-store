@@ -1,0 +1,222 @@
+{
+  "stores": {
+    "main-menu-title": "Butiker",
+    "blades": {
+      "stores-list": {
+        "title": "Butiker",
+        "labels": {
+          "no-stores": "Du har inga butiker ännu",
+          "name": "Namn"
+        }
+      },
+      "store-advanced": {
+        "subtitle": "",
+        "labels": {
+          "description": "Beskrivning",
+          "store-regional-settings": "Platsinställningar",
+          "store-country": "Butikens land",
+          "store-region": "Butikens delstat eller provins",
+          "store-email-settings": "E-postinställningar",
+          "store-email": "E-post",
+          "store-admin-email": "Administratörens e-post",
+          "store-email-name": "Namn",
+          "store-admin-email-name": "Administratörens namn",
+          "fulfillment-center": "Standarddistributionscenter",
+          "returns-fulfillment-center": "Standardreturcenter",
+          "additional-fulfillment-centers": "Tillgängliga distributionscenter",
+          "additional-returns-fulfillment-centers": "Tillgängliga returcenter",
+          "operational-timezone": "Operativ tidszon",
+          "store-url": "Butikens URL"
+        },
+        "placeholders": {
+          "description": "Ange beskrivning...",
+          "store-country": "Välj...",
+          "store-region": "Ange delstat eller provins...",
+          "store-email": "Ange e-post",
+          "store-admin-email": "Ange e-post",
+          "store-email-name": "Ange butikens namn...",
+          "store-admin-email-name": "Ange administratörens namn",
+          "fulfillment-center": "Välj...",
+          "returns-fulfillment-center": "Välj...",
+          "operational-timezone": "Välj...",
+          "store-url": "Ange URL"
+        }
+      },
+      "store-authentication": {
+        "title": "Butikens autentiseringstyper",
+        "active": "Är aktiv",
+        "name": "Namn",
+        "no-data": "Inga autentiseringstyper hittades"
+      },
+      "store-detail": {
+        "subtitle": "Butiksdetaljer",
+        "labels": {
+          "code": "Kod",
+          "name": "Namn",
+          "catalog": "Katalog",
+          "state": "Status",
+          "language": "Språk",
+          "currency": "Valuta",
+          "links": "Länkar",
+          "default-language": "Standardspråk",
+          "additional-languages": "Ytterligare språk",
+          "default-currency": "Standardvaluta",
+          "additional-currencies": "Ytterligare valutor",
+          "linked-stores": "Länkade butiker (kunder från dessa butiker kan använda sina inloggningsuppgifter för att logga in)"
+        },
+        "placeholders": {
+          "code": "Ange kod",
+          "name": "Ange namn",
+          "catalog": "Välj...",
+          "state": "Välj...",
+          "default-language": "Välj...",
+          "additional-languages": "Välj...",
+          "default-currency": "Välj...",
+          "additional-currencies": "Välj...",
+          "linked-stores": "Denna butik har inga länkade butiker"
+        },
+        "descriptions": {
+          "code": "Denna används som butikens primära nyckel samt som en del av URL:en för butiksval i Frontend-applikationen",
+          "name": "Detta namn visas i Butikshanteraren",
+          "catalog": "Valfri fysisk eller virtuell katalog associerad med denna butik",
+          "state": "Butikens nuvarande status",
+          "default-language": "Primärt språk för denna butik",
+          "default-currency": "Primär valuta för denna butik"
+        }
+      },
+      "new-store-wizard": {
+        "title": "Ny butik",
+        "subtitle": "Skapa ny butik"
+      },
+      "taxProvider-detail": {
+        "subtitle": "Redigera skatteoperatör",
+        "labels": {
+          "name": "Namn",
+          "code": "Kod",
+          "description": "Beskrivning",
+          "settings": "Inställningar"
+        },
+        "placeholders": {
+          "description": "Ange beskrivning..."
+        }
+      },
+      "taxProvider-list": {
+        "subtitle": "",
+        "labels": {
+          "is-active": "Aktiv",
+          "tax-provider": "Skatteoperatör"
+        }
+      },
+      "account-detail": {
+        "labels": {
+          "container-id": "Behållare (butik)"
+        }
+      }
+    },
+    "widgets": {
+      "assetsWidget": {
+        "title": "Tillgångar"
+      },
+      "storeAdvancedWidget": {
+        "title": "Avancerade egenskaper",
+        "blade-subtitle": "Avancerade egenskaper"
+      },
+      "store-authentication-widget": {
+        "title": "Autentisering"
+      },
+      "storeNotificationsLogWidget": {
+        "title": "Meddelandelogg",
+        "blade-subtitle": "Meddelandelogg",
+        "blade-title": "Meddelandelogg för butik {{id}}"
+      },
+      "storeNotificationsWidget": {
+        "title": "Meddelande",
+        "blade-subtitle": "Meddelandetjänst",
+        "blade-title": "Lista över meddelandetyper för butik {{id}}"
+      },
+      "storeSettingsWidget": {
+        "title": "Inställningar",
+        "blade-subtitle": "Inställningar"
+      },
+      "storeTaxingWidget": {
+        "title": "Skatteoperatörer",
+        "blade-subtitle": "Skatteoperatörer"
+      }
+    },
+    "dialogs": {
+      "store-delete": {
+        "title": "Bekräfta radering",
+        "message": "Är du säker på att du vill ta bort denna butik?"
+      },
+      "store-save": {
+        "title": "Spara ändringar",
+        "message": "Butiken har ändrats. Vill du spara ändringarna?"
+      },
+      "tax-provider-save": {
+        "title": "Spara ändringar",
+        "message": "Skatteoperatören har ändrats. Vill du spara ändringarna?"
+      }
+    },
+    "directives": {
+      "store-selector": {
+        "placeholder": "Välj...",
+        "loading": "Laddar..."
+      }
+    }
+  },
+  "permissions": {
+    "store:access": "Öppna butiksmenyn",
+    "store:create": "Skapa butiksdata",
+    "store:read": "Visa butiksdata",
+    "store:update": "Uppdatera butiksdata",
+    "store:delete": "Ta bort butiksdata",
+    "store:loginOnBehalf": "Logga in på uppdrag av en kund"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "Statusar",
+        "description": "Statusar som denna butik kan ha"
+      },
+      "TaxCalculationEnabled": {
+        "title": "Skatteberäkning",
+        "description": "Aktivera/inaktivera skatteberäkning i Frontend-applikationen"
+      },
+      "AllowAnonymousUsers": {
+        "title": "Anonyma butiksbesök",
+        "description": "Förbjud/tillåt anonyma användare att besöka butiken"
+      },
+      "IsSpa": {
+        "title": "Ensidig applikation (SPA)",
+        "description": "Ange om denna butik är en ensidig applikation"
+      },
+      "SeoLinksType": {
+        "title": "SEO-länkar",
+        "description": "Bestäm länktyp för produkt och kategori. Exempel:\n 1. Lång: /virtuell-överordnad-kategori/fysisk-överordnad-kategori/min-coola-kategori/min-coola-produkt,\n 2. Komprimerad: /virtuell-överordnad-kategori/min-coola-kategori/min-coola-produkt,\n 3. Kort: /min-coola-produkt,\n 4. Ingen: /produkt/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "E-postverifiering",
+        "description": "Aktivera/inaktivera e-postverifiering för användare"
+      },
+      "EmailVerificationRequired": {
+        "title": "Obligatorisk e-postverifiering",
+        "description": "Aktivera/inaktivera obligatorisk e-postverifiering för användare"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "Prisavrundning för totalsberäkning",
+        "description": "Aktivera/inaktivera prisavrundning i Order- och Kundvagnsmodulerna"
+      }
+    }
+  },
+  "module": {
+    "VirtoCommerce.Store": {
+      "description": "Exportera eller importera butiker med all relaterad data"
+    }
+  },
+  "notificationTypes": {
+    "StoreDynamicEmailNotification": {
+      "displayName": "Skicka formulär i Frontend-applikationen",
+      "description": "Kunden får ett e-postmeddelande när ett formulär (t.ex. Kontaktformuläret) skickas in i Frontend-applikationen"
+    }
+  }
+}
