@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.CoreModule.Core.Seo;
+using VirtoCommerce.EnvironmentsCompare.Core.Services;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
@@ -81,6 +82,8 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreAuthenticationService, StoreAuthenticationService>();
             serviceCollection.AddTransient<IStoreAuthenticationSchemeService, StoreAuthenticationSchemeService>();
             serviceCollection.AddTransient<IStoreAuthenticationSchemeSearchService, StoreAuthenticationSchemeSearchService>();
+
+            serviceCollection.AddTransient<IComparableSettingsProvider, ComparableStoreSettingsProvider>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)
