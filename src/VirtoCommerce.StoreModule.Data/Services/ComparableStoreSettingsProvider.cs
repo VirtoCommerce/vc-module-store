@@ -20,7 +20,7 @@ public class ComparableStoreSettingsProvider(IStoreSearchService storeSearchServ
 
         foreach (var store in await storeSearchService.SearchAllNoCloneAsync(storeSearchCriteria))
         {
-            var storeGroup = new ComparableSettingsGroup();
+            var storeGroup = new ComparableSettingGroup();
             storeGroup.Name = store.Id;
 
             result.SettingGroups.Add(storeGroup);

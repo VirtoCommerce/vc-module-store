@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="VirtoCommerce.CoreModule.Core" Version="3.821.0" />
+    <PackageReference Include="VirtoCommerce.EnvironmentsCompare.Core" Version="3.800.0-alpha.7-vcst-3900-environments-compare-initial" />
     <PackageReference Include="VirtoCommerce.NotificationsModule.Core" Version="3.809.0" />
     <PackageReference Include="VirtoCommerce.Platform.Core" Version="3.889.0" />
     <PackageReference Include="VirtoCommerce.Seo.Core" Version="3.801.0" />
