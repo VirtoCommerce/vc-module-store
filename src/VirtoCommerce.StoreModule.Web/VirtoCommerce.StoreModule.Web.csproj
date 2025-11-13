@@ -26,4 +26,9 @@
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Data.SqlServer\VirtoCommerce.StoreModule.Data.SqlServer.csproj" />
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Data\VirtoCommerce.StoreModule.Data.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="VirtoCommerce.EnvironmentsCompare.Core">
+      <HintPath>..\..\..\vc-module-environments-compare\src\VirtoCommerce.EnvironmentsCompare.Core\bin\Debug\net8.0\VirtoCommerce.EnvironmentsCompare.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
