@@ -20,19 +20,17 @@ public class ComparableStoreSettingsProvider(IStoreSearchService storeSearchServ
 
         foreach (var store in await storeSearchService.SearchAllNoCloneAsync(storeSearchCriteria))
         {
-            var storeGroup = new ComparableSettingGroup();
+            var storeGroup = AbstractTypeFactory<ComparableSettingGroup>.TryCreateInstance();
             storeGroup.Name = store.Id;
-
             result.SettingGroups.Add(storeGroup);
 
             foreach (var storeSetting in store.Settings)
             {
-                storeGroup.Settings.Add(new ComparableSetting()
-                {
-                    Name = storeSetting.Name,
-                    Value = storeSetting.Value,
-                    IsSecret = IsSettingSecret(storeSetting)
-                });
+                var storeGroupSetting = AbstractTypeFactory<ComparableSetting>.TryCreateInstance();
+                storeGroupSetting.Name = storeSetting.Name;
+                storeGroupSetting.Value = storeSetting.Value;
+                storeGroupSetting.IsSecret = IsSettingSecret(storeSetting);
+                storeGroup.Settings.Add(storeGroupSetting);
             }
         }
 
