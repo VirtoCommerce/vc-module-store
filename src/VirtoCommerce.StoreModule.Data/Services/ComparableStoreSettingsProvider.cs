@@ -14,12 +14,14 @@ namespace VirtoCommerce.StoreModule.Data.Services;
 
 public class ComparableStoreSettingsProvider(IStoreSearchService storeSearchService, ILocalizableSettingService localizableSettingService) : IComparableSettingsProvider
 {
+    protected const int MaxComparableStoresCount = 100;
+
     public async Task<IList<ComparableSettingScope>> GetComparableSettingsAsync()
     {
         var result = new List<ComparableSettingScope>();
 
         var storeSearchCriteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
-        storeSearchCriteria.Take = 100;
+        storeSearchCriteria.Take = MaxComparableStoresCount;
 
         foreach (var store in await storeSearchService.SearchAllNoCloneAsync(storeSearchCriteria))
         {
