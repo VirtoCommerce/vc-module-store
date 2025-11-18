@@ -47,6 +47,6 @@ public class ComparableStoreSettingsProvider(IStoreSearchService storeSearchServ
 
     protected virtual bool IsSettingSecret(ObjectSettingEntry setting)
     {
-        return setting.ValueType == SettingValueType.SecureString || setting.Name.EqualsIgnoreCase("Shipping.Bopis.GoogleMaps.ApiKey");
+        return setting.ValueType == SettingValueType.SecureString;
     }
 }
