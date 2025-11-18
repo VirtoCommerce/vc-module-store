@@ -56,6 +56,8 @@ jobs:
       run-e2e: ${{ steps.run-e2e.outputs.result }}
       run-ui-tests: ${{ steps.run-ui-tests.outputs.result }}
       deployment-folder-exists: ${{ steps.check_deployment_folder.outputs.exists }}
+      installCustomModule: ${{ steps.extract_pr_url.outputs.installCustomModule }}
+      customModuleListUrl: ${{ steps.extract_pr_url.outputs.url }}
 
     steps:
 
@@ -207,6 +209,26 @@ jobs:
             echo "result=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Extract URL from PR message
+        if: ${{ github.event_name == 'pull_request' }}
+        id: extract_pr_url
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          text="${PR_BODY}
+          ${PR_TITLE}"
+          # Find the first line that starts with "CustomPackagesList:" and extract the URL after the colon
+          line=$(echo "$text" | grep -E '^CustomPackagesList:' | head -n 1)
+          url=$(echo "$line" | grep -Eo 'https?://[^ ]+')
+          if [ -n "$url" ]; then
+            echo "url=$url" >> $GITHUB_OUTPUT
+            echo "installCustomModule=false" >> $GITHUB_OUTPUT
+          else
+            echo "url=" >> $GITHUB_OUTPUT
+            echo "installCustomModule=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Look for xapi module in dependencies
         id: run-ui-tests
         shell: pwsh
@@ -295,15 +317,16 @@ jobs:
     if: ${{ ((github.ref == 'refs/heads/dev') && (github.event_name == 'push') && (needs.ci.outputs.run-e2e == 'true')) ||
         (github.event_name == 'workflow_dispatch') || (github.base_ref == 'dev') && (github.event_name == 'pull_request') }}
     needs: 'ci'
-    uses: VirtoCommerce/.github/.github/workflows/e2e.yml@v3.800.17
+    uses: VirtoCommerce/.github/.github/workflows/e2e.yml@VCST-4203 #v3.800.17
     with:
       katalonRepo: 'VirtoCommerce/vc-quality-gate-katalon'
       katalonRepoBranch: 'dev'
       testSuite: 'Test Suites/Modules/Platform_collection'
       installModules: 'false'
-      installCustomModule: 'true'
+      installCustomModule: ${{ needs.ci.outputs.installCustomModule }} #'true'
       customModuleId:  ${{ needs.ci.outputs.moduleId }}
       customModuleUrl:  ${{ needs.ci.outputs.artifactUrl }}
+      customModuleListUrl: ${{ needs.ci.outputs.customModuleListUrl }}
       platformDockerTag: 'dev-linux-latest'
       storefrontDockerTag: 'dev-linux-latest'
     secrets:
