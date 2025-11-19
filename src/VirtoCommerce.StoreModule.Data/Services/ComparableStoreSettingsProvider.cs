@@ -42,7 +42,7 @@ public class ComparableStoreSettingsProvider(IStoreSearchService storeSearchServ
         foreach (var storeSettingGroup in store.Settings.GroupBy(x => x.GroupName))
         {
             var resultGroup = AbstractTypeFactory<ComparableSettingGroup>.TryCreateInstance();
-            resultGroup.GroupName = storeSettingGroup.Key;
+            resultGroup.GroupName = storeSettingGroup.Key.IsNullOrEmpty() ? "Without group" : storeSettingGroup.Key;
             resultScope.SettingGroups.Add(resultGroup);
 
             foreach (var storeSetting in storeSettingGroup)
