@@ -211,19 +211,32 @@ jobs:
       - name: Extract URL from PR message
         if: ${{ github.event_name == 'pull_request' }}
         id: extract_pr_url
+        shell: pwsh
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          text="${PR_BODY}"
-          # Find the first URL that appears at or after "RequiredModulesListUrl" (can be on the next line)
-          url=$(printf "%s\n" "$text" | sed -n '/RequiredModulesListUrl/,$p' | grep -Eo 'https?://[^ )\r\n]+' | head -n 1)
-          if [ -n "$url" ]; then
-            echo "url found: $url"
-            echo "url=$url" >> $GITHUB_OUTPUT
-          else
-            echo "url NOT found"
-            echo "url=" >> $GITHUB_OUTPUT
-          fi
+          $text = $env:PR_BODY
+          $marker = 'Required modules list URL'
+          
+          $url = ''
+          if ($null -ne $text -and $text.Contains($marker)) {
+            $startIndex = $text.IndexOf($marker)
+            if ($startIndex -ge 0) {
+              $slice = $text.Substring($startIndex)
+              $match = [regex]::Match($slice, 'https?://[^ )\r\n]+')
+              if ($match.Success) {
+                $url = $match.Value
+              }
+            }
+          }
+          
+          if ([string]::IsNullOrWhiteSpace($url) -eq $false) {
+            Write-Host "url found: $url"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "url=$url"
+          } else {
+            Write-Host "url NOT found"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "url="
+          }
 
       - name: Look for xapi module in dependencies
         id: run-ui-tests
