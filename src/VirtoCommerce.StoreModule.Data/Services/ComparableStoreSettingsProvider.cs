@@ -68,12 +68,14 @@ public class ComparableStoreSettingsProvider(IStoreSearchService storeSearchServ
 
             foreach (var language in store.Languages.OrderBy(x => x))
             {
-                localizedValuesBuilder.Append("[").Append(language).Append("]:");
+                localizedValuesBuilder.Append('[').Append(language).Append(']').Append(':');
+
                 foreach (var settingValue in await localizableSettingService.GetValuesAsync(setting.Name, language))
                 {
-                    localizedValuesBuilder.Append(settingValue.Key).Append("=").Append(settingValue.Value).Append(";");
+                    localizedValuesBuilder.Append(settingValue.Key).Append('=').Append(settingValue.Value).Append(';');
                 }
-                localizedValuesBuilder.Append(";");
+
+                localizedValuesBuilder.Append(';');
             }
 
             return localizedValuesBuilder.ToString();
