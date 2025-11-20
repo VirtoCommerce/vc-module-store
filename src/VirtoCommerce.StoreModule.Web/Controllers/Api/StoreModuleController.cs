@@ -55,25 +55,6 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
         }
 
         /// <summary>
-        /// Get all stores
-        /// </summary>
-        [HttpGet]
-        [Route("")]
-        [Obsolete("Use POST api/stores/search instead")]
-        public async Task<ActionResult<Store[]>> GetStores()
-        {
-            var criteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
-
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, criteria, new StoreAuthorizationRequirement(ModuleConstants.Security.Permissions.Read));
-            if (!authorizationResult.Succeeded)
-            {
-                return Forbid();
-            }
-            var result = await storeSearchService.SearchNoCloneAsync(criteria);
-            return result.Results.ToArray();
-        }
-
-        /// <summary>
         /// Get store by id
         /// </summary>
         /// <param name="id">Store id</param>
