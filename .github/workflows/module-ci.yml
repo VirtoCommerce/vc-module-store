@@ -31,7 +31,7 @@ on:
 jobs:
   ci:
     if: ${{ github.actor != 'dependabot[bot]' &&
-      (github.event.pull_request.head.repo.full_name == github.repository ||
+        (github.event.pull_request.head.repo.full_name == github.repository ||
         github.event.pull_request.head.repo.full_name == '') }}  # Check that PR not from forked repo and not from Dependabot
     runs-on: ubuntu-24.04
     env:
@@ -307,7 +307,7 @@ jobs:
 
   ui-auto-tests:
     if: ${{ ((github.ref == 'refs/heads/dev') && (github.event_name == 'push')) ||
-      (github.event_name == 'workflow_dispatch') || ((github.base_ref == 'dev') && (github.event_name == 'pull_request')) }}
+        (github.event_name == 'workflow_dispatch') || ((github.base_ref == 'dev') && (github.event_name == 'pull_request')) }}
     needs: 'ci'
     uses: VirtoCommerce/.github/.github/workflows/ui-autotests.yml@v3.800.20
     with:
@@ -324,7 +324,7 @@ jobs:
 
   module-katalon-tests:
     if: ${{ ((github.ref == 'refs/heads/dev') && (github.event_name == 'push') && (needs.ci.outputs.run-e2e == 'true')) ||
-      (github.event_name == 'workflow_dispatch') || (github.base_ref == 'dev') && (github.event_name == 'pull_request') }}
+        (github.event_name == 'workflow_dispatch') || (github.base_ref == 'dev') && (github.event_name == 'pull_request') }}
     needs: 'ci'
     uses: VirtoCommerce/.github/.github/workflows/e2e.yml@v3.800.20
     with:
