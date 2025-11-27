@@ -74,7 +74,7 @@ namespace VirtoCommerce.StoreModule.Web.Controllers.Api
                 return Forbid();
             }
             var result = await storeSearchService.SearchNoCloneAsync(criteria);
-            return result.Stores.ToArray();
+            return result.Results.ToArray();
         }
 
         /// <summary>
