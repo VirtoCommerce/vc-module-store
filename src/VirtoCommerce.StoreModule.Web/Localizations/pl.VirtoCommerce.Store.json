@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Potwierdź usunięcie",
-        "message": "Czy na pewno chcesz usunąć ten sklep?"
+        "message": "Następujący sklep zostanie usunięty:"
       },
       "store-save": {
         "title": "Zapisz zmiany",

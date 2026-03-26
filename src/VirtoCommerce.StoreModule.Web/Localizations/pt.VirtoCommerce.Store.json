@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Confirmar exclusão",
-        "message": "Você tem certeza de que deseja excluir esta loja?"
+        "message": "A seguinte loja será eliminada:"
       },
       "store-save": {
         "title": "Salvar alterações",
