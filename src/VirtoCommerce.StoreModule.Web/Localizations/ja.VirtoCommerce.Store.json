@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "削除を確認",
-        "message": "次のストアが削除されます:"
+        "message": "次のストアが削除されます: '{{name}}'"
       },
       "store-save": {
         "title": "変更を保存",

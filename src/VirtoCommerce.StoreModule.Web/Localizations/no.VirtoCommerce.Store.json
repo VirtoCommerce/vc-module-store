@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Bekreft sletting",
-        "message": "Følgende butikk vil bli slettet:"
+        "message": "Følgende butikk vil bli slettet: '{{name}}'"
       },
       "store-save": {
         "title": "Lagre endringer",

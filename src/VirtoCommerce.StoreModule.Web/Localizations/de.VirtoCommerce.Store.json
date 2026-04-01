@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Löschen bestätigen",
-        "message": "Der folgende Shop wird gelöscht:"
+        "message": "Der folgende Shop wird gelöscht: '{{name}}'"
       },
       "store-save": {
         "title": "Änderungen speichern",

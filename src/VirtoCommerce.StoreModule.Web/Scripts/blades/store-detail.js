@@ -79,7 +79,7 @@ angular.module('virtoCommerce.storeModule')
                     id: "confirmDelete",
                     title: "stores.dialogs.store-delete.title",
                     message: "stores.dialogs.store-delete.message",
-                    name: blade.currentEntity.name,
+                    messageValues: { name: blade.currentEntity.name },
                     callback: function (remove) {
                         if (remove) {
                             blade.isLoading = true;

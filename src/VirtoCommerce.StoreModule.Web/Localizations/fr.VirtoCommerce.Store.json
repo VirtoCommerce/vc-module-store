@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Confirmer la suppression",
-        "message": "Le magasin suivant sera supprimé :"
+        "message": "Le magasin suivant sera supprimé : '{{name}}'"
       },
       "store-save": {
         "title": "Enregistrer les modifications",
