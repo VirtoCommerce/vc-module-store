@@ -79,6 +79,7 @@ angular.module('virtoCommerce.storeModule')
                     id: "confirmDelete",
                     title: "stores.dialogs.store-delete.title",
                     message: "stores.dialogs.store-delete.message",
+                    messageValues: { name: blade.currentEntity.name },
                     callback: function (remove) {
                         if (remove) {
                             blade.isLoading = true;
@@ -90,7 +91,7 @@ angular.module('virtoCommerce.storeModule')
                         }
                     }
                 }
-                dialogService.showConfirmationDialog(dialog);
+                dialogService.showDeleteConfirmationDialog(dialog);
             }
 
             function reset() {

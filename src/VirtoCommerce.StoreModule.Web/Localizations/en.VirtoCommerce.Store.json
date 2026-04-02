@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Confirm delete",
-        "message": "Are you sure you want to delete this store?"
+        "message": "The following store will be deleted: '{{name}}'"
       },
       "store-save": {
         "title": "Save changes",
