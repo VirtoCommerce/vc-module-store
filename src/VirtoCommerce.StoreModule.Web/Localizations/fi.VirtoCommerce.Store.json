@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Vahvista poisto",
-        "message": "Oletko varma, että haluat poistaa tämän kaupan?"
+        "message": "Seuraava kauppa poistetaan: '{{name}}'"
       },
       "store-save": {
         "title": "Tallenna muutokset",

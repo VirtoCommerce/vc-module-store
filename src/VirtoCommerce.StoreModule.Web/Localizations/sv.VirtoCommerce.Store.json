@@ -146,7 +146,7 @@
     "dialogs": {
       "store-delete": {
         "title": "Bekräfta radering",
-        "message": "Är du säker på att du vill ta bort denna butik?"
+        "message": "Följande butik kommer att tas bort: '{{name}}'"
       },
       "store-save": {
         "title": "Spara ändringar",
