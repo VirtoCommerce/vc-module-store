@@ -8,7 +8,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="VirtoCommerce.CoreModule.Data" Version="3.1003.0-alpha.1690-vcst-4516" />
+    <PackageReference Include="VirtoCommerce.CoreModule.Data" Version="3.1003.0" />
     <PackageReference Include="VirtoCommerce.Platform.Hangfire" Version="3.1016.0" />
     <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1016.0" />
   </ItemGroup>
