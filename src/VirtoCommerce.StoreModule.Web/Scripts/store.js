@@ -58,12 +58,13 @@ angular.module(moduleName, [
                     template: 'Modules/$(VirtoCommerce.Store)/Scripts/widgets/assetsWidget.tpl.html'
                 }, 'storeDetail');
                 widgetService.registerWidget({
-                    controller: 'virtoCommerce.coreModule.seo.seoWidgetController',
-                    template: 'Modules/$(VirtoCommerce.Core)/Scripts/SEO/widgets/seoWidget.tpl.html',
+                    controller: 'virtoCommerce.seo.seoWidgetController',
+                    template: 'Modules/$(VirtoCommerce.Seo)/Scripts/widgets/seo-widget.html',
                     objectType: 'Store',
                     getFixedStoreId: function (blade) { return blade.currentEntity.id; },
                     getDefaultContainerId: function (blade) { return blade.currentEntity.id; },
-                    getLanguages: function (blade) { return blade.currentEntity.languages; }
+                    getLanguages: function (blade) { return blade.currentEntity.languages; },
+                    getStoreDataSource: function (blade) { return function () { return [blade.currentEntity]; }; },
                 }, 'storeDetail');
                 widgetService.registerWidget({
                     controller: 'virtoCommerce.storeModule.storeAdvancedWidgetController',
