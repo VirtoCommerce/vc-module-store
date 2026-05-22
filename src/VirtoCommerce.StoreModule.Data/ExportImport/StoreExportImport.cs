@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VirtoCommerce.Platform.Core.Common;
@@ -24,65 +25,73 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
             _storeSearchService = storeSearchService;
         }
 
-        public async Task DoExportAsync(Stream outStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
+        public async Task DoExportAsync(Stream outStream, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var progressInfo = new ExportImportProgressInfo { Description = "The store are loading" };
             progressCallback(progressInfo);
 
-            using (var sw = new StreamWriter(outStream))
-            using (var writer = new JsonTextWriter(sw))
+            using var sw = new StreamWriter(outStream);
+            using var writer = new JsonTextWriter(sw);
+            await writer.WriteStartObjectAsync(cancellationToken);
+
+            progressInfo.Description = "Stores are started to export";
+            progressCallback(progressInfo);
+
+            await writer.WritePropertyNameAsync("Stores", cancellationToken);
+#pragma warning disable VC0014
+            await writer.SerializeArrayWithPagingAsync(_jsonSerializer, _batchSize, async (skip, take) =>
             {
-                await writer.WriteStartObjectAsync();
+                var searchCriteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
+                searchCriteria.Take = take;
+                searchCriteria.Skip = skip;
 
-                progressInfo.Description = "Stores are started to export";
+                var searchResult = await _storeSearchService.SearchNoCloneAsync(searchCriteria);
+                return (GenericSearchResult<Store>)searchResult;
+            }, (processedCount, totalCount) =>
+            {
+                progressInfo.Description = $"{processedCount} of {totalCount} stores have been exported";
                 progressCallback(progressInfo);
+            }, new CancellationTokenWrapper(cancellationToken));
+#pragma warning restore VC0014
 
-                await writer.WritePropertyNameAsync("Stores");
-                await writer.SerializeArrayWithPagingAsync(_jsonSerializer, _batchSize, async (skip, take) =>
-                {
-                    var searchCriteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
-                    searchCriteria.Take = take;
-                    searchCriteria.Skip = skip;
-
-                    var searchResult = await _storeSearchService.SearchNoCloneAsync(searchCriteria);
-                    return (GenericSearchResult<Store>)searchResult;
-                }, (processedCount, totalCount) =>
-                {
-                    progressInfo.Description = $"{processedCount} of {totalCount} stores have been exported";
-                    progressCallback(progressInfo);
-                }, cancellationToken);
-
-                await writer.WriteEndObjectAsync();
-                await writer.FlushAsync();
-            }
+            await writer.WriteEndObjectAsync(cancellationToken);
+            await writer.FlushAsync(cancellationToken);
         }
 
-        public async Task DoImportAsync(Stream inputStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
+        [Obsolete("Use the cancellation-aware overload instead.", DiagnosticId = "VC0014", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public Task DoExportAsync(Stream outStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
+            => DoExportAsync(outStream, progressCallback, CancellationToken.None);
+
+        public async Task DoImportAsync(Stream inputStream, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var progressInfo = new ExportImportProgressInfo();
 
-            using (var streamReader = new StreamReader(inputStream))
-            using (var reader = new JsonTextReader(streamReader))
+            using var streamReader = new StreamReader(inputStream);
+            using var reader = new JsonTextReader(streamReader);
+            while (await reader.ReadAsync(cancellationToken))
             {
-                while (await reader.ReadAsync())
+                if (reader.TokenType == JsonToken.PropertyName)
                 {
-                    if (reader.TokenType == JsonToken.PropertyName)
+                    if (reader.Value.ToString() == "Stores")
                     {
-                        if (reader.Value.ToString() == "Stores")
+#pragma warning disable VC0014
+                        await reader.DeserializeArrayWithPagingAsync<Store>(_jsonSerializer, _batchSize, items => _storeService.SaveChangesAsync(items), processedCount =>
                         {
-                            await reader.DeserializeArrayWithPagingAsync<Store>(_jsonSerializer, _batchSize, items => _storeService.SaveChangesAsync(items), processedCount =>
-                            {
-                                progressInfo.Description = $"{processedCount} stores have been imported";
-                                progressCallback(progressInfo);
-                            }, cancellationToken);
-                        }
+                            progressInfo.Description = $"{processedCount} stores have been imported";
+                            progressCallback(progressInfo);
+                        }, new CancellationTokenWrapper(cancellationToken));
+#pragma warning restore VC0014
                     }
                 }
             }
         }
+
+        [Obsolete("Use the cancellation-aware overload instead.", DiagnosticId = "VC0014", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
+        public Task DoImportAsync(Stream inputStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
+            => DoImportAsync(inputStream, progressCallback, CancellationToken.None);
     }
 }
