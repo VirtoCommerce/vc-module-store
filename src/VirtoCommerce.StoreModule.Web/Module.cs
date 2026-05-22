@@ -141,27 +141,17 @@ namespace VirtoCommerce.StoreModule.Web
         }
 
         public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
-            CancellationToken cancellationToken)
+            ICancellationToken cancellationToken)
         {
             return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream,
-                progressCallback, cancellationToken);
+                progressCallback, CancellationToken.None);
         }
 
-        [Obsolete("Use the cancellation-aware overload instead.", DiagnosticId = "VC0014", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-        public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
-            ICancellationToken cancellationToken)
-            => ExportAsync(outStream, options, progressCallback, CancellationToken.None);
-
         public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
-            CancellationToken cancellationToken)
+            ICancellationToken cancellationToken)
         {
             return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream,
-                progressCallback, cancellationToken);
+                progressCallback, CancellationToken.None);
         }
-
-        [Obsolete("Use the cancellation-aware overload instead.", DiagnosticId = "VC0014", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-        public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
-            ICancellationToken cancellationToken)
-            => ImportAsync(inputStream, options, progressCallback, CancellationToken.None);
     }
 }
