@@ -140,18 +140,16 @@ namespace VirtoCommerce.StoreModule.Web
             //Nothing do here
         }
 
-        public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
-            ICancellationToken cancellationToken)
-        {
-            return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream,
-                progressCallback, CancellationToken.None);
-        }
+        public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
+            => _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream, progressCallback, cancellationToken);
 
-        public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback,
-            ICancellationToken cancellationToken)
-        {
-            return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream,
-                progressCallback, CancellationToken.None);
-        }
+        public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
+            => _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream, progressCallback, CancellationToken.None);
+
+        public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
+            => _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream, progressCallback, cancellationToken);
+
+        public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
+            => _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream, progressCallback, CancellationToken.None);
     }
 }
