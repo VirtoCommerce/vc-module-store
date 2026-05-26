@@ -40,7 +40,6 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
             progressCallback(progressInfo);
 
             await writer.WritePropertyNameAsync("Stores", cancellationToken);
-#pragma warning disable VC0014
             await writer.SerializeArrayWithPagingAsync(_jsonSerializer, _batchSize, async (skip, take) =>
             {
                 var searchCriteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
@@ -53,16 +52,11 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
             {
                 progressInfo.Description = $"{processedCount} of {totalCount} stores have been exported";
                 progressCallback(progressInfo);
-            }, new CancellationTokenWrapper(cancellationToken));
-#pragma warning restore VC0014
+            }, cancellationToken);
 
             await writer.WriteEndObjectAsync(cancellationToken);
             await writer.FlushAsync(cancellationToken);
         }
-
-        [Obsolete("Use the cancellation-aware overload instead.", DiagnosticId = "VC0014", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-        public Task DoExportAsync(Stream outStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
-            => DoExportAsync(outStream, progressCallback, CancellationToken.None);
 
         public async Task DoImportAsync(Stream inputStream, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
         {
@@ -78,20 +72,15 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
                 {
                     if (reader.Value.ToString() == "Stores")
                     {
-#pragma warning disable VC0014
                         await reader.DeserializeArrayWithPagingAsync<Store>(_jsonSerializer, _batchSize, items => _storeService.SaveChangesAsync(items), processedCount =>
                         {
                             progressInfo.Description = $"{processedCount} stores have been imported";
                             progressCallback(progressInfo);
-                        }, new CancellationTokenWrapper(cancellationToken));
-#pragma warning restore VC0014
+                        }, cancellationToken);
                     }
                 }
             }
         }
 
-        [Obsolete("Use the cancellation-aware overload instead.", DiagnosticId = "VC0014", UrlFormat = "https://docs.virtocommerce.org/products/products-virto3-versions")]
-        public Task DoImportAsync(Stream inputStream, Action<ExportImportProgressInfo> progressCallback, ICancellationToken cancellationToken)
-            => DoImportAsync(inputStream, progressCallback, CancellationToken.None);
     }
 }
