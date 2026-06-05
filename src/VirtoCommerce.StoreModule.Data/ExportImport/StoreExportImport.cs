@@ -81,6 +81,5 @@ namespace VirtoCommerce.StoreModule.Data.ExportImport
                 }
             }
         }
-
     }
 }

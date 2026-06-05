@@ -141,9 +141,13 @@ namespace VirtoCommerce.StoreModule.Web
         }
 
         public Task ExportAsync(Stream outStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
-            => _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream, progressCallback, cancellationToken);
+        {
+            return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoExportAsync(outStream, progressCallback, cancellationToken);
+        }
 
         public Task ImportAsync(Stream inputStream, ExportImportOptions options, Action<ExportImportProgressInfo> progressCallback, CancellationToken cancellationToken)
-            => _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream, progressCallback, cancellationToken);
+        {
+            return _appBuilder.ApplicationServices.GetRequiredService<StoreExportImport>().DoImportAsync(inputStream, progressCallback, cancellationToken);
+        }
     }
 }

@@ -20,8 +20,8 @@ namespace VirtoCommerce.StoreModule.Tests.ExportImport
         public StoreExportImportCancellationTests()
         {
             _storeServiceMock = new Mock<IStoreService>();
-
             _storeSearchServiceMock = new Mock<IStoreSearchService>();
+
             _storeSearchServiceMock
                 .Setup(s => s.SearchAsync(It.IsAny<StoreSearchCriteria>(), It.IsAny<bool>()))
                 .ReturnsAsync(new StoreSearchResult());
@@ -55,6 +55,5 @@ namespace VirtoCommerce.StoreModule.Tests.ExportImport
             await Assert.ThrowsAsync<OperationCanceledException>(
                 () => _exportImport.DoImportAsync(Stream.Null, _ => { }, cts.Token));
         }
-
     }
 }
