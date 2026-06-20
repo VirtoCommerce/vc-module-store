@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using VirtoCommerce.CoreModule.Core.Seo;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
@@ -76,9 +75,6 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreSearchService, StoreSearchService>();
             serviceCollection.AddTransient<StoreExportImport>();
             serviceCollection.AddTransient<ISeoResolver, StoreSeoResolver>();
-#pragma warning disable VC0010 // Obsolete interface
-            serviceCollection.AddTransient<ISeoBySlugResolver, StoreSeoBySlugResolver>();
-#pragma warning restore VC0010 // Obsolete interface
             serviceCollection.AddTransient<IAuthorizationHandler, StoreAuthorizationHandler>();
             serviceCollection.AddTransient<IStoreCurrencyResolver, StoreCurrencyResolver>();
             serviceCollection.AddTransient<IPublicStoreSettings, PublicStoreSettings>();
