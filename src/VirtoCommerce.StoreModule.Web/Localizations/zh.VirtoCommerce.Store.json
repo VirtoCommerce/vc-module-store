@@ -6,7 +6,13 @@
         "title": "商店",
         "labels": {
           "no-stores": "您还没有商店",
-          "name": "名称"
+          "name": "名称",
+          "filter-button-hint": "筛选",
+          "filter-state": "状态",
+          "filter-all": "所有状态",
+          "filter-open": "开放",
+          "filter-closed": "关闭",
+          "filter-restricted": "受限访问"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "可用履行中心",
           "additional-returns-fulfillment-centers": "可用退货履行中心",
           "operational-timezone": "操作时区",
-          "store-url": "商店网址"
+          "store-url": "商店网址",
+          "store-asset-url": "商店资源URL",
+          "store-asset-url-hint": "通过 Experience API 提供本商店资源（图片）URL 所使用的基础 URL，例如 https://cdn.mystore.com。会覆盖全局资源 CDN。留空则使用全局/默认值。"
         },
         "placeholders": {
           "description": "提供描述...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "选择...",
           "returns-fulfillment-center": "选择...",
           "operational-timezone": "选择...",
-          "store-url": "输入网址"
+          "store-url": "输入网址",
+          "store-asset-url": "输入资源基础URL"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "附加语言",
           "default-currency": "默认货币",
           "additional-currencies": "附加货币",
-          "linked-stores": "关联商店（这些商店的客户可以使用其凭证登录）"
+          "linked-stores": "关联商店（这些商店的客户可以使用其凭证登录）",
+          "urls": "URL",
+          "hide-description": "隐藏描述"
         },
         "placeholders": {
           "code": "提供代码",
@@ -162,6 +173,11 @@
         "placeholder": "选择...",
         "loading": "加载中..."
       }
+    },
+    "commands": {
+      "copy-code": "复制代码",
+      "copy-store-url": "复制商店URL",
+      "open-in-new-window": "在新窗口中打开"
     }
   },
   "permissions": {

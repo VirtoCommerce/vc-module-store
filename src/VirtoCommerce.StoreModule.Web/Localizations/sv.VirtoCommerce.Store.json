@@ -6,7 +6,13 @@
         "title": "Butiker",
         "labels": {
           "no-stores": "Du har inga butiker ännu",
-          "name": "Namn"
+          "name": "Namn",
+          "filter-button-hint": "Filter",
+          "filter-state": "Status",
+          "filter-all": "Alla statusar",
+          "filter-open": "Öppen",
+          "filter-closed": "Stängd",
+          "filter-restricted": "Begränsad åtkomst"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Tillgängliga distributionscenter",
           "additional-returns-fulfillment-centers": "Tillgängliga returcenter",
           "operational-timezone": "Operativ tidszon",
-          "store-url": "Butikens URL"
+          "store-url": "Butikens URL",
+          "store-asset-url": "Butikens resurs-URL",
+          "store-asset-url-hint": "Bas-URL som används för att leverera denna butiks resurs-URL:er (bilder) via Experience API, t.ex. https://cdn.mystore.com. Åsidosätter den globala resurs-CDN:en. Lämna tomt för att använda globalt/standardvärde."
         },
         "placeholders": {
           "description": "Ange beskrivning...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Välj...",
           "returns-fulfillment-center": "Välj...",
           "operational-timezone": "Välj...",
-          "store-url": "Ange URL"
+          "store-url": "Ange URL",
+          "store-asset-url": "Ange bas-URL för resurser"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Ytterligare språk",
           "default-currency": "Standardvaluta",
           "additional-currencies": "Ytterligare valutor",
-          "linked-stores": "Länkade butiker (kunder från dessa butiker kan använda sina inloggningsuppgifter för att logga in)"
+          "linked-stores": "Länkade butiker (kunder från dessa butiker kan använda sina inloggningsuppgifter för att logga in)",
+          "urls": "URL:er",
+          "hide-description": "Dölj beskrivning"
         },
         "placeholders": {
           "code": "Ange kod",
@@ -162,6 +173,11 @@
         "placeholder": "Välj...",
         "loading": "Laddar..."
       }
+    },
+    "commands": {
+      "copy-code": "Kopiera kod",
+      "copy-store-url": "Kopiera butikens URL",
+      "open-in-new-window": "Öppna i nytt fönster"
     }
   },
   "permissions": {

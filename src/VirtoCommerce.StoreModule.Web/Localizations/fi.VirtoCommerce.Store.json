@@ -6,7 +6,13 @@
         "title": "Kaupat",
         "labels": {
           "no-stores": "Sinulla ei ole vielä kauppoja",
-          "name": "Nimi"
+          "name": "Nimi",
+          "filter-button-hint": "Suodattimet",
+          "filter-state": "Tila",
+          "filter-all": "Kaikki tilat",
+          "filter-open": "Avoinna",
+          "filter-closed": "Suljettu",
+          "filter-restricted": "Rajoitettu pääsy"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Käytettävissä olevat jakelukeskukset",
           "additional-returns-fulfillment-centers": "Käytettävissä olevat palautusjakelukeskukset",
           "operational-timezone": "Toiminta-ajanvyöhyke",
-          "store-url": "Kaupan URL"
+          "store-url": "Kaupan URL",
+          "store-asset-url": "Kaupan resurssien URL-osoite",
+          "store-asset-url-hint": "Perus-URL, jota käytetään tämän kaupan resurssien (kuvien) URL-osoitteiden muodostamiseen Experience API:ssa, esim. https://cdn.mystore.com. Ohittaa globaalin resurssi-CDN:n. Jätä tyhjäksi käyttääksesi globaalia/oletusarvoa."
         },
         "placeholders": {
           "description": "Anna kuvaus...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Valitse...",
           "returns-fulfillment-center": "Valitse...",
           "operational-timezone": "Valitse...",
-          "store-url": "Syötä URL"
+          "store-url": "Syötä URL",
+          "store-asset-url": "Syötä resurssien perus-URL"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Lisäkieli",
           "default-currency": "Oletusvaluutta",
           "additional-currencies": "Lisävaluutat",
-          "linked-stores": "Linkitetyt kaupat (asiakkaat näistä kaupoista voivat käyttää tunnuksiaan kirjautumiseen)"
+          "linked-stores": "Linkitetyt kaupat (asiakkaat näistä kaupoista voivat käyttää tunnuksiaan kirjautumiseen)",
+          "urls": "URL-osoitteet",
+          "hide-description": "Piilota kuvaus"
         },
         "placeholders": {
           "code": "Anna koodi",
@@ -162,6 +173,11 @@
         "placeholder": "Valitse...",
         "loading": "Ladataan..."
       }
+    },
+    "commands": {
+      "copy-code": "Kopioi koodi",
+      "copy-store-url": "Kopioi kaupan URL-osoite",
+      "open-in-new-window": "Avaa uudessa ikkunassa"
     }
   },
   "permissions": {

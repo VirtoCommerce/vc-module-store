@@ -6,7 +6,13 @@
         "title": "ストア",
         "labels": {
           "no-stores": "まだストアはありません",
-          "name": "名前"
+          "name": "名前",
+          "filter-button-hint": "フィルター",
+          "filter-state": "状態",
+          "filter-all": "すべての状態",
+          "filter-open": "オープン",
+          "filter-closed": "クローズ",
+          "filter-restricted": "アクセス制限"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "利用可能なフルフィルメントセンター",
           "additional-returns-fulfillment-centers": "利用可能な返品フルフィルメントセンター",
           "operational-timezone": "運用タイムゾーン",
-          "store-url": "ストアのURL"
+          "store-url": "ストアのURL",
+          "store-asset-url": "ストアアセットURL",
+          "store-asset-url-hint": "Experience API でこのストアのアセット（画像）URL を提供するためのベース URL（例: https://cdn.mystore.com）。グローバルのアセット CDN を上書きします。空の場合はグローバル/管理者のデフォルトが使用されます。"
         },
         "placeholders": {
           "description": "説明を提供...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "選択...",
           "returns-fulfillment-center": "選択...",
           "operational-timezone": "選択...",
-          "store-url": "URLを入力"
+          "store-url": "URLを入力",
+          "store-asset-url": "アセットのベースURLを入力"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "追加の言語",
           "default-currency": "デフォルトの通貨",
           "additional-currencies": "追加の通貨",
-          "linked-stores": "連携ストア（これらのストアの顧客は自分の認証情報でサインインできます）"
+          "linked-stores": "連携ストア（これらのストアの顧客は自分の認証情報でサインインできます）",
+          "urls": "URL",
+          "hide-description": "説明を隠す"
         },
         "placeholders": {
           "code": "コードを提供",
@@ -162,6 +173,11 @@
         "placeholder": "選択...",
         "loading": "読み込み中..."
       }
+    },
+    "commands": {
+      "copy-code": "コードをコピー",
+      "copy-store-url": "ストアURLをコピー",
+      "open-in-new-window": "新しいウィンドウで開く"
     }
   },
   "permissions": {

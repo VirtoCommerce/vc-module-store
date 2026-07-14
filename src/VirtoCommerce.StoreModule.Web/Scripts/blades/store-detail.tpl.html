@@ -44,6 +44,25 @@
                         </div>
                     </div>
                 </div>
+                <fieldset>
+                    <legend>{{ 'stores.blades.store-detail.labels.urls' | translate }}</legend>
+                </fieldset>
+                <div class="form-group">
+                    <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-url' | translate }}</label>
+                    <div class="form-input">
+                        <input ng-model="blade.currentEntity.url" type="url" placeholder="{{ 'stores.blades.store-advanced.placeholders.store-url' | translate }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-asset-url' | translate }} <i class="form-ico fa fa-question-circle __link __lightblue" ng-click="blade.assetPublicUrl_descrVisible=!blade.assetPublicUrl_descrVisible"></i></label>
+                    <div class="form-input">
+                        <input ng-model="blade.currentEntity.assetPublicUrl" type="url" placeholder="{{ 'stores.blades.store-advanced.placeholders.store-asset-url' | translate }}">
+                    </div>
+                    <div ng-if="blade.assetPublicUrl_descrVisible">
+                        <div class="list __info list-descr">{{ 'stores.blades.store-advanced.labels.store-asset-url-hint' | translate }}</div>
+                        <a href="" ng-click="blade.assetPublicUrl_descrVisible = null;">{{ 'stores.blades.store-detail.labels.hide-description' | translate }}</a>
+                    </div>
+                </div>
                 <div class="form-group clearfix">
                     <fieldset>
                         <legend>{{ 'stores.blades.store-detail.labels.language' | translate }}</legend>
@@ -113,17 +132,6 @@
                     <label class="form-label">{{ 'stores.blades.store-detail.labels.linked-stores' | translate }}</label>
                     <div class="form-input" data-role="input-control">
                         <va-store-selector multiple ng-model="blade.currentEntity.trustedGroups" stores-to-hide="[blade.currentEntity.id]" placeholder="'stores.blades.store-detail.placeholders.linked-stores'"></va-store-selector>
-                    </div>
-                </div>
-
-                <div class="form-group clearfix">
-                    <div class="column">
-                        <div class="form-group">
-                            <label class="form-label">{{ 'stores.blades.store-advanced.labels.store-url' | translate }}</label>
-                            <div class="form-input">
-                                <input ng-model="blade.currentEntity.url" type="url" placeholder="{{ 'stores.blades.store-advanced.placeholders.store-url' | translate }}">
-                            </div>
-                        </div>
                     </div>
                 </div>
 

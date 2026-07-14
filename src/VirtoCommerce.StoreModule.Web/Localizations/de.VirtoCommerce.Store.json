@@ -6,7 +6,13 @@
         "title": "Shops",
         "labels": {
           "no-stores": "Sie haben noch keine Shops",
-          "name": "Name"
+          "name": "Name",
+          "filter-button-hint": "Filter",
+          "filter-state": "Status",
+          "filter-all": "Alle Status",
+          "filter-open": "Offen",
+          "filter-closed": "Geschlossen",
+          "filter-restricted": "Eingeschränkter Zugriff"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Verfügbare Logistikzentren",
           "additional-returns-fulfillment-centers": "Verfügbare Rückgabe-Logistikzentren",
           "operational-timezone": "Betriebszeitzone",
-          "store-url": "Shop-URL"
+          "store-url": "Shop-URL",
+          "store-asset-url": "Asset-URL des Stores",
+          "store-asset-url-hint": "Basis-URL, über die die Asset-URLs (Bilder) dieses Stores in der Experience API bereitgestellt werden, z. B. https://cdn.mystore.com. Überschreibt das globale Asset-CDN. Leer lassen, um den globalen/Admin-Standard zu verwenden."
         },
         "placeholders": {
           "description": "Beschreibung angeben...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Auswählen...",
           "returns-fulfillment-center": "Auswählen...",
           "operational-timezone": "Auswählen...",
-          "store-url": "URL eingeben"
+          "store-url": "URL eingeben",
+          "store-asset-url": "Asset-Basis-URL eingeben"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Zusätzliche Sprachen",
           "default-currency": "Standardwährung",
           "additional-currencies": "Zusätzliche Währungen",
-          "linked-stores": "Verknüpfte Shops (Kunden dieser Shops können ihre Zugangsdaten zur Anmeldung verwenden)"
+          "linked-stores": "Verknüpfte Shops (Kunden dieser Shops können ihre Zugangsdaten zur Anmeldung verwenden)",
+          "urls": "URLs",
+          "hide-description": "Beschreibung ausblenden"
         },
         "placeholders": {
           "code": "Code angeben",
@@ -162,6 +173,11 @@
         "placeholder": "Auswählen...",
         "loading": "Laden..."
       }
+    },
+    "commands": {
+      "copy-code": "Code kopieren",
+      "copy-store-url": "Store-URL kopieren",
+      "open-in-new-window": "In neuem Fenster öffnen"
     }
   },
   "permissions": {

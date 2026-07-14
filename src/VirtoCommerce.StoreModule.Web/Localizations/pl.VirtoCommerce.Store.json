@@ -6,7 +6,13 @@
         "title": "Sklepy",
         "labels": {
           "no-stores": "Nie masz jeszcze żadnych sklepów",
-          "name": "Nazwa"
+          "name": "Nazwa",
+          "filter-button-hint": "Filtry",
+          "filter-state": "Stan",
+          "filter-all": "Wszystkie stany",
+          "filter-open": "Otwarty",
+          "filter-closed": "Zamknięty",
+          "filter-restricted": "Dostęp ograniczony"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Dostępne centra realizacji",
           "additional-returns-fulfillment-centers": "Dostępne centra zwrotów",
           "operational-timezone": "Strefa czasowa operacyjna",
-          "store-url": "URL sklepu"
+          "store-url": "URL sklepu",
+          "store-asset-url": "Adres URL zasobów sklepu",
+          "store-asset-url-hint": "Bazowy adres URL używany do udostępniania adresów URL zasobów (obrazów) tego sklepu przez Experience API, np. https://cdn.mystore.com. Zastępuje globalny CDN zasobów. Pozostaw puste, aby użyć wartości globalnej/domyślnej."
         },
         "placeholders": {
           "description": "Podaj opis...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Wybierz...",
           "returns-fulfillment-center": "Wybierz...",
           "operational-timezone": "Wybierz...",
-          "store-url": "Wprowadź URL"
+          "store-url": "Wprowadź URL",
+          "store-asset-url": "Wprowadź bazowy adres URL zasobów"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Dodatkowe języki",
           "default-currency": "Waluta domyślna",
           "additional-currencies": "Dodatkowe waluty",
-          "linked-stores": "Powiązane sklepy (klienci tych sklepów mogą używać swoich danych logowania do zalogowania się)"
+          "linked-stores": "Powiązane sklepy (klienci tych sklepów mogą używać swoich danych logowania do zalogowania się)",
+          "urls": "Adresy URL",
+          "hide-description": "Ukryj opis"
         },
         "placeholders": {
           "code": "Podaj kod",
@@ -162,6 +173,11 @@
         "placeholder": "Wybierz...",
         "loading": "Ładowanie..."
       }
+    },
+    "commands": {
+      "copy-code": "Kopiuj kod",
+      "copy-store-url": "Kopiuj adres URL sklepu",
+      "open-in-new-window": "Otwórz w nowym oknie"
     }
   },
   "permissions": {
