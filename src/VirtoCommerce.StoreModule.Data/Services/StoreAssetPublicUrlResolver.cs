@@ -52,6 +52,12 @@ public class StoreAssetPublicUrlResolver : IStoreAssetPublicUrlResolver
             return url;
         }
 
+        // Protocol-relative URLs (//host/path) reference another host; return as-is.
+        if (url.StartsWith("//", StringComparison.Ordinal))
+        {
+            return url;
+        }
+
         if (IsAbsolute(url, out var uri))
         {
             // When known hosts are configured, replace only listed hosts; other hosts are external.
@@ -68,11 +74,20 @@ public class StoreAssetPublicUrlResolver : IStoreAssetPublicUrlResolver
 
     /// <summary>
     /// Combines the store asset base URL (a full URL or bare host, optionally with a base path)
-    /// with a relative asset path.
+    /// with a relative asset path. A query string or fragment in the base URL is ignored so the
+    /// relative path is always appended to the path part.
     /// </summary>
     protected virtual string CombineUrl(string assetPublicUrl, string relativeUrl)
     {
-        return $"{NormalizeBaseUrl(assetPublicUrl).TrimEnd('/')}/{relativeUrl.TrimStart('/')}";
+        var normalizedBase = NormalizeBaseUrl(assetPublicUrl);
+
+        if (Uri.TryCreate(normalizedBase, UriKind.Absolute, out var baseUri) &&
+            (baseUri.Query.Length > 0 || baseUri.Fragment.Length > 0))
+        {
+            normalizedBase = baseUri.GetLeftPart(UriPartial.Path);
+        }
+
+        return $"{normalizedBase.TrimEnd('/')}/{relativeUrl.TrimStart('/')}";
     }
 
     /// <summary>
@@ -95,7 +110,16 @@ public class StoreAssetPublicUrlResolver : IStoreAssetPublicUrlResolver
             }
 
             var basePath = baseUri.AbsolutePath.TrimEnd('/');
-            var combinedPath = basePath + source.AbsolutePath;
+            var sourcePath = source.AbsolutePath;
+
+            // Idempotency: when the URL already points to the asset host and starts with the base path,
+            // don't prepend the base path again (e.g. https://cdn.com/tenant1/assets/x.jpg + https://cdn.com/tenant1).
+            var isAlreadyBased = string.Equals(source.Host, baseUri.Host, StringComparison.OrdinalIgnoreCase) &&
+                (basePath.Length == 0 ||
+                 sourcePath.Equals(basePath, StringComparison.OrdinalIgnoreCase) ||
+                 sourcePath.StartsWith(basePath + "/", StringComparison.OrdinalIgnoreCase));
+
+            var combinedPath = isAlreadyBased ? sourcePath : basePath + sourcePath;
 
             var builder = new UriBuilder
             {

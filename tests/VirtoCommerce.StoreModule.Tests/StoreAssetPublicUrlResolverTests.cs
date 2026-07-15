@@ -158,6 +158,63 @@ namespace VirtoCommerce.StoreModule.Tests
         }
 
         [Fact]
+        public void GetAbsoluteUrl_UrlAlreadyOnAssetHostWithBasePath_DoesNotDoubleBasePath()
+        {
+            //Arrange
+            var resolver = CreateResolver();
+            const string alreadyBased = "https://cdn.com/tenant1/assets/x.jpg";
+
+            //Act
+            var result = resolver.GetAbsoluteUrl(StoreWith("https://cdn.com/tenant1"), alreadyBased);
+
+            //Assert
+            result.Should().Be(alreadyBased);
+        }
+
+        [Fact]
+        public void GetAbsoluteUrl_IsIdempotent_ForRebasedUrl()
+        {
+            //Arrange
+            var resolver = CreateResolver();
+            var store = StoreWith("https://cdn.com/tenant1");
+
+            //Act
+            var once = resolver.GetAbsoluteUrl(store, "https://global.example.com/assets/x.jpg");
+            var twice = resolver.GetAbsoluteUrl(store, once);
+
+            //Assert
+            once.Should().Be("https://cdn.com/tenant1/assets/x.jpg");
+            twice.Should().Be(once);
+        }
+
+        [Fact]
+        public void GetAbsoluteUrl_ProtocolRelativeUrl_ReturnsAsIs()
+        {
+            //Arrange
+            var resolver = CreateResolver();
+            const string protocolRelative = "//cdn.example.com/img.jpg";
+
+            //Act
+            var result = resolver.GetAbsoluteUrl(StoreWith("https://cdn.store1.com"), protocolRelative);
+
+            //Assert
+            result.Should().Be(protocolRelative);
+        }
+
+        [Fact]
+        public void GetAbsoluteUrl_BaseUrlWithQueryOrFragment_AppendsRelativeToPath()
+        {
+            //Arrange
+            var resolver = CreateResolver();
+
+            //Act
+            var result = resolver.GetAbsoluteUrl(StoreWith("https://cdn.store1.com/assets?sig=abc#frag"), "catalog/x.jpg");
+
+            //Assert
+            result.Should().Be("https://cdn.store1.com/assets/catalog/x.jpg");
+        }
+
+        [Fact]
         public void GetAbsoluteUrl_InvalidStoreAssetUrl_AbsoluteUrl_ReturnsOriginal()
         {
             //Arrange
