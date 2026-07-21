@@ -22,6 +22,9 @@ namespace VirtoCommerce.StoreModule.Data.Model
         [StringLength(256)]
         public string Url { get; set; }
 
+        [StringLength(256)]
+        public string AssetPublicUrl { get; set; }
+
         public int StoreState { get; set; }
 
         [StringLength(128)]
@@ -118,6 +121,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             store.SecureUrl = SecureUrl;
             store.TimeZone = TimeZone;
             store.Url = Url;
+            store.AssetPublicUrl = AssetPublicUrl;
             store.MainFulfillmentCenterId = FulfillmentCenterId;
             store.MainReturnsFulfillmentCenterId = ReturnsFulfillmentCenterId;
             store.StoreState = EnumUtility.SafeParse(StoreState.ToString(), Core.Model.StoreState.Open);
@@ -168,6 +172,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             SecureUrl = store.SecureUrl;
             TimeZone = store.TimeZone;
             Url = store.Url;
+            AssetPublicUrl = store.AssetPublicUrl;
             StoreState = (int)store.StoreState;
 
             if (store.DefaultCurrency != null)
@@ -268,6 +273,7 @@ namespace VirtoCommerce.StoreModule.Data.Model
             target.SecureUrl = SecureUrl;
             target.TimeZone = TimeZone;
             target.Url = Url;
+            target.AssetPublicUrl = AssetPublicUrl;
             target.StoreState = StoreState;
             target.FulfillmentCenterId = FulfillmentCenterId;
             target.ReturnsFulfillmentCenterId = ReturnsFulfillmentCenterId;

@@ -6,7 +6,13 @@
         "title": "Tiendas",
         "labels": {
           "no-stores": "No tienes tiendas aún",
-          "name": "Nombre"
+          "name": "Nombre",
+          "filter-button-hint": "Filtros",
+          "filter-state": "Estado",
+          "filter-all": "Todos los estados",
+          "filter-open": "Abierta",
+          "filter-closed": "Cerrada",
+          "filter-restricted": "Acceso restringido"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Centros de cumplimiento disponibles",
           "additional-returns-fulfillment-centers": "Centros de devoluciones disponibles",
           "operational-timezone": "Zona horaria de operación",
-          "store-url": "URL de la tienda"
+          "store-url": "URL de la tienda",
+          "store-asset-url": "URL de activos de la tienda",
+          "store-asset-url-hint": "URL base utilizada para servir las URL de los activos (imágenes) de esta tienda a través de la Experience API, p. ej. https://cdn.mystore.com. Sobrescribe el CDN de activos global. Déjela vacía para usar el valor global/predeterminado."
         },
         "placeholders": {
           "description": "Proporcionar descripción...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Seleccionar...",
           "returns-fulfillment-center": "Seleccionar...",
           "operational-timezone": "Seleccionar...",
-          "store-url": "Ingresar URL"
+          "store-url": "Ingresar URL",
+          "store-asset-url": "Introducir URL base de activos"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Idiomas adicionales",
           "default-currency": "Moneda predeterminada",
           "additional-currencies": "Monedas adicionales",
-          "linked-stores": "Tiendas vinculadas (los clientes de estas tiendas pueden usar sus credenciales para iniciar sesión)"
+          "linked-stores": "Tiendas vinculadas (los clientes de estas tiendas pueden usar sus credenciales para iniciar sesión)",
+          "urls": "URLs",
+          "hide-description": "Ocultar descripción"
         },
         "placeholders": {
           "code": "Proporcionar código",
@@ -162,6 +173,11 @@
         "placeholder": "Seleccionar...",
         "loading": "Cargando..."
       }
+    },
+    "commands": {
+      "copy-code": "Copiar código",
+      "copy-store-url": "Copiar URL de la tienda",
+      "open-in-new-window": "Abrir en una nueva ventana"
     }
   },
   "permissions": {

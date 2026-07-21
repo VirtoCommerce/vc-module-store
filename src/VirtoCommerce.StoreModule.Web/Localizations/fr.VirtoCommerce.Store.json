@@ -6,7 +6,13 @@
         "title": "Magasins",
         "labels": {
           "no-stores": "Vous n'avez pas encore de magasins",
-          "name": "Nom"
+          "name": "Nom",
+          "filter-button-hint": "Filtres",
+          "filter-state": "État",
+          "filter-all": "Tous les états",
+          "filter-open": "Ouverte",
+          "filter-closed": "Fermée",
+          "filter-restricted": "Accès restreint"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Centres de traitement disponibles",
           "additional-returns-fulfillment-centers": "Centres de retour disponibles",
           "operational-timezone": "Fuseau horaire opérationnel",
-          "store-url": "URL du magasin"
+          "store-url": "URL du magasin",
+          "store-asset-url": "URL des ressources de la boutique",
+          "store-asset-url-hint": "URL de base utilisée pour servir les URL des ressources (images) de cette boutique via l'Experience API, p. ex. https://cdn.mystore.com. Remplace le CDN de ressources global. Laisser vide pour utiliser la valeur globale/par défaut."
         },
         "placeholders": {
           "description": "Fournir une description...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Sélectionner...",
           "returns-fulfillment-center": "Sélectionner...",
           "operational-timezone": "Sélectionner...",
-          "store-url": "Entrer l'URL"
+          "store-url": "Entrer l'URL",
+          "store-asset-url": "Saisir l'URL de base des ressources"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Langues supplémentaires",
           "default-currency": "Devise par défaut",
           "additional-currencies": "Devises supplémentaires",
-          "linked-stores": "Boutiques liées (les clients de ces boutiques peuvent utiliser leurs identifiants pour se connecter)"
+          "linked-stores": "Boutiques liées (les clients de ces boutiques peuvent utiliser leurs identifiants pour se connecter)",
+          "urls": "URLs",
+          "hide-description": "Masquer la description"
         },
         "placeholders": {
           "code": "Fournir un code",
@@ -162,6 +173,11 @@
         "placeholder": "Sélectionner...",
         "loading": "Chargement..."
       }
+    },
+    "commands": {
+      "copy-code": "Copier le code",
+      "copy-store-url": "Copier l'URL de la boutique",
+      "open-in-new-window": "Ouvrir dans une nouvelle fenêtre"
     }
   },
   "permissions": {
