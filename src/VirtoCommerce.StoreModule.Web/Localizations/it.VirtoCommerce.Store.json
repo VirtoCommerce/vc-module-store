@@ -6,7 +6,13 @@
         "title": "Negozi",
         "labels": {
           "no-stores": "Non hai ancora negozi",
-          "name": "Nome"
+          "name": "Nome",
+          "filter-button-hint": "Filtri",
+          "filter-state": "Stato",
+          "filter-all": "Tutti gli stati",
+          "filter-open": "Aperto",
+          "filter-closed": "Chiuso",
+          "filter-restricted": "Accesso limitato"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Centri di evasione disponibili",
           "additional-returns-fulfillment-centers": "Centri di restituzione disponibili",
           "operational-timezone": "Fuso orario operativo",
-          "store-url": "URL del negozio"
+          "store-url": "URL del negozio",
+          "store-asset-url": "URL delle risorse del negozio",
+          "store-asset-url-hint": "URL di base utilizzato per servire gli URL delle risorse (immagini) di questo negozio tramite l'Experience API, ad es. https://cdn.mystore.com. Sostituisce la CDN globale delle risorse. Lasciare vuoto per usare il valore globale/predefinito."
         },
         "placeholders": {
           "description": "Fornire descrizione...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Selezionare...",
           "returns-fulfillment-center": "Selezionare...",
           "operational-timezone": "Selezionare...",
-          "store-url": "Inserire URL"
+          "store-url": "Inserire URL",
+          "store-asset-url": "Inserisci l'URL di base delle risorse"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Lingue aggiuntive",
           "default-currency": "Valuta predefinita",
           "additional-currencies": "Valute aggiuntive",
-          "linked-stores": "Negozi collegati (i clienti di questi negozi possono utilizzare le proprie credenziali per accedere)"
+          "linked-stores": "Negozi collegati (i clienti di questi negozi possono utilizzare le proprie credenziali per accedere)",
+          "urls": "URL",
+          "hide-description": "Nascondi descrizione"
         },
         "placeholders": {
           "code": "Fornire codice",
@@ -162,6 +173,11 @@
         "placeholder": "Selezionare...",
         "loading": "Caricamento..."
       }
+    },
+    "commands": {
+      "copy-code": "Copia codice",
+      "copy-store-url": "Copia URL del negozio",
+      "open-in-new-window": "Apri in una nuova finestra"
     }
   },
   "permissions": {

@@ -40,6 +40,11 @@ namespace VirtoCommerce.StoreModule.Core.Model
         /// </summary>
         public string SecureUrl { get; set; }
         /// <summary>
+        /// Base URL used to build public asset (image) URLs for this store in the Experience API responses.
+        /// Overrides the global Assets PublicUrl. When empty, the global/admin default is used.
+        /// </summary>
+        public string AssetPublicUrl { get; set; }
+        /// <summary>
         /// Primary store contact email can be used for store event notifications and for feed back
         /// </summary>
         public string Email { get; set; }

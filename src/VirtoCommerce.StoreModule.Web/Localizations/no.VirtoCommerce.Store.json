@@ -6,7 +6,13 @@
         "title": "Butikker",
         "labels": {
           "no-stores": "Du har ingen butikker ennå",
-          "name": "Navn"
+          "name": "Navn",
+          "filter-button-hint": "Filtre",
+          "filter-state": "Status",
+          "filter-all": "Alle statuser",
+          "filter-open": "Åpen",
+          "filter-closed": "Stengt",
+          "filter-restricted": "Begrenset tilgang"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Tilgjengelige oppfyllelsessentre",
           "additional-returns-fulfillment-centers": "Tilgjengelige retur-oppfyllelsessentre",
           "operational-timezone": "Operasjonell tidssone",
-          "store-url": "Butikkens URL"
+          "store-url": "Butikkens URL",
+          "store-asset-url": "Butikkens ressurs-URL",
+          "store-asset-url-hint": "Basis-URL som brukes til å levere denne butikkens ressurs-URL-er (bilder) via Experience API, f.eks. https://cdn.mystore.com. Overstyrer den globale ressurs-CDN-en. La stå tom for å bruke global/standardverdi."
         },
         "placeholders": {
           "description": "Gi en beskrivelse...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Velg...",
           "returns-fulfillment-center": "Velg...",
           "operational-timezone": "Velg...",
-          "store-url": "Skriv inn URL"
+          "store-url": "Skriv inn URL",
+          "store-asset-url": "Angi basis-URL for ressurser"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Tilleggsspråk",
           "default-currency": "Standardvaluta",
           "additional-currencies": "Tilleggsvalutaer",
-          "linked-stores": "Koblede butikker (kunder fra disse butikkene kan bruke sine innloggingsdetaljer for å logge inn)"
+          "linked-stores": "Koblede butikker (kunder fra disse butikkene kan bruke sine innloggingsdetaljer for å logge inn)",
+          "urls": "URL-er",
+          "hide-description": "Skjul beskrivelse"
         },
         "placeholders": {
           "code": "Angi kode",
@@ -162,6 +173,11 @@
         "placeholder": "Velg...",
         "loading": "Laster..."
       }
+    },
+    "commands": {
+      "copy-code": "Kopier kode",
+      "copy-store-url": "Kopier butikk-URL",
+      "open-in-new-window": "Åpne i nytt vindu"
     }
   },
   "permissions": {

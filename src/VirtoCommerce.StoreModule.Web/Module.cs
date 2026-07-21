@@ -81,6 +81,9 @@ namespace VirtoCommerce.StoreModule.Web
             serviceCollection.AddTransient<IStoreAuthenticationService, StoreAuthenticationService>();
             serviceCollection.AddTransient<IStoreAuthenticationSchemeService, StoreAuthenticationSchemeService>();
             serviceCollection.AddTransient<IStoreAuthenticationSchemeSearchService, StoreAuthenticationSchemeSearchService>();
+
+            serviceCollection.AddOptions<StoreAssetsOptions>().Bind(Configuration.GetSection(StoreAssetsOptions.SectionName));
+            serviceCollection.AddSingleton<IStoreAssetPublicUrlResolver, StoreAssetPublicUrlResolver>();
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)

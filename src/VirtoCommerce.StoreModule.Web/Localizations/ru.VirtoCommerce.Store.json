@@ -6,7 +6,13 @@
         "title": "Магазины",
         "labels": {
           "no-stores": "У вас пока нет магазинов",
-          "name": "Имя"
+          "name": "Имя",
+          "filter-button-hint": "Фильтры",
+          "filter-state": "Состояние",
+          "filter-all": "Все состояния",
+          "filter-open": "Открыт",
+          "filter-closed": "Закрыт",
+          "filter-restricted": "Ограниченный доступ"
         }
       },
       "store-advanced": {
@@ -26,7 +32,9 @@
           "additional-fulfillment-centers": "Доступные центры выполнения заказов",
           "additional-returns-fulfillment-centers": "Доступные центры выполнения возврата",
           "operational-timezone": "Часовой пояс работы",
-          "store-url": "URL магазина"
+          "store-url": "URL магазина",
+          "store-asset-url": "URL ресурсов магазина",
+          "store-asset-url-hint": "Базовый URL, по которому через Experience API отдаются URL ресурсов (изображений) этого магазина, напр. https://cdn.mystore.com. Переопределяет глобальный CDN ресурсов. Оставьте пустым, чтобы использовать глобальное значение по умолчанию."
         },
         "placeholders": {
           "description": "Укажите описание...",
@@ -39,7 +47,8 @@
           "fulfillment-center": "Выберите...",
           "returns-fulfillment-center": "Выберите...",
           "operational-timezone": "Выберите...",
-          "store-url": "Введите URL"
+          "store-url": "Введите URL",
+          "store-asset-url": "Введите базовый URL ресурсов"
         }
       },
       "store-authentication": {
@@ -62,7 +71,9 @@
           "additional-languages": "Дополнительные языки",
           "default-currency": "Валюта по умолчанию",
           "additional-currencies": "Дополнительные валюты",
-          "linked-stores": "Связанные магазины (клиенты этих магазинов могут использовать свои учетные данные для входа)"
+          "linked-stores": "Связанные магазины (клиенты этих магазинов могут использовать свои учетные данные для входа)",
+          "urls": "URL-адреса",
+          "hide-description": "Скрыть описание"
         },
         "placeholders": {
           "code": "Укажите код",
@@ -162,6 +173,11 @@
         "placeholder": "Выберите...",
         "loading": "Загрузка..."
       }
+    },
+    "commands": {
+      "copy-code": "Копировать код",
+      "copy-store-url": "Копировать URL магазина",
+      "open-in-new-window": "Открыть в новом окне"
     }
   },
   "permissions": {
