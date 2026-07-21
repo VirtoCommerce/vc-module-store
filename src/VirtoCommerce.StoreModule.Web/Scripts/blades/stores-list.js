@@ -10,6 +10,7 @@ angular.module('virtoCommerce.storeModule')
             blade.isLoading = true;
             stores.search({
                 keyword: filter.keyword ? filter.keyword : undefined,
+                storeStates: filter.storeState ? [filter.storeState] : undefined,
                 sort: uiGridHelper.getSortExpression($scope),
                 skip: ($scope.pageSettings.currentPage - 1) * $scope.pageSettings.itemsPerPageCount,
                 take: $scope.pageSettings.itemsPerPageCount
@@ -35,6 +36,18 @@ angular.module('virtoCommerce.storeModule')
             };
             bladeNavigationService.showBlade(newBlade, blade);
         }
+
+        $scope.copyText = function (text) {
+            if (text) {
+                navigator.clipboard.writeText(text).then().catch(e => console.error(e));
+            }
+        };
+
+        $scope.openStoreInNewWindow = function (data) {
+            if (data.url) {
+                window.open(data.url, '_blank');
+            }
+        };
 
         function openBladeNew() {
             $scope.selectedNodeId = null;
@@ -71,7 +84,23 @@ angular.module('virtoCommerce.storeModule')
         ];
 
         // simple and advanced filtering
-        var filter = $scope.filter = {};
+        var filter = $scope.filter = { storeState: '' };
+
+        $scope.stateFilters = [
+            { name: 'stores.blades.stores-list.labels.filter-all', value: '' },
+            { name: 'stores.blades.stores-list.labels.filter-open', value: 'Open' },
+            { name: 'stores.blades.stores-list.labels.filter-closed', value: 'Closed' },
+            { name: 'stores.blades.stores-list.labels.filter-restricted', value: 'RestrictedAccess' }
+        ];
+
+        filter.hasActiveFilters = function () {
+            return !!filter.storeState;
+        };
+
+        filter.clearFilters = function () {
+            filter.storeState = '';
+            filter.criteriaChanged();
+        };
 
         filter.criteriaChanged = function () {
             if ($scope.pageSettings.currentPage > 1) {
@@ -80,6 +109,12 @@ angular.module('virtoCommerce.storeModule')
                 blade.refresh();
             }
         };
+
+        $scope.$watch('filter.keyword', function (newVal, oldVal) {
+            if (newVal !== oldVal) {
+                filter.criteriaChanged();
+            }
+        });
 
         // ui-grid
         $scope.setGridOptions = function (gridOptions) {

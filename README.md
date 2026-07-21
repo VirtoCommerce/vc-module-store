@@ -9,6 +9,7 @@ The Store module provides multi-store management capabilities for the Virto Comm
 ## Key Features
 
 * **Multi-store management** — Create, update, delete, and search stores with configurable properties including name, URL, catalog, time zone, country, and region.
+* **Per-store asset public URL** — Serve each store's asset (image) URLs from its own domain (e.g. a store-specific CDN) instead of the shared platform/CDN domain via the `Store.AssetPublicUrl` property and the `IStoreAssetPublicUrlResolver` service.
 * **Per-store currency and language support** — Configure multiple currencies and languages per store with a designated default for each.
 * **Fulfillment center assignment** — Assign primary and alternate fulfillment centers for orders and returns per store.
 * **Store authentication schemes** — Manage per-store authentication providers (password login, external SSO) with ordering and activation controls.
@@ -36,6 +37,29 @@ The Store module provides multi-store management capabilities for the Virto Comm
 | `Stores.EmailVerificationRequired` | Boolean | `false` | Requires email verification before users can access the store. |
 | `Stores.EnablePriceRoundingForTotalsCalculation` | Boolean | `true` | Enables price rounding when calculating order totals. |
 | `Stores.SeoLinksType` | ShortText | `Collapsed` | SEO URL format type. Allowed values: `None`, `Short`, `Collapsed`, `Long`. |
+
+### Store Asset Public URL
+
+Each store can define its own base URL for public asset (image) links via the **Store asset URL** field in the store details blade (the `Store.AssetPublicUrl` property, also exposed through the Experience API `store` query). When set, the `IStoreAssetPublicUrlResolver` service combines relative asset paths with this base URL and rebases absolute platform asset URLs onto it, preserving the path, query string (e.g. SAS tokens), and fragment. When the field is empty, asset URLs are returned unchanged (global CDN / platform default). Serving the assets from the custom domain (DNS/CDN routing) is handled at the infrastructure level.
+
+The rewrite of absolute URLs can be restricted to specific source hosts with the `VirtoCommerce:StoreAssets` configuration section in `appsettings.json`:
+
+```json
+{
+  "VirtoCommerce": {
+    "StoreAssets": {
+      "KnownAssetHosts": [
+        "cdn.example.com",
+        "https://mycompany.blob.core.windows.net"
+      ]
+    }
+  }
+}
+```
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `VirtoCommerce:StoreAssets:KnownAssetHosts` | `[]` | Hosts (bare domains or full URLs) of platform/CDN asset URLs that are allowed to be replaced with the store's asset public URL. When empty, any absolute asset URL is rebased. When set, only URLs whose host is listed (compared case-insensitively) are rebased; URLs on other hosts are treated as external and returned as-is. |
 
 ### Permissions
 
@@ -82,6 +106,7 @@ The Store module provides multi-store management capabilities for the Virto Comm
 | `StoreService` | `IStoreService` | CRUD operations for stores, including settings deep-load/save, validation, deletion with change log, and resolving user-allowed store IDs. |
 | `StoreSearchService` | `IStoreSearchService` | Search stores by keyword, object IDs, store states, fulfillment center IDs, and domain. |
 | `StoreCurrencyResolver` | `IStoreCurrencyResolver` | Resolves a specific currency or all currencies for a store with culture-aware formatting and caching. |
+| `StoreAssetPublicUrlResolver` | `IStoreAssetPublicUrlResolver` | Resolves store-aware public asset (image) URLs: combines relative paths with, or rebases absolute URLs onto, the store's `AssetPublicUrl`, optionally restricted by `VirtoCommerce:StoreAssets:KnownAssetHosts`. |
 | `StoreNotificationSender` | `IStoreNotificationSender` | Generates email verification links and sends confirmation email notifications for store users. |
 | `StoreSeoResolver` | `ISeoResolver` | Resolves SEO information by slug/permalink for stores with caching. |
 | `StoreSeoBySlugResolver` | `ISeoBySlugResolver` | Legacy (obsolete) SEO resolution by slug for backward compatibility. |

@@ -1,12 +1,23 @@
 {
   "stores": {
     "main-menu-title": "Stores",
+    "commands": {
+      "copy-code": "Copy code",
+      "copy-store-url": "Copy store URL",
+      "open-in-new-window": "Open in new window"
+    },
     "blades": {
       "stores-list": {
         "title": "Stores",
         "labels": {
           "no-stores": "You have no stores yet",
-          "name": "Name"
+          "name": "Name",
+          "filter-button-hint": "Filters",
+          "filter-state": "State",
+          "filter-all": "All states",
+          "filter-open": "Open",
+          "filter-closed": "Closed",
+          "filter-restricted": "Restricted access"
         }
       },
       "store-advanced": {
@@ -26,7 +37,9 @@
           "additional-fulfillment-centers": "Available fulfillment centers",
           "additional-returns-fulfillment-centers": "Available return fulfillment centers",
           "operational-timezone": "Operation timezone",
-          "store-url": "Store URL"
+          "store-url": "Store URL",
+          "store-asset-url": "Store asset URL",
+          "store-asset-url-hint": "Base URL used to serve this store's asset (image) URLs via the Experience API, e.g. https://cdn.mystore.com. Overrides the global asset CDN. Leave empty to use the global/admin default."
         },
         "placeholders": {
           "description": "Provide description...",
@@ -39,7 +52,8 @@
           "fulfillment-center": "Select...",
           "returns-fulfillment-center": "Select...",
           "operational-timezone": "Select...",
-          "store-url": "Enter URL"
+          "store-url": "Enter URL",
+          "store-asset-url": "Enter asset base URL"
         }
       },
       "store-authentication": {
@@ -58,6 +72,8 @@
           "language": "Language",
           "currency": "Currency",
           "links": "Links",
+          "urls": "URLs",
+          "hide-description": "Hide description",
           "default-language": "Default language",
           "additional-languages": "Additional languages",
           "default-currency": "Default currency",
