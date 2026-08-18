@@ -81,7 +81,7 @@ The rewrite of absolute URLs can be restricted to specific source hosts with the
 4. `StoreService` uses `StoreRepository` to load/persist `StoreEntity` objects through `StoreDbContext`.
 5. The appropriate database provider (SqlServer, MySql, or PostgreSql) handles migrations and EF Core configuration.
 6. After save, `StoreService` deep-saves store settings via `ISettingsManager` and publishes a `StoreChangedEvent`.
-7. `LogChangesChangedEventHandler` enqueues a Hangfire background job to record changes in the platform change log.
+7. `LogChangesChangedEventHandler` enqueues a background job (`LogEntityChangesJobHandler`) to record changes in the platform change log.
 8. `SendStoreUserVerificationEmailHandler` listens for `UserVerificationEmailEvent` and sends email verification via `StoreNotificationSender` when the user belongs to a store.
 9. Store and SEO data are cached via `StoreCacheRegion` and `StoreSeoInfoCacheRegion`, invalidated on changes.
 
