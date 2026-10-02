@@ -12,6 +12,7 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
 using VirtoCommerce.Platform.Core.Events;
 using VirtoCommerce.Platform.Core.ExportImport;
+using VirtoCommerce.Platform.Core.Jobs;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Security;
 using VirtoCommerce.Platform.Core.Security.Events;
@@ -28,6 +29,7 @@ using VirtoCommerce.StoreModule.Core.Security;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.ExportImport;
 using VirtoCommerce.StoreModule.Data.Handlers;
+using VirtoCommerce.StoreModule.Data.Jobs;
 using VirtoCommerce.StoreModule.Data.MySql;
 using VirtoCommerce.StoreModule.Data.PostgreSql;
 using VirtoCommerce.StoreModule.Data.Repositories;
@@ -68,6 +70,12 @@ namespace VirtoCommerce.StoreModule.Web
 
             serviceCollection.AddTransient<LogChangesChangedEventHandler>();
             serviceCollection.AddTransient<SendStoreUserVerificationEmailHandler>();
+
+            // Neither is triggerable by name. The change-log job writes audit rows, and an OperationLog whose Id matches
+            // an existing row takes ChangeLogService.SaveChangesAsync's Patch branch; the verification job would let a
+            // caller-supplied payload send a store-branded email to any address.
+            serviceCollection.AddBackgroundJob<LogEntityChangesJobHandler, LogEntityChangesJobPayload>(triggerable: false);
+            serviceCollection.AddBackgroundJob<SendUserEmailVerificationJobHandler, SendUserEmailVerificationJobPayload>(triggerable: false);
             serviceCollection.AddTransient<IStoreNotificationSender, StoreNotificationSender>();
             serviceCollection.AddTransient<IStoreRepository, StoreRepository>();
             serviceCollection.AddTransient<Func<IStoreRepository>>(provider => () => provider.CreateScope().ServiceProvider.GetService<IStoreRepository>());
