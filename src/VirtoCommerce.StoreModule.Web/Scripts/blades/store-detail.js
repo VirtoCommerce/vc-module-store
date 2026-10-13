@@ -49,6 +49,14 @@ angular.module('virtoCommerce.storeModule')
                 if (blade.currentEntity.scopes && angular.isArray(blade.currentEntity.scopes)) {
                     blade.scopes = blade.currentEntity.scopes;
                 }
+
+                if (blade.childrenBlades) {
+                    _.each(blade.childrenBlades, function (x) {
+                        if (x.refresh) {
+                            x.refresh(blade.currentEntity);
+                        }
+                    });
+                }
             }
 
             function isDirty() {
