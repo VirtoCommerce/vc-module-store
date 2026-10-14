@@ -1,5 +1,4 @@
 {
-  // Stores admin UI for the Admin Shell host (Module Federation remote)
   "remote": { "name": "store_admin", "exposed": "./Module" },
   "contributions": {
     "menu": [

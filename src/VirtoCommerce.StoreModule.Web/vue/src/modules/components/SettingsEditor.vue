@@ -102,7 +102,8 @@ const groups = computed(() => {
 const current = (s: ObjectSettingEntry) => s.value ?? s.defaultValue;
 const text = (s: ObjectSettingEntry) => {
   const v = current(s);
-  return v === null || v === undefined ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+  if (v === null || v === undefined) return "";
+  return typeof v === "object" ? JSON.stringify(v) : String(v);
 };
 
 function inputType(valueType?: SettingValueType) {

@@ -23,7 +23,11 @@ export const api = {
 
 export const qs = (params: Record<string, string | string[] | undefined>) =>
   Object.entries(params)
-    .flatMap(([k, v]) => (v === undefined ? [] : (Array.isArray(v) ? v : [v]).map((x) => `${k}=${encodeURIComponent(x)}`)))
+    .flatMap(([k, v]) => {
+      if (v === undefined) return [];
+      const values = Array.isArray(v) ? v : [v];
+      return values.map((x) => `${k}=${encodeURIComponent(x)}`);
+    })
     .join("&");
 
 export interface Option {

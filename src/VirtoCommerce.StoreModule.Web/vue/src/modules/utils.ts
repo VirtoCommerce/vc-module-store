@@ -6,13 +6,19 @@ export const STATE_OPTIONS = toOptions(Object.values(StoreState));
 export const TIME_ZONE_OPTIONS = toOptions((Intl as unknown as { supportedValuesOf(key: string): string[] }).supportedValuesOf("timeZone"));
 let countries: Promise<{ id: string; name: string }[]> | undefined;
 export function loadCountries() {
-  countries ??= api.get<{ id: string; name: string }[]>("/api/platform/common/countries").catch(() => ((countries = undefined), []));
+  countries ??= api.get<{ id: string; name: string }[]>("/api/platform/common/countries").catch(() => {
+    countries = undefined;
+    return [];
+  });
   return countries;
 }
 
 // VcStatus variant for a store state (Open / RestrictedAccess / Closed)
 export function stateVariant(state?: string): "success" | "warning" | "danger" | "info" {
-  return state === "Open" ? "success" : state === "RestrictedAccess" ? "warning" : state === "Closed" ? "danger" : "info";
+  if (state === "Open") return "success";
+  if (state === "RestrictedAccess") return "warning";
+  if (state === "Closed") return "danger";
+  return "info";
 }
 
 // The platform's merged module localization (the AngularJS admin's texts): titles of settings and names of
