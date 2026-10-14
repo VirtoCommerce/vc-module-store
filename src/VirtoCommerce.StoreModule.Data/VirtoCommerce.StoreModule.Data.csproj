@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="VirtoCommerce.CoreModule.Data" Version="3.1012.0" />
-    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1076.0" />
+    <PackageReference Include="VirtoCommerce.Platform.Security" Version="3.1076.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
