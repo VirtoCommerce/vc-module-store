@@ -1,0 +1,18 @@
+{
+  // Stores admin UI for the Admin Shell host (Module Federation remote)
+  "remote": { "name": "store_admin", "exposed": "./Module" },
+  "contributions": {
+    "menu": [
+      {
+        "id": "stores",
+        "sectionId": "configuration",
+        "title": "Stores",
+        "icon": "lucide-store",
+        "route": "/stores",
+        "permission": "store:access",
+        "priority": 10,
+        "replaces": "legacy.stores"
+      }
+    ]
+  }
+}
