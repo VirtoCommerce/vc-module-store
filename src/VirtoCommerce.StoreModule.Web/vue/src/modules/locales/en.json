@@ -118,6 +118,9 @@
       "IS_ACTIVE": "Active",
       "ACTIVE": "Active",
       "INACTIVE": "Inactive"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Stores"
     }
   }
 }
