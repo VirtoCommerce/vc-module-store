@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Magasins"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Actualiser",
+      "ADD": "Ajouter",
+      "CREATE": "Créer",
+      "SAVE": "Enregistrer",
+      "RESET": "Réinitialiser",
+      "DELETE": "Supprimer",
+      "OPEN": "Ouvrir dans le navigateur",
+      "APPLY": "Appliquer"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Des modifications ne sont pas enregistrées. Fermer quand même ?",
+      "DELETE_CONFIRMATION": "Supprimer le magasin « {name} » ? Cette action est irréversible.",
+      "MODULE_UNAVAILABLE": "Cet écran appartient à un module qui n'est pas installé."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Paramètres",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Propriétés dynamiques",
+      "AUTHENTICATION": "Authentification",
+      "NOTIFICATIONS": "Notifications",
+      "NOTIFICATION_LOG": "Journal des notifications",
+      "ASSETS": "Ressources"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Magasins",
+        "EMPTY": "Aucun magasin trouvé",
+        "COLUMNS": {
+          "NAME": "Nom",
+          "CODE": "Code",
+          "URL": "URL",
+          "LANGUAGE": "Langue",
+          "CURRENCY": "Devise",
+          "STATE": "État"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Copier le code",
+          "COPY_URL": "Copier l'URL du magasin",
+          "OPEN": "Ouvrir dans une nouvelle fenêtre"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Nouveau magasin",
+        "GENERAL": "Général",
+        "URLS": "URLs",
+        "LOCALIZATION": "Langues, devises et région",
+        "EMAILS": "E-mail",
+        "LINKS": "Liens",
+        "FIELDS": {
+          "NAME": "Nom",
+          "CODE": "Code",
+          "CATALOG": "Catalogue",
+          "STATE": "État du magasin",
+          "DESCRIPTION": "Description",
+          "URL": "URL du magasin",
+          "SECURE_URL": "URL sécurisée du magasin",
+          "ASSET_URL": "URL publique des ressources",
+          "DEFAULT_LANGUAGE": "Langue par défaut",
+          "ADDITIONAL_LANGUAGES": "Langues supplémentaires",
+          "DEFAULT_CURRENCY": "Devise par défaut",
+          "ADDITIONAL_CURRENCIES": "Devises supplémentaires",
+          "COUNTRY": "Pays",
+          "REGION": "Région",
+          "TIME_ZONE": "Fuseau horaire d'exploitation",
+          "EMAIL_NAME": "Nom d'expéditeur des e-mails du magasin",
+          "EMAIL": "E-mail du magasin",
+          "ADMIN_EMAIL_NAME": "Nom d'expéditeur des e-mails de l'administrateur",
+          "ADMIN_EMAIL": "E-mail de l'administrateur",
+          "LINKED_STORES": "Magasins liés"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Saisir le nom du magasin",
+          "CODE": "Saisir le code du magasin",
+          "CATALOG": "Sélectionner un catalogue",
+          "DESCRIPTION": "Saisir la description",
+          "LINKED_STORES": "Magasins partageant les comptes clients avec celui-ci"
+        },
+        "HINTS": {
+          "ASSET_URL": "URL de base des URL publiques des ressources (images) de ce magasin dans l'Experience API. Laisser vide pour utiliser l'URL du fournisseur de ressources."
+        },
+        "ERRORS": {
+          "CODE": "Uniquement des lettres, des chiffres, '_' et '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Aucun enregistrement SEO",
+        "NEW_TITLE": "Nouvel enregistrement SEO",
+        "DUPLICATES": "Des enregistrements SEO d'autres objets ({count}) utilisent la même URL.",
+        "FIELDS": {
+          "LANGUAGE": "Langue",
+          "SEMANTIC_URL": "URL sémantique",
+          "PAGE_TITLE": "Titre de la page",
+          "META_DESCRIPTION": "Méta-description",
+          "META_KEYWORDS": "Méta-mots-clés",
+          "IMAGE_ALT": "Description alternative de l'image"
+        },
+        "ERRORS": {
+          "INVALID": "Les caractères réservés des URL ne sont pas autorisés",
+          "DUPLICATE": "Cette URL est déjà utilisée dans ce magasin pour cette langue"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Aucune propriété dynamique n'est définie pour les magasins"
+      },
+      "AUTH": {
+        "EMPTY": "Aucun schéma d'authentification"
+      }
+    },
+    "COMMON": {
+      "NAME": "Nom",
+      "STATUS": "Statut",
+      "IS_ACTIVE": "Actif",
+      "ACTIVE": "Actif",
+      "INACTIVE": "Inactif"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Magasins"
+    }
+  }
+}

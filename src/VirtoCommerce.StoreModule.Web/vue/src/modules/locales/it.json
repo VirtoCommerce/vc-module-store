@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Negozi"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Aggiorna",
+      "ADD": "Aggiungi",
+      "CREATE": "Crea",
+      "SAVE": "Salva",
+      "RESET": "Reimposta",
+      "DELETE": "Elimina",
+      "OPEN": "Apri nel browser",
+      "APPLY": "Applica"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Ci sono modifiche non salvate. Chiudere comunque?",
+      "DELETE_CONFIRMATION": "Eliminare il negozio \"{name}\"? L'operazione non può essere annullata.",
+      "MODULE_UNAVAILABLE": "Questa schermata appartiene a un modulo non installato."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Impostazioni",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Proprietà dinamiche",
+      "AUTHENTICATION": "Autenticazione",
+      "NOTIFICATIONS": "Notifiche",
+      "NOTIFICATION_LOG": "Registro notifiche",
+      "ASSETS": "Risorse"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Negozi",
+        "EMPTY": "Nessun negozio trovato",
+        "COLUMNS": {
+          "NAME": "Nome",
+          "CODE": "Codice",
+          "URL": "URL",
+          "LANGUAGE": "Lingua",
+          "CURRENCY": "Valuta",
+          "STATE": "Stato"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Copia codice",
+          "COPY_URL": "Copia URL del negozio",
+          "OPEN": "Apri in una nuova finestra"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Nuovo negozio",
+        "GENERAL": "Generale",
+        "URLS": "URL",
+        "LOCALIZATION": "Lingue, valute e area geografica",
+        "EMAILS": "Email",
+        "LINKS": "Collegamenti",
+        "FIELDS": {
+          "NAME": "Nome",
+          "CODE": "Codice",
+          "CATALOG": "Catalogo",
+          "STATE": "Stato del negozio",
+          "DESCRIPTION": "Descrizione",
+          "URL": "URL del negozio",
+          "SECURE_URL": "URL sicuro del negozio",
+          "ASSET_URL": "URL pubblico delle risorse",
+          "DEFAULT_LANGUAGE": "Lingua predefinita",
+          "ADDITIONAL_LANGUAGES": "Lingue aggiuntive",
+          "DEFAULT_CURRENCY": "Valuta predefinita",
+          "ADDITIONAL_CURRENCIES": "Valute aggiuntive",
+          "COUNTRY": "Paese",
+          "REGION": "Regione",
+          "TIME_ZONE": "Fuso orario operativo",
+          "EMAIL_NAME": "Nome del mittente delle email del negozio",
+          "EMAIL": "Email del negozio",
+          "ADMIN_EMAIL_NAME": "Nome del mittente delle email dell'amministratore",
+          "ADMIN_EMAIL": "Email dell'amministratore",
+          "LINKED_STORES": "Negozi collegati"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Inserisci nome del negozio",
+          "CODE": "Inserisci codice del negozio",
+          "CATALOG": "Seleziona catalogo",
+          "DESCRIPTION": "Inserisci descrizione",
+          "LINKED_STORES": "Negozi che condividono gli account cliente con questo"
+        },
+        "HINTS": {
+          "ASSET_URL": "URL di base per gli URL pubblici delle risorse (immagini) di questo negozio nella Experience API. Lasciare vuoto per usare l'URL del provider delle risorse."
+        },
+        "ERRORS": {
+          "CODE": "Solo lettere, cifre, '_' e '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Nessun record SEO",
+        "NEW_TITLE": "Nuovo record SEO",
+        "DUPLICATES": "Record SEO di altri oggetti ({count}) usano lo stesso URL.",
+        "FIELDS": {
+          "LANGUAGE": "Lingua",
+          "SEMANTIC_URL": "URL semantico",
+          "PAGE_TITLE": "Titolo della pagina",
+          "META_DESCRIPTION": "Meta descrizione",
+          "META_KEYWORDS": "Meta parole chiave",
+          "IMAGE_ALT": "Descrizione alternativa dell'immagine"
+        },
+        "ERRORS": {
+          "INVALID": "I caratteri riservati degli URL non sono consentiti",
+          "DUPLICATE": "Questo URL è già usato in questo negozio per la lingua"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Nessuna proprietà dinamica definita per i negozi"
+      },
+      "AUTH": {
+        "EMPTY": "Nessuno schema di autenticazione"
+      }
+    },
+    "COMMON": {
+      "NAME": "Nome",
+      "STATUS": "Stato",
+      "IS_ACTIVE": "Attivo",
+      "ACTIVE": "Attivo",
+      "INACTIVE": "Inattivo"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Negozi"
+    }
+  }
+}

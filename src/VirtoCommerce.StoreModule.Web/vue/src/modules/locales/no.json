@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Butikker"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Oppdater",
+      "ADD": "Legg til",
+      "CREATE": "Opprett",
+      "SAVE": "Lagre",
+      "RESET": "Tilbakestill",
+      "DELETE": "Slett",
+      "OPEN": "Åpne i nettleseren",
+      "APPLY": "Bruk"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Du har ulagrede endringer. Vil du lukke likevel?",
+      "DELETE_CONFIRMATION": "Vil du slette butikken «{name}»? Dette kan ikke angres.",
+      "MODULE_UNAVAILABLE": "Dette skjermbildet tilhører en modul som ikke er installert."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Innstillinger",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Dynamiske egenskaper",
+      "AUTHENTICATION": "Autentisering",
+      "NOTIFICATIONS": "Varslinger",
+      "NOTIFICATION_LOG": "Varslingslogg",
+      "ASSETS": "Ressurser"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Butikker",
+        "EMPTY": "Fant ingen butikker",
+        "COLUMNS": {
+          "NAME": "Navn",
+          "CODE": "Kode",
+          "URL": "URL",
+          "LANGUAGE": "Språk",
+          "CURRENCY": "Valuta",
+          "STATE": "Status"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Kopier kode",
+          "COPY_URL": "Kopier butikkens URL",
+          "OPEN": "Åpne i nytt vindu"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Ny butikk",
+        "GENERAL": "Generelt",
+        "URLS": "URL-er",
+        "LOCALIZATION": "Språk, valutaer og region",
+        "EMAILS": "E-post",
+        "LINKS": "Lenker",
+        "FIELDS": {
+          "NAME": "Navn",
+          "CODE": "Kode",
+          "CATALOG": "Katalog",
+          "STATE": "Butikkstatus",
+          "DESCRIPTION": "Beskrivelse",
+          "URL": "Butikkens URL",
+          "SECURE_URL": "Butikkens sikre URL",
+          "ASSET_URL": "Offentlig ressurs-URL",
+          "DEFAULT_LANGUAGE": "Standardspråk",
+          "ADDITIONAL_LANGUAGES": "Tilleggsspråk",
+          "DEFAULT_CURRENCY": "Standardvaluta",
+          "ADDITIONAL_CURRENCIES": "Tilleggsvalutaer",
+          "COUNTRY": "Land",
+          "REGION": "Region",
+          "TIME_ZONE": "Driftstidssone",
+          "EMAIL_NAME": "Avsendernavn for butikkens e-post",
+          "EMAIL": "Butikkens e-post",
+          "ADMIN_EMAIL_NAME": "Avsendernavn for administratorens e-post",
+          "ADMIN_EMAIL": "Administrator-e-post",
+          "LINKED_STORES": "Koblede butikker"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Skriv inn butikknavn",
+          "CODE": "Skriv inn butikkode",
+          "CATALOG": "Velg katalog",
+          "DESCRIPTION": "Skriv inn beskrivelse",
+          "LINKED_STORES": "Butikker som deler kundekontoer med denne"
+        },
+        "HINTS": {
+          "ASSET_URL": "Basis-URL for offentlige ressurs-URL-er (bilder) for denne butikken i Experience API. La stå tomt for å bruke ressursleverandørens URL."
+        },
+        "ERRORS": {
+          "CODE": "Bare bokstaver, sifre, '_' og '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Ingen SEO-poster",
+        "NEW_TITLE": "Ny SEO-post",
+        "DUPLICATES": "SEO-poster for andre objekter ({count}) bruker samme URL.",
+        "FIELDS": {
+          "LANGUAGE": "Språk",
+          "SEMANTIC_URL": "Semantisk URL",
+          "PAGE_TITLE": "Sidetittel",
+          "META_DESCRIPTION": "Metabeskrivelse",
+          "META_KEYWORDS": "Metanøkkelord",
+          "IMAGE_ALT": "Alternativ bildebeskrivelse"
+        },
+        "ERRORS": {
+          "INVALID": "Tegn som er reservert i URL-er, er ikke tillatt",
+          "DUPLICATE": "Denne URL-en brukes allerede i denne butikken for språket"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Ingen dynamiske egenskaper er definert for butikker"
+      },
+      "AUTH": {
+        "EMPTY": "Ingen autentiseringsskjemaer"
+      }
+    },
+    "COMMON": {
+      "NAME": "Navn",
+      "STATUS": "Status",
+      "IS_ACTIVE": "Aktiv",
+      "ACTIVE": "Aktiv",
+      "INACTIVE": "Inaktiv"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Butikker"
+    }
+  }
+}

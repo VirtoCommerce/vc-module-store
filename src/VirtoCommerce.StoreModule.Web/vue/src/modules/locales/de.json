@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Shops"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Aktualisieren",
+      "ADD": "Hinzufügen",
+      "CREATE": "Erstellen",
+      "SAVE": "Speichern",
+      "RESET": "Zurücksetzen",
+      "DELETE": "Löschen",
+      "OPEN": "Im Browser öffnen",
+      "APPLY": "Anwenden"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Es gibt nicht gespeicherte Änderungen. Trotzdem schließen?",
+      "DELETE_CONFIRMATION": "Shop „{name}“ löschen? Dies kann nicht rückgängig gemacht werden.",
+      "MODULE_UNAVAILABLE": "Diese Ansicht gehört zu einem Modul, das nicht installiert ist."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Einstellungen",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Dynamische Eigenschaften",
+      "AUTHENTICATION": "Authentifizierung",
+      "NOTIFICATIONS": "Benachrichtigungen",
+      "NOTIFICATION_LOG": "Benachrichtigungsprotokoll",
+      "ASSETS": "Ressourcen"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Shops",
+        "EMPTY": "Keine Shops gefunden",
+        "COLUMNS": {
+          "NAME": "Name",
+          "CODE": "Code",
+          "URL": "URL",
+          "LANGUAGE": "Sprache",
+          "CURRENCY": "Währung",
+          "STATE": "Status"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Code kopieren",
+          "COPY_URL": "Shop-URL kopieren",
+          "OPEN": "In neuem Fenster öffnen"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Neuer Shop",
+        "GENERAL": "Allgemein",
+        "URLS": "URLs",
+        "LOCALIZATION": "Sprachen, Währungen und Region",
+        "EMAILS": "E-Mail",
+        "LINKS": "Links",
+        "FIELDS": {
+          "NAME": "Name",
+          "CODE": "Code",
+          "CATALOG": "Katalog",
+          "STATE": "Shop-Status",
+          "DESCRIPTION": "Beschreibung",
+          "URL": "Shop-URL",
+          "SECURE_URL": "Sichere Shop-URL",
+          "ASSET_URL": "Öffentliche Asset-URL",
+          "DEFAULT_LANGUAGE": "Standardsprache",
+          "ADDITIONAL_LANGUAGES": "Zusätzliche Sprachen",
+          "DEFAULT_CURRENCY": "Standardwährung",
+          "ADDITIONAL_CURRENCIES": "Zusätzliche Währungen",
+          "COUNTRY": "Land",
+          "REGION": "Region",
+          "TIME_ZONE": "Betriebszeitzone",
+          "EMAIL_NAME": "Absendername für Shop-E-Mails",
+          "EMAIL": "Shop-E-Mail",
+          "ADMIN_EMAIL_NAME": "Absendername für Admin-E-Mails",
+          "ADMIN_EMAIL": "Admin-E-Mail",
+          "LINKED_STORES": "Verknüpfte Shops"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Shopnamen eingeben",
+          "CODE": "Shopcode eingeben",
+          "CATALOG": "Katalog auswählen",
+          "DESCRIPTION": "Beschreibung eingeben",
+          "LINKED_STORES": "Shops, die Kundenkonten mit diesem Shop teilen"
+        },
+        "HINTS": {
+          "ASSET_URL": "Basis-URL für öffentliche Asset-URLs (Bilder) dieses Shops in der Experience API. Leer lassen, um die URL des Asset-Anbieters zu verwenden."
+        },
+        "ERRORS": {
+          "CODE": "Nur Buchstaben, Ziffern, '_' und '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Keine SEO-Einträge",
+        "NEW_TITLE": "Neuer SEO-Eintrag",
+        "DUPLICATES": "SEO-Einträge anderer Objekte ({count}) verwenden dieselbe URL.",
+        "FIELDS": {
+          "LANGUAGE": "Sprache",
+          "SEMANTIC_URL": "Semantische URL",
+          "PAGE_TITLE": "Seitentitel",
+          "META_DESCRIPTION": "Meta-Beschreibung",
+          "META_KEYWORDS": "Meta-Schlüsselwörter",
+          "IMAGE_ALT": "Alternativtext des Bildes"
+        },
+        "ERRORS": {
+          "INVALID": "In URLs reservierte Zeichen sind nicht zulässig",
+          "DUPLICATE": "Diese URL wird in diesem Shop für die Sprache bereits verwendet"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Für Shops sind keine dynamischen Eigenschaften definiert"
+      },
+      "AUTH": {
+        "EMPTY": "Keine Authentifizierungsschemas"
+      }
+    },
+    "COMMON": {
+      "NAME": "Name",
+      "STATUS": "Status",
+      "IS_ACTIVE": "Aktiv",
+      "ACTIVE": "Aktiv",
+      "INACTIVE": "Inaktiv"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Shops"
+    }
+  }
+}

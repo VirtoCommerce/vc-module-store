@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Tiendas"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Actualizar",
+      "ADD": "Añadir",
+      "CREATE": "Crear",
+      "SAVE": "Guardar",
+      "RESET": "Restablecer",
+      "DELETE": "Eliminar",
+      "OPEN": "Abrir en el navegador",
+      "APPLY": "Aplicar"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Hay cambios sin guardar. ¿Cerrar de todos modos?",
+      "DELETE_CONFIRMATION": "¿Eliminar la tienda «{name}»? Esta acción no se puede deshacer.",
+      "MODULE_UNAVAILABLE": "Esta pantalla pertenece a un módulo que no está instalado."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Configuración",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Propiedades dinámicas",
+      "AUTHENTICATION": "Autenticación",
+      "NOTIFICATIONS": "Notificaciones",
+      "NOTIFICATION_LOG": "Registro de notificaciones",
+      "ASSETS": "Recursos"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Tiendas",
+        "EMPTY": "No se encontraron tiendas",
+        "COLUMNS": {
+          "NAME": "Nombre",
+          "CODE": "Código",
+          "URL": "URL",
+          "LANGUAGE": "Idioma",
+          "CURRENCY": "Moneda",
+          "STATE": "Estado"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Copiar código",
+          "COPY_URL": "Copiar URL de la tienda",
+          "OPEN": "Abrir en una nueva ventana"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Nueva tienda",
+        "GENERAL": "General",
+        "URLS": "URLs",
+        "LOCALIZATION": "Idiomas, monedas y región",
+        "EMAILS": "Correo electrónico",
+        "LINKS": "Enlaces",
+        "FIELDS": {
+          "NAME": "Nombre",
+          "CODE": "Código",
+          "CATALOG": "Catálogo",
+          "STATE": "Estado de la tienda",
+          "DESCRIPTION": "Descripción",
+          "URL": "URL de la tienda",
+          "SECURE_URL": "URL segura de la tienda",
+          "ASSET_URL": "URL pública de recursos",
+          "DEFAULT_LANGUAGE": "Idioma predeterminado",
+          "ADDITIONAL_LANGUAGES": "Idiomas adicionales",
+          "DEFAULT_CURRENCY": "Moneda predeterminada",
+          "ADDITIONAL_CURRENCIES": "Monedas adicionales",
+          "COUNTRY": "País",
+          "REGION": "Región",
+          "TIME_ZONE": "Zona horaria operativa",
+          "EMAIL_NAME": "Nombre del remitente de correos de la tienda",
+          "EMAIL": "Correo electrónico de la tienda",
+          "ADMIN_EMAIL_NAME": "Nombre del remitente de correos del administrador",
+          "ADMIN_EMAIL": "Correo electrónico del administrador",
+          "LINKED_STORES": "Tiendas vinculadas"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Introducir nombre de la tienda",
+          "CODE": "Introducir código de la tienda",
+          "CATALOG": "Seleccionar catálogo",
+          "DESCRIPTION": "Introducir descripción",
+          "LINKED_STORES": "Tiendas que comparten cuentas de cliente con esta"
+        },
+        "HINTS": {
+          "ASSET_URL": "URL base para las URL públicas de recursos (imágenes) de esta tienda en la Experience API. Déjela vacía para usar la URL del proveedor de recursos."
+        },
+        "ERRORS": {
+          "CODE": "Solo letras, dígitos, '_' y '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "No hay registros SEO",
+        "NEW_TITLE": "Nuevo registro SEO",
+        "DUPLICATES": "Registros SEO de otros objetos ({count}) usan la misma URL.",
+        "FIELDS": {
+          "LANGUAGE": "Idioma",
+          "SEMANTIC_URL": "URL semántica",
+          "PAGE_TITLE": "Título de la página",
+          "META_DESCRIPTION": "Meta descripción",
+          "META_KEYWORDS": "Meta palabras clave",
+          "IMAGE_ALT": "Descripción alternativa de la imagen"
+        },
+        "ERRORS": {
+          "INVALID": "No se permiten caracteres reservados de URL",
+          "DUPLICATE": "Esta URL ya se usa en esta tienda para el idioma"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "No hay propiedades dinámicas definidas para las tiendas"
+      },
+      "AUTH": {
+        "EMPTY": "No hay esquemas de autenticación"
+      }
+    },
+    "COMMON": {
+      "NAME": "Nombre",
+      "STATUS": "Estado",
+      "IS_ACTIVE": "Activo",
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Tiendas"
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Kaupat"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Päivitä",
+      "ADD": "Lisää",
+      "CREATE": "Luo",
+      "SAVE": "Tallenna",
+      "RESET": "Nollaa",
+      "DELETE": "Poista",
+      "OPEN": "Avaa selaimessa",
+      "APPLY": "Käytä"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Tallentamattomia muutoksia on olemassa. Suljetaanko silti?",
+      "DELETE_CONFIRMATION": "Poistetaanko kauppa ”{name}”? Tätä ei voi kumota.",
+      "MODULE_UNAVAILABLE": "Tämä näkymä kuuluu moduuliin, jota ei ole asennettu."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Asetukset",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Dynaamiset ominaisuudet",
+      "AUTHENTICATION": "Todennus",
+      "NOTIFICATIONS": "Ilmoitukset",
+      "NOTIFICATION_LOG": "Ilmoitusloki",
+      "ASSETS": "Resurssit"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Kaupat",
+        "EMPTY": "Kauppoja ei löytynyt",
+        "COLUMNS": {
+          "NAME": "Nimi",
+          "CODE": "Koodi",
+          "URL": "URL",
+          "LANGUAGE": "Kieli",
+          "CURRENCY": "Valuutta",
+          "STATE": "Tila"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Kopioi koodi",
+          "COPY_URL": "Kopioi kaupan URL",
+          "OPEN": "Avaa uudessa ikkunassa"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Uusi kauppa",
+        "GENERAL": "Yleiset",
+        "URLS": "URL-osoitteet",
+        "LOCALIZATION": "Kielet, valuutat ja alue",
+        "EMAILS": "Sähköposti",
+        "LINKS": "Linkit",
+        "FIELDS": {
+          "NAME": "Nimi",
+          "CODE": "Koodi",
+          "CATALOG": "Katalogi",
+          "STATE": "Kaupan tila",
+          "DESCRIPTION": "Kuvaus",
+          "URL": "Kaupan URL",
+          "SECURE_URL": "Kaupan suojattu URL",
+          "ASSET_URL": "Resurssien julkinen URL",
+          "DEFAULT_LANGUAGE": "Oletuskieli",
+          "ADDITIONAL_LANGUAGES": "Lisäkielet",
+          "DEFAULT_CURRENCY": "Oletusvaluutta",
+          "ADDITIONAL_CURRENCIES": "Lisävaluutat",
+          "COUNTRY": "Maa",
+          "REGION": "Alue",
+          "TIME_ZONE": "Toiminnan aikavyöhyke",
+          "EMAIL_NAME": "Kaupan sähköpostin lähettäjän nimi",
+          "EMAIL": "Kaupan sähköposti",
+          "ADMIN_EMAIL_NAME": "Ylläpitäjän sähköpostin lähettäjän nimi",
+          "ADMIN_EMAIL": "Ylläpitäjän sähköposti",
+          "LINKED_STORES": "Linkitetyt kaupat"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Syötä kaupan nimi",
+          "CODE": "Syötä kaupan koodi",
+          "CATALOG": "Valitse katalogi",
+          "DESCRIPTION": "Syötä kuvaus",
+          "LINKED_STORES": "Kaupat, jotka jakavat asiakastilit tämän kaupan kanssa"
+        },
+        "HINTS": {
+          "ASSET_URL": "Tämän kaupan julkisten resurssien (kuvien) URL-osoitteiden perus-URL Experience API:ssa. Jätä tyhjäksi, niin käytetään resurssipalvelun URL-osoitetta."
+        },
+        "ERRORS": {
+          "CODE": "Vain kirjaimet, numerot, '_' ja '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Ei SEO-tietueita",
+        "NEW_TITLE": "Uusi SEO-tietue",
+        "DUPLICATES": "Muiden objektien SEO-tietueet ({count}) käyttävät samaa URL-osoitetta.",
+        "FIELDS": {
+          "LANGUAGE": "Kieli",
+          "SEMANTIC_URL": "Semanttinen URL",
+          "PAGE_TITLE": "Sivun otsikko",
+          "META_DESCRIPTION": "Metakuvaus",
+          "META_KEYWORDS": "Metahakusanat",
+          "IMAGE_ALT": "Kuvan vaihtoehtoinen kuvaus"
+        },
+        "ERRORS": {
+          "INVALID": "URL-osoitteissa varattuja merkkejä ei sallita",
+          "DUPLICATE": "Tämä URL on jo käytössä tässä kaupassa tälle kielelle"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Kaupoille ei ole määritetty dynaamisia ominaisuuksia"
+      },
+      "AUTH": {
+        "EMPTY": "Ei todennusmalleja"
+      }
+    },
+    "COMMON": {
+      "NAME": "Nimi",
+      "STATUS": "Tila",
+      "IS_ACTIVE": "Aktiivinen",
+      "ACTIVE": "Aktiivinen",
+      "INACTIVE": "Ei aktiivinen"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Kaupat"
+    }
+  }
+}

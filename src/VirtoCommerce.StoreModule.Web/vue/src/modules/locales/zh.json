@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "商店"
+    },
+    "TOOLBAR": {
+      "REFRESH": "刷新",
+      "ADD": "添加",
+      "CREATE": "创建",
+      "SAVE": "保存",
+      "RESET": "重置",
+      "DELETE": "删除",
+      "OPEN": "在浏览器中打开",
+      "APPLY": "应用"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "有未保存的更改。仍要关闭吗？",
+      "DELETE_CONFIRMATION": "删除商店“{name}”？此操作无法撤消。",
+      "MODULE_UNAVAILABLE": "此界面属于未安装的模块。"
+    },
+    "WIDGETS": {
+      "SETTINGS": "设置",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "动态属性",
+      "AUTHENTICATION": "认证",
+      "NOTIFICATIONS": "通知",
+      "NOTIFICATION_LOG": "通知日志",
+      "ASSETS": "资源"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "商店",
+        "EMPTY": "未找到商店",
+        "COLUMNS": {
+          "NAME": "名称",
+          "CODE": "代码",
+          "URL": "URL",
+          "LANGUAGE": "语言",
+          "CURRENCY": "货币",
+          "STATE": "状态"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "复制代码",
+          "COPY_URL": "复制商店 URL",
+          "OPEN": "在新窗口中打开"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "新商店",
+        "GENERAL": "常规",
+        "URLS": "URL",
+        "LOCALIZATION": "语言、货币和地区",
+        "EMAILS": "电子邮件",
+        "LINKS": "链接",
+        "FIELDS": {
+          "NAME": "名称",
+          "CODE": "代码",
+          "CATALOG": "目录",
+          "STATE": "商店状态",
+          "DESCRIPTION": "描述",
+          "URL": "商店 URL",
+          "SECURE_URL": "商店安全 URL",
+          "ASSET_URL": "资源公共 URL",
+          "DEFAULT_LANGUAGE": "默认语言",
+          "ADDITIONAL_LANGUAGES": "附加语言",
+          "DEFAULT_CURRENCY": "默认货币",
+          "ADDITIONAL_CURRENCIES": "附加货币",
+          "COUNTRY": "国家/地区",
+          "REGION": "地区",
+          "TIME_ZONE": "运营时区",
+          "EMAIL_NAME": "商店电子邮件发件人名称",
+          "EMAIL": "商店电子邮件",
+          "ADMIN_EMAIL_NAME": "管理员电子邮件发件人名称",
+          "ADMIN_EMAIL": "管理员电子邮件",
+          "LINKED_STORES": "链接的商店"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "输入商店名称",
+          "CODE": "输入商店代码",
+          "CATALOG": "选择目录",
+          "DESCRIPTION": "输入描述",
+          "LINKED_STORES": "与此商店共享客户账户的商店"
+        },
+        "HINTS": {
+          "ASSET_URL": "此商店在 Experience API 中公共资源（图片）URL 的基础 URL。留空则使用资源提供程序的 URL。"
+        },
+        "ERRORS": {
+          "CODE": "仅限字母、数字、'_' 和 '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "无 SEO 记录",
+        "NEW_TITLE": "新 SEO 记录",
+        "DUPLICATES": "其他对象的 {count} 条 SEO 记录使用了相同的 URL。",
+        "FIELDS": {
+          "LANGUAGE": "语言",
+          "SEMANTIC_URL": "语义 URL",
+          "PAGE_TITLE": "页面标题",
+          "META_DESCRIPTION": "元描述",
+          "META_KEYWORDS": "元关键字",
+          "IMAGE_ALT": "图片替代说明"
+        },
+        "ERRORS": {
+          "INVALID": "不允许使用 URL 保留字符",
+          "DUPLICATE": "此 URL 已在此商店中用于该语言"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "未为商店定义动态属性"
+      },
+      "AUTH": {
+        "EMPTY": "无认证方案"
+      }
+    },
+    "COMMON": {
+      "NAME": "名称",
+      "STATUS": "状态",
+      "IS_ACTIVE": "已激活",
+      "ACTIVE": "已激活",
+      "INACTIVE": "未激活"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "商店"
+    }
+  }
+}
