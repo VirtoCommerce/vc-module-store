@@ -72,14 +72,13 @@
 <script setup lang="ts">
 import { VcCard, VcInput, VcSelect, VcSwitch, VcTextarea } from "@vc-shell/framework/ui";
 import { Field } from "vee-validate";
-import { computed, onMounted, shallowRef } from "vue";
+import { computed } from "vue";
 import { SettingValueType, type ObjectSettingEntry } from "../../api_client/virtocommerce.store";
-import { legacyText, loadLegacyTexts } from "../utils";
+import { legacyText, useLegacyTexts } from "../utils";
 
 const props = defineProps<{ settings: ObjectSettingEntry[] }>();
 
-const texts = shallowRef<Record<string, unknown>>({});
-onMounted(async () => (texts.value = await loadLegacyTexts()));
+const texts = useLegacyTexts();
 
 // "Store|General" → "General"; labels, hints and option lists built once per settings/texts change, not per render
 const groups = computed(() => {
