@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "المتاجر"
+    },
+    "STATES": {
+      "Open": "مفتوح",
+      "Closed": "مغلق",
+      "RestrictedAccess": "وصول مقيّد"
     }
   }
 }

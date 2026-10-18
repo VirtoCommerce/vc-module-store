@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "Магазины"
+    },
+    "STATES": {
+      "Open": "Открыт",
+      "Closed": "Закрыт",
+      "RestrictedAccess": "Ограниченный доступ"
     }
   }
 }

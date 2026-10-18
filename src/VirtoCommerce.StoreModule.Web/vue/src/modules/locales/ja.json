@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "ストア"
+    },
+    "STATES": {
+      "Open": "公開",
+      "Closed": "閉鎖",
+      "RestrictedAccess": "アクセス制限"
     }
   }
 }

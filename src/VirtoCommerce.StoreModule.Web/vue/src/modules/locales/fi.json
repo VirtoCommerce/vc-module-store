@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "Kaupat"
+    },
+    "STATES": {
+      "Open": "Avoin",
+      "Closed": "Suljettu",
+      "RestrictedAccess": "Rajoitettu pääsy"
     }
   }
 }

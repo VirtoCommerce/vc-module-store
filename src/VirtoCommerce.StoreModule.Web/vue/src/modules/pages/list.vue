@@ -55,7 +55,7 @@
       >
         <template #body="{ data: store }">
           <div class="tw-inline-flex">
-            <VcStatus :variant="stateVariant(store.storeState)">{{ store.storeState }}</VcStatus>
+            <VcStatus :variant="stateVariant(store.storeState)">{{ stateLabel(store.storeState) }}</VcStatus>
           </div>
         </template>
       </VcColumn>
@@ -79,7 +79,7 @@ import { VcBlade, VcColumn, VcDataTable, VcStatus } from "@vc-shell/framework/ui
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { StoreModuleClient, StoreState, type Store } from "../../api_client/virtocommerce.store";
-import { stateVariant } from "../utils";
+import { stateLabel, stateVariant } from "../utils";
 
 defineBlade({
   url: "/stores",
@@ -129,7 +129,7 @@ const globalFilters = computed(() => [
   {
     id: "storeState",
     label: t("STORES.PAGES.LIST.COLUMNS.STATE"),
-    filter: { options: Object.values(StoreState).map((s) => ({ value: s, label: s })) },
+    filter: { options: Object.values(StoreState).map((s) => ({ value: s, label: stateLabel(s) })) },
   },
 ]);
 

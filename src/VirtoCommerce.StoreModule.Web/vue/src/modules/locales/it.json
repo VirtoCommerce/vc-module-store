@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "Negozi"
+    },
+    "STATES": {
+      "Open": "Aperto",
+      "Closed": "Chiuso",
+      "RestrictedAccess": "Accesso limitato"
     }
   }
 }

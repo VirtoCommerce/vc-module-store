@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "商店"
+    },
+    "STATES": {
+      "Open": "营业中",
+      "Closed": "已关闭",
+      "RestrictedAccess": "受限访问"
     }
   }
 }

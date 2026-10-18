@@ -51,7 +51,7 @@
                 <VcSelect
                   v-model="item.storeState"
                   :label="$t('STORES.PAGES.DETAILS.FIELDS.STATE')"
-                  :options="STATE_OPTIONS"
+                  :options="stateOptions"
                   :clearable="false"
                   required
                 />
@@ -249,7 +249,7 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { StoreModuleClient, StoreState, type Store } from "../../api_client/virtocommerce.store";
 import { api, toOptions, type Option } from "../api";
-import { loadCountries, STATE_OPTIONS, TIME_ZONE_OPTIONS } from "../utils";
+import { loadCountries, STATE_OPTIONS, stateLabel, TIME_ZONE_OPTIONS } from "../utils";
 import { useStoreWidgets } from "../widgets";
 
 defineBlade({
@@ -263,6 +263,7 @@ const { showConfirmation } = usePopup();
 const { getApiClient } = useApiClient(StoreModuleClient);
 
 const isNew = computed(() => !param.value);
+const stateOptions = computed(() => STATE_OPTIONS.map((o) => ({ ...o, title: stateLabel(o.id) })));
 const item = ref<Store>({ storeState: StoreState.Open, languages: [], currencies: [] });
 const languages = ref<Option[]>([]);
 const currencies = ref<Option[]>([]);

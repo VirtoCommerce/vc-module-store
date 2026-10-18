@@ -15,6 +15,9 @@ export function loadCountries() {
   return countries;
 }
 
+// A store state's name in the UI's language (STORES.STATES), not the API's value
+export const stateLabel = (state?: string) => (state ? i18n.global.t(`STORES.STATES.${state}`) : "");
+
 // VcStatus variant for a store state (Open / RestrictedAccess / Closed)
 export function stateVariant(state?: string): "success" | "warning" | "danger" | "info" {
   if (state === "Open") return "success";

@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "Stores"
+    },
+    "STATES": {
+      "Open": "Open",
+      "Closed": "Closed",
+      "RestrictedAccess": "Restricted access"
     }
   }
 }

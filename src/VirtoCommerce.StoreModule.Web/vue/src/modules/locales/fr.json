@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "Magasins"
+    },
+    "STATES": {
+      "Open": "Ouverte",
+      "Closed": "Fermée",
+      "RestrictedAccess": "Accès restreint"
     }
   }
 }

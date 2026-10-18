@@ -121,6 +121,11 @@
     },
     "SEARCH": {
       "GROUP_TITLE": "Butiker"
+    },
+    "STATES": {
+      "Open": "Öppen",
+      "Closed": "Stängd",
+      "RestrictedAccess": "Begränsad åtkomst"
     }
   }
 }
