@@ -1,0 +1,126 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "المتاجر"
+    },
+    "TOOLBAR": {
+      "REFRESH": "تحديث",
+      "ADD": "إضافة",
+      "CREATE": "إنشاء",
+      "SAVE": "حفظ",
+      "RESET": "إعادة تعيين",
+      "DELETE": "حذف",
+      "OPEN": "فتح في المتصفح",
+      "APPLY": "تطبيق"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "لديك تغييرات غير محفوظة. هل تريد الإغلاق على أي حال؟",
+      "DELETE_CONFIRMATION": "هل تريد حذف المتجر «{name}»؟ لا يمكن التراجع عن هذا الإجراء.",
+      "MODULE_UNAVAILABLE": "تنتمي هذه الشاشة إلى وحدة غير مثبّتة."
+    },
+    "WIDGETS": {
+      "SETTINGS": "الإعدادات",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "الخصائص الديناميكية",
+      "AUTHENTICATION": "المصادقة",
+      "NOTIFICATIONS": "الإشعارات",
+      "NOTIFICATION_LOG": "سجل الإشعارات",
+      "ASSETS": "الأصول"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "المتاجر",
+        "EMPTY": "لم يتم العثور على متاجر",
+        "COLUMNS": {
+          "NAME": "الاسم",
+          "CODE": "الرمز",
+          "URL": "URL",
+          "LANGUAGE": "اللغة",
+          "CURRENCY": "العملة",
+          "STATE": "الوضع"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "نسخ الرمز",
+          "COPY_URL": "نسخ عنوان URL للمتجر",
+          "OPEN": "فتح في نافذة جديدة"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "متجر جديد",
+        "GENERAL": "عام",
+        "URLS": "عناوين URL",
+        "LOCALIZATION": "اللغات والعملات والمنطقة",
+        "EMAILS": "البريد الإلكتروني",
+        "LINKS": "الروابط",
+        "FIELDS": {
+          "NAME": "الاسم",
+          "CODE": "الرمز",
+          "CATALOG": "الكتالوج",
+          "STATE": "وضع المتجر",
+          "DESCRIPTION": "الوصف",
+          "URL": "عنوان URL للمتجر",
+          "SECURE_URL": "عنوان URL الآمن للمتجر",
+          "ASSET_URL": "عنوان URL العام للأصول",
+          "DEFAULT_LANGUAGE": "اللغة الافتراضية",
+          "ADDITIONAL_LANGUAGES": "لغات إضافية",
+          "DEFAULT_CURRENCY": "العملة الافتراضية",
+          "ADDITIONAL_CURRENCIES": "عملات إضافية",
+          "COUNTRY": "الدولة",
+          "REGION": "المنطقة",
+          "TIME_ZONE": "المنطقة الزمنية للتشغيل",
+          "EMAIL_NAME": "اسم مرسل البريد الإلكتروني للمتجر",
+          "EMAIL": "البريد الإلكتروني للمتجر",
+          "ADMIN_EMAIL_NAME": "اسم مرسل البريد الإلكتروني للمسؤول",
+          "ADMIN_EMAIL": "البريد الإلكتروني للمسؤول",
+          "LINKED_STORES": "المتاجر المرتبطة"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "أدخل اسم المتجر",
+          "CODE": "أدخل رمز المتجر",
+          "CATALOG": "اختر الكتالوج",
+          "DESCRIPTION": "أدخل الوصف",
+          "LINKED_STORES": "المتاجر التي تشارك حسابات العملاء مع هذا المتجر"
+        },
+        "HINTS": {
+          "ASSET_URL": "عنوان URL الأساسي لعناوين URL العامة لأصول هذا المتجر (الصور) في Experience API. اتركه فارغًا لاستخدام عنوان URL الخاص بمزوّد الأصول."
+        },
+        "ERRORS": {
+          "CODE": "الأحرف اللاتينية والأرقام و'_' و'-' فقط"
+        }
+      },
+      "SEO": {
+        "EMPTY": "لا توجد سجلات SEO",
+        "NEW_TITLE": "سجل SEO جديد",
+        "DUPLICATES": "سجلات SEO لكائنات أخرى تستخدم عنوان URL نفسه: {count}.",
+        "FIELDS": {
+          "LANGUAGE": "اللغة",
+          "SEMANTIC_URL": "عنوان URL الدلالي",
+          "PAGE_TITLE": "عنوان الصفحة",
+          "META_DESCRIPTION": "الوصف التعريفي (Meta description)",
+          "META_KEYWORDS": "الكلمات المفتاحية التعريفية (Meta keywords)",
+          "IMAGE_ALT": "الوصف البديل للصورة"
+        },
+        "ERRORS": {
+          "INVALID": "لا يُسمح بالأحرف المحجوزة في عناوين URL",
+          "DUPLICATE": "عنوان URL هذا مستخدم بالفعل في هذا المتجر لهذه اللغة"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "لا توجد خصائص ديناميكية معرّفة للمتاجر"
+      },
+      "AUTH": {
+        "EMPTY": "لا توجد مخططات مصادقة"
+      }
+    },
+    "COMMON": {
+      "NAME": "الاسم",
+      "STATUS": "الحالة",
+      "IS_ACTIVE": "نشط",
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "المتاجر"
+    }
+  }
+}
