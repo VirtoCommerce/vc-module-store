@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "store:access": "فتح قائمة المتاجر",
+    "store:create": "إنشاء بيانات المتاجر",
+    "store:read": "عرض بيانات المتاجر",
+    "store:update": "تحديث بيانات المتاجر",
+    "store:delete": "حذف بيانات المتاجر",
+    "store:loginOnBehalf": "تسجيل الدخول نيابةً عن عميل"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "أوضاع المتجر",
+        "description": "الأوضاع التي يمكن أن يكون عليها هذا المتجر."
+      },
+      "TaxCalculationEnabled": {
+        "title": "حساب الضريبة",
+        "description": "تفعيل حساب الضريبة في تطبيق الواجهة الأمامية أو تعطيله."
+      },
+      "AllowAnonymousUsers": {
+        "title": "زيارات المتجر من المستخدمين المجهولين",
+        "description": "منع المستخدمين المجهولين من زيارة المتجر أو السماح لهم بذلك."
+      },
+      "IsSpa": {
+        "title": "تطبيق صفحة واحدة (SPA)",
+        "description": "حدد ما إذا كان هذا المتجر تطبيق صفحة واحدة."
+      },
+      "SeoLinksType": {
+        "title": "روابط SEO",
+        "description": "حدد نوع الروابط للمنتجات والفئات. أمثلة:\n 1. طويل (Long):  /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product،\n 2. مختصر (Collapsed): /virtual-parent-category/my-cool-category/my-cool-product،\n 3. قصير (Short): /my-cool-product،\n 4. بلا (None): /product/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "التحقق من البريد الإلكتروني",
+        "description": "تفعيل التحقق من البريد الإلكتروني للمستخدمين أو تعطيله."
+      },
+      "EmailVerificationRequired": {
+        "title": "التحقق الإلزامي من البريد الإلكتروني",
+        "description": "تفعيل إلزامية التحقق من البريد الإلكتروني للمستخدمين أو تعطيلها."
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "تقريب الأسعار عند حساب الإجماليات",
+        "description": "تفعيل تقريب الأسعار في وحدتي الطلبات وسلة التسوق أو تعطيله."
+      }
+    }
+  }
+}
