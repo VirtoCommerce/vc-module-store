@@ -8,4 +8,5 @@ public interface IStoreAuthenticationService
 {
     Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models);
     Task<IList<StoreAuthenticationScheme>> GetStoreSchemesAsync(string storeId, bool clone = true);
+    Task<IList<StoreAuthenticationScheme>> GetStoreAuthenticationTypesAsync(string storeId);
 }
