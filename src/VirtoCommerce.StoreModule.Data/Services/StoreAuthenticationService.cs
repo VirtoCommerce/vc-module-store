@@ -20,22 +20,25 @@ public class StoreAuthenticationService : IStoreAuthenticationService
     private readonly PasswordLoginOptions _passwordLoginOptions;
     private readonly Func<SignInManager<ApplicationUser>> _signInManagerFactory;
     private readonly IEnumerable<ExternalSignInProviderConfiguration> _externalSigninProviderConfigs;
+    private readonly IEnumerable<IStoreAuthenticationTypeProvider> _authenticationTypeProviders;
 
     public StoreAuthenticationService(
         IStoreAuthenticationSchemeService crudService,
         IStoreAuthenticationSchemeSearchService searchService,
         IOptions<PasswordLoginOptions> passwordOptions,
         Func<SignInManager<ApplicationUser>> signInManagerFactory,
-        IEnumerable<ExternalSignInProviderConfiguration> externalSigninProviderConfigs)
+        IEnumerable<ExternalSignInProviderConfiguration> externalSigninProviderConfigs,
+        IEnumerable<IStoreAuthenticationTypeProvider> authenticationTypeProviders)
     {
         _passwordLoginOptions = passwordOptions.Value;
         _crudService = crudService;
         _searchService = searchService;
         _signInManagerFactory = signInManagerFactory;
         _externalSigninProviderConfigs = externalSigninProviderConfigs;
+        _authenticationTypeProviders = authenticationTypeProviders;
     }
 
-    public Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models)
+    public async Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models)
     {
         if (string.IsNullOrEmpty(storeId))
         {
@@ -49,7 +52,44 @@ public class StoreAuthenticationService : IStoreAuthenticationService
             x.Position = position++;
         });
 
-        return _crudService.SaveChangesAsync(models);
+        var providerModels = models
+            .Select(x => (Model: x, Provider: GetAuthenticationTypeProvider(x.Name)))
+            .Where(x => x.Provider != null)
+            .ToList();
+
+        await _crudService.SaveChangesAsync(models.Except(providerModels.Select(x => x.Model)).ToList());
+
+        foreach (var (model, provider) in providerModels)
+        {
+            if (await provider.IsActiveAsync(storeId) != model.IsActive)
+            {
+                await provider.SetIsActiveAsync(storeId, model.IsActive);
+            }
+        }
+    }
+
+    public async Task<IList<StoreAuthenticationScheme>> GetStoreAuthenticationTypesAsync(string storeId)
+    {
+        var result = (await GetStoreSchemesAsync(storeId)).ToList();
+        if (string.IsNullOrEmpty(storeId))
+        {
+            return result;
+        }
+
+        var index = result.FindIndex(x => x.Name.EqualsIgnoreCase(_passwordLoginOptions.AuthenticationType)) + 1;
+
+        foreach (var provider in _authenticationTypeProviders)
+        {
+            var type = AbstractTypeFactory<StoreAuthenticationScheme>.TryCreateInstance();
+            type.StoreId = storeId;
+            type.Name = provider.Name;
+            type.DisplayName = provider.DisplayName;
+            type.IsActive = await provider.IsActiveAsync(storeId);
+
+            result.Insert(index++, type);
+        }
+
+        return result;
     }
 
     public async Task<IList<StoreAuthenticationScheme>> GetStoreSchemesAsync(string storeId, bool clone = true)
@@ -91,6 +131,11 @@ public class StoreAuthenticationService : IStoreAuthenticationService
         }
 
         return storeSchemes;
+    }
+
+    private IStoreAuthenticationTypeProvider GetAuthenticationTypeProvider(string name)
+    {
+        return _authenticationTypeProviders.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
     }
 
     private async Task<List<GlobalAuthenticationScheme>> GetGlobalAuthenticationSchemes()
