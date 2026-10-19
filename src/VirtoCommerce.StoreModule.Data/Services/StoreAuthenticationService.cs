@@ -38,13 +38,18 @@ public class StoreAuthenticationService : IStoreAuthenticationService
         _authenticationTypeProviders = authenticationTypeProviders;
     }
 
-    public async Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models)
+    public Task SaveStoreSchemesAsync(string storeId, IList<StoreAuthenticationScheme> models)
     {
         if (string.IsNullOrEmpty(storeId))
         {
             throw new ArgumentNullException(nameof(storeId));
         }
 
+        return SaveStoreSchemesInternalAsync(storeId, models);
+    }
+
+    private async Task SaveStoreSchemesInternalAsync(string storeId, IList<StoreAuthenticationScheme> models)
+    {
         var position = 0;
         models.Apply(x =>
         {
