@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "store:access": "פתיחת תפריט החנויות",
+    "store:create": "יצירת נתוני חנות",
+    "store:read": "הצגת נתוני חנות",
+    "store:update": "עדכון נתוני חנות",
+    "store:delete": "מחיקת נתוני חנות",
+    "store:loginOnBehalf": "כניסה בשם לקוח"
+  },
+  "settings": {
+    "Stores": {
+      "States": {
+        "title": "מצבים",
+        "description": "המצבים שיכולים להיות לחנות זו"
+      },
+      "TaxCalculationEnabled": {
+        "title": "חישוב מס",
+        "description": "הפעלה/השבתה של חישוב מס באפליקציית ה-Frontend"
+      },
+      "AllowAnonymousUsers": {
+        "title": "ביקורים אנונימיים בחנות",
+        "description": "מניעה/התרה של ביקור משתמשים אנונימיים בחנות"
+      },
+      "IsSpa": {
+        "title": "אפליקציית עמוד יחיד (SPA)",
+        "description": "יש לציין אם חנות זו היא אפליקציית עמוד יחיד"
+      },
+      "SeoLinksType": {
+        "title": "קישורי SEO",
+        "description": "קביעת סוג הקישור למוצרים ולקטגוריות. דוגמאות:\n 1. ארוך (Long):  /virtual-parent-category/physical-parent-category/my-cool-category/my-cool-product,\n 2. מכווץ (Collapsed): /virtual-parent-category/my-cool-category/my-cool-product,\n 3. קצר (Short): /my-cool-product,\n 4. ללא (None): /product/123"
+      },
+      "EmailVerificationEnabled": {
+        "title": "אימות דוא״ל",
+        "description": "הפעלה/השבתה של אימות דוא״ל למשתמשים"
+      },
+      "EmailVerificationRequired": {
+        "title": "אימות דוא״ל כחובה",
+        "description": "הפעלה/השבתה של חובת אימות דוא״ל למשתמשים"
+      },
+      "EnablePriceRoundingForTotalsCalculation": {
+        "title": "עיגול מחירים בחישוב הסכומים הכוללים",
+        "description": "הפעלה/השבתה של עיגול מחירים במודולי ההזמנות וסל הקניות"
+      }
+    }
+  }
+}

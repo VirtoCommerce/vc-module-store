@@ -1,0 +1,131 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Lojas"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Atualizar",
+      "ADD": "Adicionar",
+      "CREATE": "Criar",
+      "SAVE": "Salvar",
+      "RESET": "Redefinir",
+      "DELETE": "Excluir",
+      "OPEN": "Abrir no navegador",
+      "APPLY": "Aplicar"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Há alterações não salvas. Fechar mesmo assim?",
+      "DELETE_CONFIRMATION": "Excluir a loja \"{name}\"? Esta ação não pode ser desfeita.",
+      "MODULE_UNAVAILABLE": "Esta tela pertence a um módulo que não está instalado."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Configurações",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Propriedades dinâmicas",
+      "AUTHENTICATION": "Autenticação",
+      "NOTIFICATIONS": "Notificações",
+      "NOTIFICATION_LOG": "Registro de notificações",
+      "ASSETS": "Ativos"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Lojas",
+        "EMPTY": "Nenhuma loja encontrada",
+        "COLUMNS": {
+          "NAME": "Nome",
+          "CODE": "Código",
+          "URL": "URL",
+          "LANGUAGE": "Idioma",
+          "CURRENCY": "Moeda",
+          "STATE": "Estado"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Copiar código",
+          "COPY_URL": "Copiar URL da loja",
+          "OPEN": "Abrir em nova janela"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Nova loja",
+        "GENERAL": "Geral",
+        "URLS": "URLs",
+        "LOCALIZATION": "Idiomas, moedas e região",
+        "EMAILS": "E-mail",
+        "LINKS": "Links",
+        "FIELDS": {
+          "NAME": "Nome",
+          "CODE": "Código",
+          "CATALOG": "Catálogo",
+          "STATE": "Estado da loja",
+          "DESCRIPTION": "Descrição",
+          "URL": "URL da loja",
+          "SECURE_URL": "URL segura da loja",
+          "ASSET_URL": "URL pública de ativos",
+          "DEFAULT_LANGUAGE": "Idioma padrão",
+          "ADDITIONAL_LANGUAGES": "Idiomas adicionais",
+          "DEFAULT_CURRENCY": "Moeda padrão",
+          "ADDITIONAL_CURRENCIES": "Moedas adicionais",
+          "COUNTRY": "País",
+          "REGION": "Região",
+          "TIME_ZONE": "Fuso horário operacional",
+          "EMAIL_NAME": "Nome do remetente dos e-mails da loja",
+          "EMAIL": "E-mail da loja",
+          "ADMIN_EMAIL_NAME": "Nome do remetente dos e-mails do administrador",
+          "ADMIN_EMAIL": "E-mail do administrador",
+          "LINKED_STORES": "Lojas vinculadas"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Inserir nome da loja",
+          "CODE": "Inserir código da loja",
+          "CATALOG": "Selecionar catálogo",
+          "DESCRIPTION": "Inserir descrição",
+          "LINKED_STORES": "Lojas que compartilham contas de cliente com esta"
+        },
+        "HINTS": {
+          "ASSET_URL": "URL base para as URLs públicas de ativos (imagens) desta loja na Experience API. Deixe em branco para usar a URL do provedor de ativos."
+        },
+        "ERRORS": {
+          "CODE": "Apenas letras, dígitos, '_' e '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Nenhum registro de SEO",
+        "NEW_TITLE": "Novo registro de SEO",
+        "DUPLICATES": "Registros de SEO de outros objetos ({count}) usam a mesma URL.",
+        "FIELDS": {
+          "LANGUAGE": "Idioma",
+          "SEMANTIC_URL": "URL semântica",
+          "PAGE_TITLE": "Título da página",
+          "META_DESCRIPTION": "Meta descrição",
+          "META_KEYWORDS": "Meta palavras-chave",
+          "IMAGE_ALT": "Descrição alternativa da imagem"
+        },
+        "ERRORS": {
+          "INVALID": "Caracteres reservados de URL não são permitidos",
+          "DUPLICATE": "Esta URL já está em uso nesta loja para o idioma"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Não há propriedades dinâmicas definidas para lojas"
+      },
+      "AUTH": {
+        "EMPTY": "Nenhum esquema de autenticação"
+      }
+    },
+    "COMMON": {
+      "NAME": "Nome",
+      "STATUS": "Status",
+      "IS_ACTIVE": "Ativo",
+      "ACTIVE": "Ativo",
+      "INACTIVE": "Inativo"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Lojas"
+    },
+    "STATES": {
+      "Open": "Aberta",
+      "Closed": "Fechada",
+      "RestrictedAccess": "Acesso restrito"
+    }
+  }
+}
