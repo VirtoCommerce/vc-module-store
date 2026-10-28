@@ -1,4 +1,4 @@
-import { notification, useBlade, useBladeWidgets } from "@vc-shell/framework";
+import { notification, useBlade, useBladeWidgets, usePermissions } from "@vc-shell/framework";
 import { computed, type Ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Store } from "../api_client/virtocommerce.store";
@@ -8,6 +8,7 @@ import type { Store } from "../api_client/virtocommerce.store";
 export function useStoreWidgets(item: Ref<Store>, isNew: Ref<boolean>) {
   const { t } = useI18n({ useScope: "global" });
   const { openBlade } = useBlade();
+  const { hasAccess } = usePermissions();
   const saved = computed(() => !isNew.value);
   const open = (name: string) => () => openBlade({ name, param: item.value.id });
   // a blade of another module (Notifications, Assets), by name: it isn't registered when that module's UI isn't installed
@@ -21,7 +22,20 @@ export function useStoreWidgets(item: Ref<Store>, isNew: Ref<boolean>) {
       title: "STORES.WIDGETS.SETTINGS",
       badge: computed(() => item.value.settings?.length ?? 0),
       isVisible: saved,
-      onClick: open("StoreSettings"),
+      // Admin Shell's settings blade, connected to the store (docs/object-settings.md in vc-module-admin-shell): it reads
+      // the store's settings from this blade (getEntitySettings) and the store saves the changed ones (applyEntitySettings)
+      onClick: () =>
+        openOther({
+          name: "PlatformObjectSettings",
+          options: {
+            tenantType: "Store",
+            tenantId: item.value.id,
+            mode: "connected",
+            canUpdate: hasAccess("store:update"),
+            title: t("STORES.WIDGETS.SETTINGS"),
+            subtitle: item.value.name,
+          },
+        }),
     },
     {
       id: "StoreSeo",
