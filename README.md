@@ -12,7 +12,7 @@ The Store module provides multi-store management capabilities for the Virto Comm
 * **Per-store asset public URL** — Serve each store's asset (image) URLs from its own domain (e.g. a store-specific CDN) instead of the shared platform/CDN domain via the `Store.AssetPublicUrl` property and the `IStoreAssetPublicUrlResolver` service.
 * **Per-store currency and language support** — Configure multiple currencies and languages per store with a designated default for each.
 * **Fulfillment center assignment** — Assign primary and alternate fulfillment centers for orders and returns per store.
-* **Store authentication schemes** — Manage per-store authentication providers (password login, external SSO) with ordering and activation controls.
+* **Store authentication schemes** — Manage per-store authentication providers (password login, external SSO) with ordering and activation controls. Other modules can add their own sign-in methods to the list (for example, OTP sign-in) by registering an `IStoreAuthenticationTypeProvider`, which keeps the method's on/off state.
 * **SEO support** — Store-level SEO info management with configurable SEO link types (None, Short, Collapsed, Long) and best-match SEO resolution.
 * **Email verification** — Configurable email verification flow that sends confirmation emails to store users via the Notifications module.
 * **Dynamic email notifications** — Send dynamic notifications with custom fields to store or administrator email addresses.
@@ -111,7 +111,7 @@ The rewrite of absolute URLs can be restricted to specific source hosts with the
 | `StoreSeoResolver` | `ISeoResolver` | Resolves SEO information by slug/permalink for stores with caching. |
 | `StoreSeoBySlugResolver` | `ISeoBySlugResolver` | Legacy (obsolete) SEO resolution by slug for backward compatibility. |
 | `PublicStoreSettings` | `IPublicStoreSettings` | Retrieves publicly accessible store settings grouped by module. |
-| `StoreAuthenticationService` | `IStoreAuthenticationService` | Manages per-store authentication schemes, merging stored schemes with globally registered providers. |
+| `StoreAuthenticationService` | `IStoreAuthenticationService` | Manages per-store authentication schemes, merging stored schemes with globally registered providers. `GetStoreAuthenticationTypesAsync` also returns the sign-in methods added by `IStoreAuthenticationTypeProvider` implementations, and `SaveStoreSchemesAsync` saves them through their providers. |
 | `StoreAuthenticationSchemeService` | `IStoreAuthenticationSchemeService` | CRUD operations for store authentication scheme entities. |
 | `StoreAuthenticationSchemeSearchService` | `IStoreAuthenticationSchemeSearchService` | Search authentication schemes filtered by store ID. |
 
@@ -138,8 +138,8 @@ Base route: `api/store-authentication-schemes/{storeId}`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `api/store-authentication-schemes/{storeId}` | Get authentication schemes for a store. Requires `store:read`. |
-| PUT | `api/store-authentication-schemes/{storeId}` | Update authentication schemes for a store. Requires `store:update`. |
+| GET | `api/store-authentication-schemes/{storeId}` | Get authentication schemes for a store, including the sign-in methods added by other modules. Requires `store:read`. |
+| PUT | `api/store-authentication-schemes/{storeId}` | Update authentication schemes for a store, including the sign-in methods added by other modules. Requires `store:update`. |
 
 ## Documentation
 

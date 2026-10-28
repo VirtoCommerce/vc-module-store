@@ -23,7 +23,7 @@ public class StoreAuthenticationSchemeController : Controller
     [Authorize(ModuleConstants.Security.Permissions.Read)]
     public async Task<ActionResult<IList<StoreAuthenticationScheme>>> Get([FromRoute] string storeId)
     {
-        var result = await _service.GetStoreSchemesAsync(storeId, clone: false);
+        var result = await _service.GetStoreAuthenticationTypesAsync(storeId);
         return Ok(result);
     }
 
