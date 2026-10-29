@@ -1,0 +1,131 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Butiker"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Uppdatera",
+      "ADD": "Lägg till",
+      "CREATE": "Skapa",
+      "SAVE": "Spara",
+      "RESET": "Återställ",
+      "DELETE": "Radera",
+      "OPEN": "Öppna i webbläsaren",
+      "APPLY": "Tillämpa"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "Det finns osparade ändringar. Stäng ändå?",
+      "DELETE_CONFIRMATION": "Radera butiken ”{name}”? Detta kan inte ångras.",
+      "MODULE_UNAVAILABLE": "Den här vyn tillhör en modul som inte är installerad."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Inställningar",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Dynamiska egenskaper",
+      "AUTHENTICATION": "Autentisering",
+      "NOTIFICATIONS": "Aviseringar",
+      "NOTIFICATION_LOG": "Meddelandelogg",
+      "ASSETS": "Tillgångar"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Butiker",
+        "EMPTY": "Inga butiker hittades",
+        "COLUMNS": {
+          "NAME": "Namn",
+          "CODE": "Kod",
+          "URL": "URL",
+          "LANGUAGE": "Språk",
+          "CURRENCY": "Valuta",
+          "STATE": "Status"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Kopiera kod",
+          "COPY_URL": "Kopiera butikens URL",
+          "OPEN": "Öppna i nytt fönster"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "Ny butik",
+        "GENERAL": "Allmänt",
+        "URLS": "URL:er",
+        "LOCALIZATION": "Språk, valutor och region",
+        "EMAILS": "E-post",
+        "LINKS": "Länkar",
+        "FIELDS": {
+          "NAME": "Namn",
+          "CODE": "Kod",
+          "CATALOG": "Katalog",
+          "STATE": "Butikens status",
+          "DESCRIPTION": "Beskrivning",
+          "URL": "Butikens URL",
+          "SECURE_URL": "Butikens säkra URL",
+          "ASSET_URL": "Offentlig URL för tillgångar",
+          "DEFAULT_LANGUAGE": "Standardspråk",
+          "ADDITIONAL_LANGUAGES": "Ytterligare språk",
+          "DEFAULT_CURRENCY": "Standardvaluta",
+          "ADDITIONAL_CURRENCIES": "Ytterligare valutor",
+          "COUNTRY": "Land",
+          "REGION": "Region",
+          "TIME_ZONE": "Driftstidszon",
+          "EMAIL_NAME": "Avsändarnamn för butikens e-post",
+          "EMAIL": "Butikens e-post",
+          "ADMIN_EMAIL_NAME": "Avsändarnamn för administratörens e-post",
+          "ADMIN_EMAIL": "Administratörens e-post",
+          "LINKED_STORES": "Länkade butiker"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Ange butikens namn",
+          "CODE": "Ange butikens kod",
+          "CATALOG": "Välj katalog",
+          "DESCRIPTION": "Ange beskrivning",
+          "LINKED_STORES": "Butiker som delar kundkonton med den här"
+        },
+        "HINTS": {
+          "ASSET_URL": "Bas-URL för offentliga URL:er för tillgångar (bilder) i den här butiken i Experience API. Lämna tomt för att använda tillgångsleverantörens URL."
+        },
+        "ERRORS": {
+          "CODE": "Endast bokstäver, siffror, '_' och '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "Inga SEO-poster",
+        "NEW_TITLE": "Ny SEO-post",
+        "DUPLICATES": "SEO-poster för andra objekt ({count}) använder samma URL.",
+        "FIELDS": {
+          "LANGUAGE": "Språk",
+          "SEMANTIC_URL": "Semantisk URL",
+          "PAGE_TITLE": "Sidtitel",
+          "META_DESCRIPTION": "Metabeskrivning",
+          "META_KEYWORDS": "Metanyckelord",
+          "IMAGE_ALT": "Alternativ bildbeskrivning"
+        },
+        "ERRORS": {
+          "INVALID": "Tecken som är reserverade i URL:er är inte tillåtna",
+          "DUPLICATE": "Den här URL:en används redan i den här butiken för språket"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "Inga dynamiska egenskaper har definierats för butiker"
+      },
+      "AUTH": {
+        "EMPTY": "Inga autentiseringsscheman"
+      }
+    },
+    "COMMON": {
+      "NAME": "Namn",
+      "STATUS": "Status",
+      "IS_ACTIVE": "Aktiv",
+      "ACTIVE": "Aktiv",
+      "INACTIVE": "Inaktiv"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Butiker"
+    },
+    "STATES": {
+      "Open": "Öppen",
+      "Closed": "Stängd",
+      "RestrictedAccess": "Begränsad åtkomst"
+    }
+  }
+}

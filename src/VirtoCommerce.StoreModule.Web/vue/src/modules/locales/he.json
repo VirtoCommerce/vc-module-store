@@ -1,0 +1,131 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "חנויות"
+    },
+    "TOOLBAR": {
+      "REFRESH": "רענון",
+      "ADD": "הוספה",
+      "CREATE": "יצירה",
+      "SAVE": "שמירה",
+      "RESET": "איפוס",
+      "DELETE": "מחיקה",
+      "OPEN": "פתיחה בדפדפן",
+      "APPLY": "החלה"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "יש שינויים שלא נשמרו. לסגור בכל זאת?",
+      "DELETE_CONFIRMATION": "האם למחוק את החנות \"{name}\"? לא ניתן לבטל פעולה זו.",
+      "MODULE_UNAVAILABLE": "מסך זה שייך למודול שאינו מותקן."
+    },
+    "WIDGETS": {
+      "SETTINGS": "הגדרות",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "מאפיינים דינמיים",
+      "AUTHENTICATION": "אימות",
+      "NOTIFICATIONS": "התראות",
+      "NOTIFICATION_LOG": "יומן התראות",
+      "ASSETS": "נכסים"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "חנויות",
+        "EMPTY": "לא נמצאו חנויות",
+        "COLUMNS": {
+          "NAME": "שם",
+          "CODE": "קוד",
+          "URL": "URL",
+          "LANGUAGE": "שפה",
+          "CURRENCY": "מטבע",
+          "STATE": "מצב"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "העתקת הקוד",
+          "COPY_URL": "העתקת כתובת ה-URL של החנות",
+          "OPEN": "פתיחה בחלון חדש"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "חנות חדשה",
+        "GENERAL": "כללי",
+        "URLS": "כתובות URL",
+        "LOCALIZATION": "שפות, מטבעות ואזור",
+        "EMAILS": "דוא\"ל",
+        "LINKS": "קישורים",
+        "FIELDS": {
+          "NAME": "שם",
+          "CODE": "קוד",
+          "CATALOG": "קטלוג",
+          "STATE": "מצב החנות",
+          "DESCRIPTION": "תיאור",
+          "URL": "כתובת ה-URL של החנות",
+          "SECURE_URL": "כתובת URL מאובטחת של החנות",
+          "ASSET_URL": "כתובת URL ציבורית של נכסים",
+          "DEFAULT_LANGUAGE": "שפת ברירת מחדל",
+          "ADDITIONAL_LANGUAGES": "שפות נוספות",
+          "DEFAULT_CURRENCY": "מטבע ברירת מחדל",
+          "ADDITIONAL_CURRENCIES": "מטבעות נוספים",
+          "COUNTRY": "מדינה",
+          "REGION": "אזור",
+          "TIME_ZONE": "אזור זמן תפעולי",
+          "EMAIL_NAME": "שם השולח בדוא\"ל של החנות",
+          "EMAIL": "דוא\"ל החנות",
+          "ADMIN_EMAIL_NAME": "שם השולח בדוא\"ל של המנהל",
+          "ADMIN_EMAIL": "דוא\"ל המנהל",
+          "LINKED_STORES": "חנויות מקושרות"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "יש להזין שם חנות",
+          "CODE": "יש להזין קוד חנות",
+          "CATALOG": "יש לבחור קטלוג",
+          "DESCRIPTION": "יש להזין תיאור",
+          "LINKED_STORES": "חנויות שחולקות חשבונות לקוח עם חנות זו"
+        },
+        "HINTS": {
+          "ASSET_URL": "כתובת URL בסיסית לכתובות ה-URL הציבוריות של הנכסים (תמונות) של חנות זו ב-Experience API. יש להשאיר ריק כדי להשתמש בכתובת ה-URL של ספק הנכסים."
+        },
+        "ERRORS": {
+          "CODE": "אותיות, ספרות, '_' ו-'-' בלבד"
+        }
+      },
+      "SEO": {
+        "EMPTY": "אין רשומות SEO",
+        "NEW_TITLE": "רשומת SEO חדשה",
+        "DUPLICATES": "רשומות SEO של אובייקטים אחרים משתמשות באותה כתובת URL: {count}.",
+        "FIELDS": {
+          "LANGUAGE": "שפה",
+          "SEMANTIC_URL": "כתובת URL סמנטית",
+          "PAGE_TITLE": "כותרת הדף",
+          "META_DESCRIPTION": "תיאור מטא",
+          "META_KEYWORDS": "מילות מפתח מטא",
+          "IMAGE_ALT": "תיאור חלופי לתמונה"
+        },
+        "ERRORS": {
+          "INVALID": "אסור להשתמש בתווים השמורים של URL",
+          "DUPLICATE": "כתובת URL זו כבר בשימוש בחנות זו עבור השפה"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "לא הוגדרו מאפיינים דינמיים לחנויות"
+      },
+      "AUTH": {
+        "EMPTY": "אין סכמות אימות"
+      }
+    },
+    "COMMON": {
+      "NAME": "שם",
+      "STATUS": "סטטוס",
+      "IS_ACTIVE": "פעיל",
+      "ACTIVE": "פעיל",
+      "INACTIVE": "לא פעיל"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "חנויות"
+    },
+    "STATES": {
+      "Open": "פתוחה",
+      "Closed": "סגורה",
+      "RestrictedAccess": "גישה מוגבלת"
+    }
+  }
+}

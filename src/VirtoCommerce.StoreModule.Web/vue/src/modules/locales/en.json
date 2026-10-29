@@ -1,0 +1,131 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "Stores"
+    },
+    "TOOLBAR": {
+      "REFRESH": "Refresh",
+      "ADD": "Add",
+      "CREATE": "Create",
+      "SAVE": "Save",
+      "RESET": "Reset",
+      "DELETE": "Delete",
+      "OPEN": "Open in browser",
+      "APPLY": "Apply"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "You have unsaved changes. Close anyway?",
+      "DELETE_CONFIRMATION": "Delete the store \"{name}\"? This can't be undone.",
+      "MODULE_UNAVAILABLE": "This screen belongs to a module that isn't installed."
+    },
+    "WIDGETS": {
+      "SETTINGS": "Settings",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "Dynamic properties",
+      "AUTHENTICATION": "Authentication",
+      "NOTIFICATIONS": "Notifications",
+      "NOTIFICATION_LOG": "Notification log",
+      "ASSETS": "Assets"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "Stores",
+        "EMPTY": "No stores found",
+        "COLUMNS": {
+          "NAME": "Name",
+          "CODE": "Code",
+          "URL": "URL",
+          "LANGUAGE": "Language",
+          "CURRENCY": "Currency",
+          "STATE": "State"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "Copy code",
+          "COPY_URL": "Copy store URL",
+          "OPEN": "Open in new window"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "New store",
+        "GENERAL": "General",
+        "URLS": "URLs",
+        "LOCALIZATION": "Languages, currencies and region",
+        "EMAILS": "Email",
+        "LINKS": "Links",
+        "FIELDS": {
+          "NAME": "Name",
+          "CODE": "Code",
+          "CATALOG": "Catalog",
+          "STATE": "Store state",
+          "DESCRIPTION": "Description",
+          "URL": "Store URL",
+          "SECURE_URL": "Secure store URL",
+          "ASSET_URL": "Asset public URL",
+          "DEFAULT_LANGUAGE": "Default language",
+          "ADDITIONAL_LANGUAGES": "Additional languages",
+          "DEFAULT_CURRENCY": "Default currency",
+          "ADDITIONAL_CURRENCIES": "Additional currencies",
+          "COUNTRY": "Country",
+          "REGION": "Region",
+          "TIME_ZONE": "Operational time zone",
+          "EMAIL_NAME": "Store email sender name",
+          "EMAIL": "Store email",
+          "ADMIN_EMAIL_NAME": "Admin email sender name",
+          "ADMIN_EMAIL": "Admin email",
+          "LINKED_STORES": "Linked stores"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "Enter store name",
+          "CODE": "Enter store code",
+          "CATALOG": "Select catalog",
+          "DESCRIPTION": "Enter description",
+          "LINKED_STORES": "Stores sharing customer accounts with this one"
+        },
+        "HINTS": {
+          "ASSET_URL": "Base URL for public asset (image) URLs of this store in the Experience API. Leave empty to use the asset provider's URL."
+        },
+        "ERRORS": {
+          "CODE": "Only letters, digits, '_' and '-'"
+        }
+      },
+      "SEO": {
+        "EMPTY": "No SEO records",
+        "NEW_TITLE": "New SEO record",
+        "DUPLICATES": "{count} SEO record(s) of other objects use the same URL.",
+        "FIELDS": {
+          "LANGUAGE": "Language",
+          "SEMANTIC_URL": "Semantic URL",
+          "PAGE_TITLE": "Page title",
+          "META_DESCRIPTION": "Meta description",
+          "META_KEYWORDS": "Meta keywords",
+          "IMAGE_ALT": "Image alternative description"
+        },
+        "ERRORS": {
+          "INVALID": "URL-reserved characters aren't allowed",
+          "DUPLICATE": "This URL is already used in this store for the language"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "No dynamic properties are defined for stores"
+      },
+      "AUTH": {
+        "EMPTY": "No authentication schemes"
+      }
+    },
+    "COMMON": {
+      "NAME": "Name",
+      "STATUS": "Status",
+      "IS_ACTIVE": "Active",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "Stores"
+    },
+    "STATES": {
+      "Open": "Open",
+      "Closed": "Closed",
+      "RestrictedAccess": "Restricted access"
+    }
+  }
+}

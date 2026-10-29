@@ -1,0 +1,131 @@
+{
+  "STORES": {
+    "MENU": {
+      "TITLE": "ストア"
+    },
+    "TOOLBAR": {
+      "REFRESH": "更新",
+      "ADD": "追加",
+      "CREATE": "作成",
+      "SAVE": "保存",
+      "RESET": "リセット",
+      "DELETE": "削除",
+      "OPEN": "ブラウザーで開く",
+      "APPLY": "適用"
+    },
+    "ALERTS": {
+      "CLOSE_CONFIRMATION": "保存されていない変更があります。閉じてもよろしいですか？",
+      "DELETE_CONFIRMATION": "ストア「{name}」を削除しますか？この操作は元に戻せません。",
+      "MODULE_UNAVAILABLE": "この画面は、インストールされていないモジュールに属しています。"
+    },
+    "WIDGETS": {
+      "SETTINGS": "設定",
+      "SEO": "SEO",
+      "DYNAMIC_PROPERTIES": "動的プロパティ",
+      "AUTHENTICATION": "認証",
+      "NOTIFICATIONS": "通知",
+      "NOTIFICATION_LOG": "通知ログ",
+      "ASSETS": "アセット"
+    },
+    "PAGES": {
+      "LIST": {
+        "TITLE": "ストア",
+        "EMPTY": "ストアが見つかりません",
+        "COLUMNS": {
+          "NAME": "名前",
+          "CODE": "コード",
+          "URL": "URL",
+          "LANGUAGE": "言語",
+          "CURRENCY": "通貨",
+          "STATE": "状態"
+        },
+        "ACTIONS": {
+          "COPY_CODE": "コードをコピー",
+          "COPY_URL": "ストアの URL をコピー",
+          "OPEN": "新しいウィンドウで開く"
+        }
+      },
+      "DETAILS": {
+        "NEW_TITLE": "新しいストア",
+        "GENERAL": "全般",
+        "URLS": "URL",
+        "LOCALIZATION": "言語、通貨、地域",
+        "EMAILS": "メール",
+        "LINKS": "リンク",
+        "FIELDS": {
+          "NAME": "名前",
+          "CODE": "コード",
+          "CATALOG": "カタログ",
+          "STATE": "ストアの状態",
+          "DESCRIPTION": "説明",
+          "URL": "ストアの URL",
+          "SECURE_URL": "ストアのセキュア URL",
+          "ASSET_URL": "アセットの公開 URL",
+          "DEFAULT_LANGUAGE": "デフォルトの言語",
+          "ADDITIONAL_LANGUAGES": "追加の言語",
+          "DEFAULT_CURRENCY": "デフォルトの通貨",
+          "ADDITIONAL_CURRENCIES": "追加の通貨",
+          "COUNTRY": "国",
+          "REGION": "地域",
+          "TIME_ZONE": "運営タイムゾーン",
+          "EMAIL_NAME": "ストアのメール送信者名",
+          "EMAIL": "ストアのメール",
+          "ADMIN_EMAIL_NAME": "管理者メールの送信者名",
+          "ADMIN_EMAIL": "管理者メール",
+          "LINKED_STORES": "リンクされたストア"
+        },
+        "PLACEHOLDERS": {
+          "NAME": "ストア名を入力",
+          "CODE": "ストアコードを入力",
+          "CATALOG": "カタログを選択",
+          "DESCRIPTION": "説明を入力",
+          "LINKED_STORES": "このストアと顧客アカウントを共有するストア"
+        },
+        "HINTS": {
+          "ASSET_URL": "Experience API におけるこのストアの公開アセット (画像) URL のベース URL。空白のままにすると、アセットプロバイダーの URL が使用されます。"
+        },
+        "ERRORS": {
+          "CODE": "英字、数字、'_'、'-' のみ"
+        }
+      },
+      "SEO": {
+        "EMPTY": "SEO レコードがありません",
+        "NEW_TITLE": "新しい SEO レコード",
+        "DUPLICATES": "他のオブジェクトの SEO レコード {count} 件が同じ URL を使用しています。",
+        "FIELDS": {
+          "LANGUAGE": "言語",
+          "SEMANTIC_URL": "セマンティック URL",
+          "PAGE_TITLE": "ページタイトル",
+          "META_DESCRIPTION": "メタディスクリプション",
+          "META_KEYWORDS": "メタキーワード",
+          "IMAGE_ALT": "画像の代替説明"
+        },
+        "ERRORS": {
+          "INVALID": "URL の予約文字は使用できません",
+          "DUPLICATE": "この URL は、このストアでこの言語に対して既に使用されています"
+        }
+      },
+      "DYNAMIC_PROPERTIES": {
+        "EMPTY": "ストアに定義された動的プロパティはありません"
+      },
+      "AUTH": {
+        "EMPTY": "認証スキームがありません"
+      }
+    },
+    "COMMON": {
+      "NAME": "名前",
+      "STATUS": "ステータス",
+      "IS_ACTIVE": "アクティブ",
+      "ACTIVE": "アクティブ",
+      "INACTIVE": "非アクティブ"
+    },
+    "SEARCH": {
+      "GROUP_TITLE": "ストア"
+    },
+    "STATES": {
+      "Open": "公開",
+      "Closed": "閉鎖",
+      "RestrictedAccess": "アクセス制限"
+    }
+  }
+}
