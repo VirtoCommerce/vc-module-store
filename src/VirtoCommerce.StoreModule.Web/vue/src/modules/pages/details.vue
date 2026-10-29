@@ -250,6 +250,7 @@ import { useI18n } from "vue-i18n";
 import { StoreModuleClient, StoreState, type Store } from "../../api_client/virtocommerce.store";
 import { api, toOptions, type Option } from "../api";
 import { loadCountries, STATE_OPTIONS, stateLabel, TIME_ZONE_OPTIONS } from "../utils";
+import { clone } from "../composables";
 import { useStoreWidgets } from "../widgets";
 
 defineBlade({
@@ -411,6 +412,14 @@ async function refreshPart(key: keyof Store) {
   item.value = { ...edited, [key]: fresh[key] };
 }
 
+// child blades that edit a part of the store (settings, SEO, dynamic properties) save it through here: only that part,
+// on the stored store, so the edits still unsaved here aren't saved with it
+async function savePart({ key, value }: { key: keyof Store; value: unknown }) {
+  const client = await getApiClient();
+  await client.updateStore({ ...(await client.getStoreById(param.value!)), [key]: value } as Store);
+  await refreshPart(key);
+}
+
 // for child blades, also those opened from other modules' widgets: reloadWidgets refreshes the widget badges
 exposeToChildren({
   reloadWidgets,
@@ -420,12 +429,16 @@ exposeToChildren({
   },
   // a child blade that saved a part of the store itself (e.g. loyalty's store settings): callParent("refreshPart", "settings")
   refreshPart,
-  // child blades that edit a part of the store (settings, SEO, dynamic properties) save it through here: only that
-  // part, on the stored store, so the edits still unsaved here aren't saved with it
-  async savePart({ key, value }: { key: keyof Store; value: unknown }) {
-    const client = await getApiClient();
-    await client.updateStore({ ...(await client.getStoreById(param.value!)), [key]: value } as Store);
-    await refreshPart(key);
+  savePart,
+  // Admin Shell's shared settings blade (PlatformObjectSettings, connected): the store's settings, and the changed values
+  // back, saved with the store as the AngularJS entity settings were
+  getEntitySettings: () => clone(item.value.settings ?? []),
+  async applyEntitySettings(values: Record<string, unknown>) {
+    const stored = (await (await getApiClient()).getStoreById(param.value!)).settings ?? [];
+    await savePart({
+      key: "settings",
+      value: stored.map((s) => (s.name && s.name in values ? { ...s, value: values[s.name] } : s)),
+    });
   },
 });
 </script>
