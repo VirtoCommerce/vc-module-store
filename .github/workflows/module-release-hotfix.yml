@@ -1,5 +1,5 @@
-# v3.800.38
-# https://virtocommerce.atlassian.net/browse/VCST-4492
+# v3.1000.9
+# https://virtocommerce.atlassian.net/browse/VCST-5414
 name: Release hotfix
 
 on:
@@ -11,18 +11,18 @@ on:
         default: true
         type: boolean
 
-# Least-privilege default; publish-github-release overrides below.
+# Least-privilege default; jobs override below where they need more.
 permissions:
   contents: read
 
 jobs:
   test:
-    uses: VirtoCommerce/.github/.github/workflows/test-and-sonar.yml@v3.800.38
+    uses: VirtoCommerce/.github/.github/workflows/test-and-sonar.yml@v3.1000.9
     secrets:
       sonarToken: ${{ secrets.SONAR_TOKEN }}
 
   build:
-    uses: VirtoCommerce/.github/.github/workflows/build.yml@v3.800.38    
+    uses: VirtoCommerce/.github/.github/workflows/build.yml@v3.1000.9
     with:
       uploadPackage: 'true'
       uploadDocker: 'false'
@@ -39,14 +39,14 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
 
-    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
         persist-credentials: false
 
     - name: Get Changelog
       id: changelog
-      uses: VirtoCommerce/vc-github-actions/changelog-generator@master
+      uses: VirtoCommerce/.github/actions/changelog-generator@v3.1000.9
 
   # Trusted Publishing: mint the OIDC key and push in ONE job. A short-lived key can't cross
   # job boundaries (GitHub redacts masked values from job outputs), and the push can't move
@@ -64,7 +64,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
     steps:
       - name: Install VirtoCommerce.GlobalTool
-        uses: VirtoCommerce/.github/actions/setup-vcbuild@v3.1000.1
+        uses: VirtoCommerce/.github/actions/setup-vcbuild@v3.1000.9
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -97,21 +97,21 @@ jobs:
           user: virto
 
       - name: Publish Nuget
-        uses: VirtoCommerce/.github/actions/publish-nuget@v3.1000.1
+        uses: VirtoCommerce/.github/actions/publish-nuget@v3.1000.9
         with:
           skipString: 'Clean+Restore+Compile+Test+Pack'
         env:
           NUGET_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
 
   # GitHub release only. forceNuget: false — the push is done by publish-nuget above.
+  # publish-github.yml creates the release + edits the PR via the passed GITHUB_TOKEN — grant write to both.
   publish-github-release:
-    # publish-github.yml creates the release + edits the PR via the passed GITHUB_TOKEN — grant write to both.
     permissions:
       contents: write
       pull-requests: write
     needs:
       [build, test, get-metadata, publish-nuget]
-    uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@v3.800.38
+    uses: VirtoCommerce/.github/.github/workflows/publish-github.yml@v3.1000.9
     with:
       fullKey: ${{ needs.build.outputs.packageFullKey }}
       changeLog: '${{ needs.get-metadata.outputs.changeLog }}'
@@ -129,15 +129,15 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
 
     - name: Install VirtoCommerce.GlobalTool
-      uses: VirtoCommerce/vc-github-actions/setup-vcbuild@master
+      uses: VirtoCommerce/.github/actions/setup-vcbuild@v3.1000.9
 
     - name: Setup Git Credentials
-      uses: VirtoCommerce/vc-github-actions/setup-git-credentials-github@master
+      uses: VirtoCommerce/.github/actions/setup-git-credentials-github@v3.1000.9
       with:
         githubToken: ${{ secrets.REPO_TOKEN }}
 
