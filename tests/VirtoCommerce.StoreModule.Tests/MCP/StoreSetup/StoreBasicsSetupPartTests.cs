@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Moq;
 using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.Platform.Core;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 using Xunit;
 
@@ -139,7 +141,7 @@ public class StoreBasicsSetupPartTests
         };
     }
 
-    private static StoreBasicsSetupPart CreatePart()
+    internal static StoreBasicsSetupPart CreatePart(IStoreService storeService = null)
     {
         var settingsManager = new Mock<ISettingsManager>();
         settingsManager
@@ -151,6 +153,11 @@ public class StoreBasicsSetupPartTests
             .Setup(x => x.GetAllCurrenciesAsync())
             .ReturnsAsync([new Currency { Code = "USD", Name = "US dollar" }, new Currency { Code = "EUR", Name = "Euro" }]);
 
-        return new StoreBasicsSetupPart(settingsManager.Object, currencyService.Object);
+        var countriesService = new Mock<ICountriesService>();
+        countriesService
+            .Setup(x => x.GetCountriesAsync())
+            .ReturnsAsync([new Country { Id = "USA", Name = "United States" }, new Country { Id = "DEU", Name = "Germany" }]);
+
+        return new StoreBasicsSetupPart(settingsManager.Object, currencyService.Object, countriesService.Object, storeService ?? Mock.Of<IStoreService>());
     }
 }

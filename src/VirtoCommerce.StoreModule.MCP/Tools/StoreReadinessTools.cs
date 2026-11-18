@@ -27,6 +27,7 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
     private static readonly string[] _setupRules =
     [
         "A section that is left out changes nothing, and neither does a field that is left out.",
+        "An empty text clears a field.",
         "A list is the complete new list: what it does not name is removed.",
         "A settings map sets the named settings and leaves the others as they are; null returns a setting to its default.",
         "Secrets, such as payment keys, are never sent here: a person enters them in the back office.",

@@ -22,7 +22,7 @@ The Store module provides multi-store management capabilities for the Virto Comm
 * **Scoped security** — Restrict permissions (read, update, delete) to specific stores via `StoreSelectedScope`.
 * **Export/Import** — Full store data export and import with batched JSON serialization.
 * **Change logging** — Automatic change log entries for store modifications via background jobs.
-* **Store setup for AI agents** — With the MCP module installed, an AI assistant checks stores and reads their setup through tools; other modules plug their part of a store's setup into a contract in Store.Core.
+* **Store setup for AI agents** — With the MCP module installed, an AI assistant sets up, checks and opens stores through tools, every change after approval; other modules plug their part of a store's setup into a contract in Store.Core.
 
 ## Configuration
 
@@ -74,7 +74,7 @@ The rewrite of absolute URLs can be restricted to specific source hosts with the
 
 ## Store setup with an AI agent (MCP)
 
-With the [MCP module](https://github.com/VirtoCommerce/vc-module-mcp) installed (an optional dependency), an AI assistant connected to the platform's `/admin/mcp` endpoint checks stores and reads their whole setup. A person sees only the stores their permissions allow, including permissions limited to stores with `StoreSelectedScope`. Secrets, such as payment keys, are never listed: a person enters them in the back office.
+With the [MCP module](https://github.com/VirtoCommerce/vc-module-mcp) installed (an optional dependency), an AI assistant connected to the platform's `/admin/mcp` endpoint sets up, checks and opens stores. A person sees only the stores their permissions allow, including permissions limited to stores with `StoreSelectedScope`. Secrets, such as payment keys, are never listed: a person enters them in the back office.
 
 | Tool | What it does |
 |------|--------------|
@@ -85,6 +85,12 @@ With the [MCP module](https://github.com/VirtoCommerce/vc-module-mcp) installed 
 | `compare_store_settings` | The settings that differ between two stores, or between a store and the defaults. |
 | `get_store_readiness_report` | What a store is missing before it goes live: why each item matters, how to fix it and whether it blocks opening the store. |
 | `get_store_setup_options` | What a store's setup consists of on this installation, and what can be chosen. |
+| `create_configured_store` | Creates a store with its whole setup in one call. The store is created closed. |
+| `apply_store_setup` | Changes one part or several of a store's setup in one call. |
+| `open_store` | Opens a store; refused while something blocks it from going live. |
+| `close_store` | Closes a store. |
+
+Every action waits in Agent approvals until a person with `mcp:approve` approves it. A dry run returns the same preview and changes nothing. A change that spans several modules is not a transaction: when a part fails, the parts before it stay applied, the answer names them, and the same call repeated finishes the setup.
 
 ### The role
 
@@ -94,7 +100,24 @@ A store administrator who works through an AI agent needs these permissions (Sec
 ["store:access", "store:read", "store:create", "store:update", "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read"]
 ```
 
-Limit `store:read` and `store:update` to some stores to let the agent work with those stores only.
+Limit `store:read` and `store:update` to some stores to let the agent work with those stores only. The approver needs `mcp:approve` and the same permissions, because an approved change runs as the approver.
+
+### An example routine: launching a new store
+
+The module ships no routines: each person keeps their own in their assistant, for example as a skill. One to copy and adapt:
+
+```text
+Launch a new store with the Virto Commerce store admin tools.
+1. Read get_store_setup_options. Ask me for the store's id and name, its languages and currencies, and the payment
+   methods, shipping methods and tax provider it uses. Offer only what the options list.
+2. Call create_configured_store with dryRun. Show me the changes and what the store would still miss. If it would
+   not be ready, ask whether to create it anyway and finish it in the back office, or to complete the setup first.
+3. When I confirm, call it again without dryRun. It waits in Agent approvals: tell me so.
+4. After the approval, read get_store_readiness_report. Fix what the tools can fix with apply_store_setup, again
+   with a dry run first. For the rest, give me the back-office links from the report.
+5. When nothing blocks going live, call open_store with dryRun, show me the result, and submit it when I confirm.
+Never ask me for a secret, such as a payment key: I enter it in the back office.
+```
 
 ### A module's part of a store's setup
 

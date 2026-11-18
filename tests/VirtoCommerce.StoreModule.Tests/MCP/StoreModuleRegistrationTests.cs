@@ -32,7 +32,7 @@ public class StoreModuleRegistrationTests
 
         if (mcpInstalled)
         {
-            Assert.Equal(7, tools.Count);
+            Assert.Equal(11, tools.Count);
             Assert.Contains("get_store_readiness_report", tools);
         }
         else

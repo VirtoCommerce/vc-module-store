@@ -11,6 +11,7 @@ public static class StoreMcpServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddTransient<StoreAccess>();
         services.AddTransient<StoreBackOfficeLinks>();
+        services.AddTransient<StoreSetupLeftovers>();
 
         return services;
     }

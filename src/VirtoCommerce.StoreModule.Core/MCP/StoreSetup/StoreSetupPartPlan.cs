@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
@@ -14,4 +15,15 @@ public class StoreSetupPartPlan
 
     // What the approver should know, such as a method being switched off.
     public IList<string> Warnings { get; set; } = [];
+
+    public StoreSetupPartPlan AddChange(string field, object from, object to)
+    {
+        var change = AbstractTypeFactory<StoreSetupChange>.TryCreateInstance();
+        change.Field = field;
+        change.From = from;
+        change.To = to;
+        Changes.Add(change);
+
+        return this;
+    }
 }

@@ -65,6 +65,15 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
             ?? throw new McpException($"Store '{storeId}' was not found. Use list_stores to find the store's id.");
     }
 
+    // A change needs the update permission for the store, as well as read access to it.
+    public virtual async Task<Store> GetUpdatableStoreAsync(ClaimsPrincipal user, string storeId)
+    {
+        var store = await GetReadableStoreAsync(user, storeId);
+        EnsureAllowed(user, StorePermissions.Update, StoreScopeType, store.Id);
+
+        return store;
+    }
+
     // Whether the user may read a part's state on the store: the part's own read permission, limited by its scope type.
     public static bool CanRead(ClaimsPrincipal user, IStoreSetupPart part, string storeId)
     {

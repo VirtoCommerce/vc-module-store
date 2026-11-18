@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using VirtoCommerce.MCP.Testing;
 using Xunit;
@@ -9,13 +10,17 @@ public class StoreToolVisibilityTests
 {
     private static readonly string[] _storeTools =
     [
+        "apply_store_setup",
+        "close_store",
         "compare_store_settings",
+        "create_configured_store",
         "get_store",
         "get_store_overview",
         "get_store_readiness_report",
         "get_store_settings",
         "get_store_setup_options",
         "list_stores",
+        "open_store",
     ];
 
     [Fact]
@@ -40,8 +45,8 @@ public class StoreToolVisibilityTests
         //Act
         var visible = harness.GetVisibleToolNames(StoreAAdministrator());
 
-        //Assert
-        Assert.Equal(_storeTools, visible);
+        //Assert: creating a store needs store:create, which cannot be limited to stores
+        Assert.Equal(_storeTools.Where(x => x != "create_configured_store"), visible);
     }
 
     [Fact]

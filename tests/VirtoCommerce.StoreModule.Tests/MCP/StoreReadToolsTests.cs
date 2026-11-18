@@ -168,12 +168,18 @@ public class StoreReadToolsTests
 
         //Assert
         var parts = result.EnsureSucceeded().Json.GetProperty("parts").EnumerateArray().ToDictionary(x => x.GetProperty("name").GetString());
-        Assert.Equal(["basics", "shipping"], parts.Keys);
+        Assert.Equal(["basics", "settings", "shipping"], parts.Keys);
 
         var basics = parts["basics"];
-        Assert.False(basics.GetProperty("required_for_new_store").GetBoolean());
-        Assert.True(!basics.TryGetProperty("section_schema", out var basicsSchema) || basicsSchema.ValueKind == JsonValueKind.Null);
+        Assert.True(basics.GetProperty("required_for_new_store").GetBoolean());
+        var basicsFields = basics.GetProperty("section_schema").GetProperty("properties");
+        Assert.Equal("Store name. Required for a new store.", basicsFields.GetProperty("name").GetProperty("description").GetString());
+        Assert.True(basicsFields.TryGetProperty("catalog_id", out _));
         Assert.Contains(basics.GetProperty("choices").EnumerateArray(), x => x.GetProperty("field").GetString() == "basics.languages" && x.GetProperty("value").GetString() == "de-DE");
+
+        var settings = parts["settings"];
+        Assert.False(settings.GetProperty("required_for_new_store").GetBoolean());
+        Assert.True(settings.GetProperty("section_schema").GetProperty("properties").TryGetProperty("values", out _));
 
         var shipping = parts["shipping"];
         Assert.True(shipping.GetProperty("required_for_new_store").GetBoolean());

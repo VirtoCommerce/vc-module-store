@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.CoreModule.Core.Currency;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.MCP.Testing;
 using VirtoCommerce.Platform.Core;
@@ -17,6 +17,7 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
+using VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Web;
 
 namespace VirtoCommerce.StoreModule.Tests.MCP;
@@ -40,16 +41,21 @@ public static class StoreToolsTestContext
 
     public static McpToolHarness CreateHarness(params IStoreSetupPart[] extraParts)
     {
-        var stores = CreateStores();
+        return CreateHarness(new StoreToolsTestData(), extraParts);
+    }
 
+    public static McpToolHarness CreateHarness(StoreToolsTestData data, params IStoreSetupPart[] extraParts)
+    {
         return McpToolHarness.Create(
             services =>
             {
                 CreateModule(mcpInstalled: true).Initialize(services);
 
-                // What the platform and the database provide.
-                services.AddSingleton(CreateStoreService(stores));
-                services.AddSingleton<IStoreSearchService>(new InMemoryStoreSearchService(stores));
+                // What the platform, the database and the MCP module provide.
+                services.AddSingleton(TestStoreService.Create(data.Stores).Object);
+                services.AddSingleton<IStoreSearchService>(new InMemoryStoreSearchService(data.Stores));
+                services.AddSingleton(CreatePendingChangeSearchService(data.PendingChanges));
+                services.AddSingleton(CreateCountriesService());
                 services.AddSingleton<IMcpPageSizeResolver, FixedPageSizeResolver>();
                 services.AddSingleton<IMcpPublicOriginResolver, FixedPublicOriginResolver>();
                 services.AddSingleton(CreateSettingsRegistrar());
@@ -93,7 +99,7 @@ public static class StoreToolsTestContext
     }
 
     // Store A is closed and ready to open; store B is open and has no catalog.
-    private static List<Store> CreateStores()
+    public static List<Store> CreateStores()
     {
         return
         [
@@ -131,14 +137,34 @@ public static class StoreToolsTestContext
         ];
     }
 
-    private static IStoreService CreateStoreService(List<Store> stores)
+    // The MCP module's pending changes, the newest first, filtered as its search filters them.
+    private static IMcpPendingChangeSearchService CreatePendingChangeSearchService(List<McpPendingChange> changes)
     {
-        var storeService = new Mock<IStoreService>();
-        storeService
-            .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .ReturnsAsync((IList<string> ids, string _, bool _) => stores.Where(x => ids.Contains(x.Id, StringComparer.OrdinalIgnoreCase)).Select(x => x.CloneTyped()).ToList());
+        var searchService = new Mock<IMcpPendingChangeSearchService>();
+        searchService
+            .Setup(x => x.SearchAsync(It.IsAny<McpPendingChangeSearchCriteria>(), It.IsAny<bool>()))
+            .ReturnsAsync((McpPendingChangeSearchCriteria criteria, bool _) =>
+            {
+                var found = changes
+                    .Where(x => criteria.ToolName == null || x.ToolName == criteria.ToolName)
+                    .Where(x => criteria.Statuses == null || criteria.Statuses.Contains(x.Status))
+                    .OrderByDescending(x => x.CreatedDate)
+                    .ToList();
 
-        return storeService.Object;
+                return new McpPendingChangeSearchResult { TotalCount = found.Count, Results = found.Take(criteria.Take).ToList() };
+            });
+
+        return searchService.Object;
+    }
+
+    private static ICountriesService CreateCountriesService()
+    {
+        var countriesService = new Mock<ICountriesService>();
+        countriesService
+            .Setup(x => x.GetCountriesAsync())
+            .ReturnsAsync([new Country { Id = "USA", Name = "United States" }, new Country { Id = "DEU", Name = "Germany" }]);
+
+        return countriesService.Object;
     }
 
     private static ISettingsRegistrar CreateSettingsRegistrar()

@@ -13,4 +13,12 @@ public interface IStoreSetupService
 
     // What the store is missing, from every part that checks. A part whose check fails gives one blocking finding.
     Task<IList<StoreSetupFinding>> CheckAsync(Store store, string currency = null, string country = null);
+
+    // What the request would change and what the store would miss afterwards. Changes nothing.
+    Task<StoreSetupResult> PlanAsync(StoreSetupRequest request);
+
+    // Plans the request again and applies it. With any error, nothing is applied. Otherwise the parts are applied in
+    // their order until one fails: an apply across modules is not a transaction, and the result says which parts were
+    // applied and which were not.
+    Task<StoreSetupResult> ApplyAsync(StoreSetupRequest request);
 }

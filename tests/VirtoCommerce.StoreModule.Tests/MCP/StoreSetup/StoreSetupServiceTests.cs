@@ -3,7 +3,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
+using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 using Xunit;
 
@@ -77,6 +79,6 @@ public class StoreSetupServiceTests
 
     private static StoreSetupService CreateService(params IStoreSetupPart[] parts)
     {
-        return new StoreSetupService(parts, NullLogger<StoreSetupService>.Instance);
+        return new StoreSetupService(parts, Mock.Of<IStoreService>(), NullLogger<StoreSetupService>.Instance);
     }
 }
