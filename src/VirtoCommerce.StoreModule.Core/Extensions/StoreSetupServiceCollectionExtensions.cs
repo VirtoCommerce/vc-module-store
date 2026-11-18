@@ -1,0 +1,22 @@
+using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
+
+namespace VirtoCommerce.StoreModule.Core.Extensions;
+
+public static class StoreSetupServiceCollectionExtensions
+{
+    // Adds a module's part of a store's setup. A module that is not installed registers nothing, so it has no part.
+    public static IServiceCollection AddStoreSetupPart<TPart>(this IServiceCollection services)
+        where TPart : class, IStoreSetupPart
+    {
+        services.AddTransient<IStoreSetupPart, TPart>();
+        return services;
+    }
+
+    // Adds settings that are secrets whatever their name and type, so a setup never lists, accepts or returns them.
+    public static IServiceCollection AddStoreSetupSecrets(this IServiceCollection services, params string[] settingNames)
+    {
+        services.Configure<StoreSetupSecretOptions>(options => options.SettingNames.UnionWith(settingNames));
+        return services;
+    }
+}

@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtoCommerce.StoreModule.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtoCommerce.StoreModule.Data.PostgreSql", "src\VirtoCommerce.StoreModule.Data.PostgreSql\VirtoCommerce.StoreModule.Data.PostgreSql.csproj", "{F72D7A73-3048-44C3-94A5-63520CD16226}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtoCommerce.StoreModule.MCP", "src\VirtoCommerce.StoreModule.MCP\VirtoCommerce.StoreModule.MCP.csproj", "{2E6C0158-3A6F-4C53-8762-8D2C2E28F070}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{F72D7A73-3048-44C3-94A5-63520CD16226}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F72D7A73-3048-44C3-94A5-63520CD16226}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F72D7A73-3048-44C3-94A5-63520CD16226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E6C0158-3A6F-4C53-8762-8D2C2E28F070}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E6C0158-3A6F-4C53-8762-8D2C2E28F070}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E6C0158-3A6F-4C53-8762-8D2C2E28F070}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E6C0158-3A6F-4C53-8762-8D2C2E28F070}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +73,7 @@ Global
 		{5951F181-BF35-4EFE-B0AF-45F65106AD9A} = {4FD6A475-8E27-4933-A76F-38CD0A10663F}
 		{37EEDE63-01A8-4D89-B82A-D290A36AB685} = {4FD6A475-8E27-4933-A76F-38CD0A10663F}
 		{F72D7A73-3048-44C3-94A5-63520CD16226} = {4FD6A475-8E27-4933-A76F-38CD0A10663F}
+		{2E6C0158-3A6F-4C53-8762-8D2C2E28F070} = {4FD6A475-8E27-4933-A76F-38CD0A10663F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0AFC80D-A997-4A54-89D5-6203DD3CD9AA}

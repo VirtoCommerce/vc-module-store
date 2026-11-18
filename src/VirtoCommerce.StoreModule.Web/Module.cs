@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
@@ -23,6 +24,8 @@ using VirtoCommerce.Platform.Data.PostgreSql.Extensions;
 using VirtoCommerce.Platform.Data.SqlServer.Extensions;
 using VirtoCommerce.StoreModule.Core;
 using VirtoCommerce.StoreModule.Core.Events;
+using VirtoCommerce.StoreModule.Core.Extensions;
+using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Notifications;
 using VirtoCommerce.StoreModule.Core.Security;
@@ -30,20 +33,28 @@ using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.ExportImport;
 using VirtoCommerce.StoreModule.Data.Handlers;
 using VirtoCommerce.StoreModule.Data.Jobs;
+using VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Data.MySql;
 using VirtoCommerce.StoreModule.Data.PostgreSql;
 using VirtoCommerce.StoreModule.Data.Repositories;
 using VirtoCommerce.StoreModule.Data.Services;
 using VirtoCommerce.StoreModule.Data.SqlServer;
+using VirtoCommerce.StoreModule.MCP;
 using VirtoCommerce.StoreModule.Web.Authorization;
 
 using ISeoResolver = VirtoCommerce.Seo.Core.Services.ISeoResolver;
 
 namespace VirtoCommerce.StoreModule.Web
 {
-    public class Module : IModule, IExportSupport, IImportSupport, IHasConfiguration
+    public class Module : IModule, IExportSupport, IImportSupport, IHasConfiguration, IHasModuleService
     {
+        // The MCP module is an optional dependency: when it is installed, it initializes before this module. Its contracts
+        // (VirtoCommerce.MCP.Core and the MCP SDK) are packaged with this module (module.keep), so they load without it.
+        private const string McpModuleId = "VirtoCommerce.MCP";
+
         public ManifestModuleInfo ModuleInfo { get; set; }
+
+        public IModuleService ModuleService { get; set; }
         private IApplicationBuilder _appBuilder;
         public IConfiguration Configuration { get; set; }
 
@@ -92,6 +103,20 @@ namespace VirtoCommerce.StoreModule.Web
 
             serviceCollection.AddOptions<StoreAssetsOptions>().Bind(Configuration.GetSection(StoreAssetsOptions.SectionName));
             serviceCollection.AddSingleton<IStoreAssetPublicUrlResolver, StoreAssetPublicUrlResolver>();
+
+            // A store's setup: Store's own parts here; other modules add theirs with AddStoreSetupPart.
+            serviceCollection.AddTransient<IStoreSetupService, StoreSetupService>();
+            serviceCollection.AddTransient<IStoreSetupSettings, StoreSetupSettings>();
+            serviceCollection.AddStoreSetupSecrets(StoreSetupKnownSecrets.SettingNames);
+            serviceCollection.AddStoreSetupPart<StoreBasicsSetupPart>();
+            serviceCollection.AddStoreSetupPart<StoreSettingsSetupPart>();
+
+            if (ModuleService.IsInstalled(McpModuleId))
+            {
+                // The store admin toolset, in the MCP module's admin scope.
+                serviceCollection.AddStoreMcpServices();
+                serviceCollection.AddMcpCapabilities<McpAssemblyMarker>();
+            }
         }
 
         public void PostInitialize(IApplicationBuilder appBuilder)

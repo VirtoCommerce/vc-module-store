@@ -22,6 +22,7 @@ The Store module provides multi-store management capabilities for the Virto Comm
 * **Scoped security** — Restrict permissions (read, update, delete) to specific stores via `StoreSelectedScope`.
 * **Export/Import** — Full store data export and import with batched JSON serialization.
 * **Change logging** — Automatic change log entries for store modifications via background jobs.
+* **Store setup for AI agents** — With the MCP module installed, an AI assistant checks stores and reads their setup through tools; other modules plug their part of a store's setup into a contract in Store.Core.
 
 ## Configuration
 
@@ -71,6 +72,49 @@ The rewrite of absolute URLs can be restricted to specific source hosts with the
 | `store:update` | Update existing stores. Supports `StoreSelectedScope` to restrict to specific stores. |
 | `store:delete` | Delete stores. Supports `StoreSelectedScope` to restrict to specific stores. |
 
+## Store setup with an AI agent (MCP)
+
+With the [MCP module](https://github.com/VirtoCommerce/vc-module-mcp) installed (an optional dependency), an AI assistant connected to the platform's `/admin/mcp` endpoint checks stores and reads their whole setup. A person sees only the stores their permissions allow, including permissions limited to stores with `StoreSelectedScope`. Secrets, such as payment keys, are never listed: a person enters them in the back office.
+
+| Tool | What it does |
+|------|--------------|
+| `get_store_overview` | Start here: the stores the user manages, how many are open, closed and restricted, and what each one is missing. |
+| `list_stores` | The stores the user manages, with their state, languages, currencies, catalog and storefront URL. |
+| `get_store` | One store's whole setup: its basics, the part of every installed module and a readiness summary. |
+| `get_store_settings` | The store-level settings of every installed module, with their meaning, default and value. |
+| `compare_store_settings` | The settings that differ between two stores, or between a store and the defaults. |
+| `get_store_readiness_report` | What a store is missing before it goes live: why each item matters, how to fix it and whether it blocks opening the store. |
+| `get_store_setup_options` | What a store's setup consists of on this installation, and what can be chosen. |
+
+### The role
+
+A store administrator who works through an AI agent needs these permissions (Security > Roles):
+
+```json
+["store:access", "store:read", "store:create", "store:update", "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read"]
+```
+
+Limit `store:read` and `store:update` to some stores to let the agent work with those stores only.
+
+### A module's part of a store's setup
+
+A store's setup is made of parts. Store owns two: `basics` (its own fields, including the optional links to a catalog and fulfillment centers) and `settings` (the store-level settings of every module). Another module adds its part in its `Initialize`, and Store never references it:
+
+```csharp
+serviceCollection.AddStoreSetupPart<PaymentStoreSetupPart>();
+```
+
+A part implements `IStoreSetupPart` and the duties it covers, any of them:
+
+| Interface | Duty |
+|-----------|------|
+| `IStoreSetupChoices` | What can be chosen on the installation, such as method codes. A choice names the field it fills with its section, such as `basics.catalog_id`. |
+| `IStoreSetupState` | The store's current state for the part, in the shape of its section, without secrets. |
+| `IStoreSetupCheck` | What the store is missing: findings that block going live, warnings and notes. |
+| `IStoreSetupSection` | Applies the part's section of a setup: plans it without side effects, then applies it so that a repeat changes nothing. |
+
+A part names the existing permissions that guard it, and the permission scope that limits them to stores (`StoreSetupPermissions`); the tools check them for every part. A setting typed `SecureString`, or with the word Key, Secret, Password, Token or Credential(s) in its name, is a secret. A module adds its other secrets with `serviceCollection.AddStoreSetupSecrets("MyModule.SigningCode")`.
+
 ## Architecture
 
 ### Key Flow
@@ -97,6 +141,7 @@ The rewrite of absolute URLs can be restricted to specific source hosts with the
 | VirtoCommerce.StoreModule.Data.MySql | DB Provider | EF Core migrations and configuration for MySQL. |
 | VirtoCommerce.StoreModule.Data.PostgreSql | DB Provider | EF Core migrations and configuration for PostgreSQL. |
 | VirtoCommerce.StoreModule.Web | Web | REST API controllers, authorization handler, module initialization, and export/import orchestration. |
+| VirtoCommerce.StoreModule.MCP | MCP | The store admin toolset for AI agents, served by the MCP module (an optional dependency) in its admin scope. |
 | VirtoCommerce.StoreModule.Tests | Tests | Unit tests for the module. |
 
 ### Key Services
@@ -114,6 +159,8 @@ The rewrite of absolute URLs can be restricted to specific source hosts with the
 | `StoreAuthenticationService` | `IStoreAuthenticationService` | Manages per-store authentication schemes, merging stored schemes with globally registered providers. |
 | `StoreAuthenticationSchemeService` | `IStoreAuthenticationSchemeService` | CRUD operations for store authentication scheme entities. |
 | `StoreAuthenticationSchemeSearchService` | `IStoreAuthenticationSchemeSearchService` | Search authentication schemes filtered by store ID. |
+| `StoreSetupService` | `IStoreSetupService` | A store's setup across the parts that modules register: lists the parts and works out what a store is missing. |
+| `StoreSetupSettings` | `IStoreSetupSettings` | Describes settings for a setup (titles, defaults, values), tells secrets apart and converts values sent by a request. |
 
 ### REST API
 

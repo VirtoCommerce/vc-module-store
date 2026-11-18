@@ -11,6 +11,7 @@
     <PackageReference Include="FluentAssertions" Version="[7.2.2, 8.0.0)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageReference Include="Moq" Version="4.21.0" />
+    <PackageReference Include="VirtoCommerce.MCP.Testing" Version="3.1001.0" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.v3.runner.console" Version="3.2.2">
       <PrivateAssets>all</PrivateAssets>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\VirtoCommerce.StoreModule.Core\VirtoCommerce.StoreModule.Core.csproj" />
     <ProjectReference Include="..\..\src\VirtoCommerce.StoreModule.Data\VirtoCommerce.StoreModule.Data.csproj" />
+    <ProjectReference Include="..\..\src\VirtoCommerce.StoreModule.MCP\VirtoCommerce.StoreModule.MCP.csproj" />
     <ProjectReference Include="..\..\src\VirtoCommerce.StoreModule.Web\VirtoCommerce.StoreModule.Web.csproj" />
   </ItemGroup>
 </Project>

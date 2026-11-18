@@ -1,0 +1,214 @@
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
+using VirtoCommerce.MCP.Testing;
+using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
+using VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
+using Xunit;
+using static VirtoCommerce.StoreModule.Tests.MCP.StoreToolsTestContext;
+
+namespace VirtoCommerce.StoreModule.Tests.MCP;
+
+public class StoreReadToolsTests
+{
+    [Fact]
+    public async Task ListStores_UserOfOneStore_SeesOnlyThatStore()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var mine = await CallAsync(harness, StoreAAdministrator(), "list_stores");
+        var all = await CallAsync(harness, StoreAdministrator(), "list_stores");
+
+        //Assert
+        Assert.Equal([StoreA], GetStoreIds(mine.EnsureSucceeded().Json.GetProperty("items")));
+        Assert.Equal([StoreA, StoreB], GetStoreIds(all.EnsureSucceeded().Json.GetProperty("items")));
+    }
+
+    [Fact]
+    public async Task ListStores_UserWhoseStoreScopeNamesNoStore_SeesNoStore()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+        var user = McpTestUser.Create("other-scope").WithScopedPermission("store:read", "OtherScope", "x");
+
+        //Act
+        var stores = await CallAsync(harness, user, "list_stores");
+        var overview = await CallAsync(harness, user, "get_store_overview");
+
+        //Assert
+        Assert.Empty(GetStoreIds(stores.EnsureSucceeded().Json.GetProperty("items")));
+        Assert.Equal(0, overview.EnsureSucceeded().Json.GetProperty("total_count").GetInt32());
+    }
+
+    [Fact]
+    public async Task GetStore_OfAStoreTheUserDoesNotManage_IsForbidden()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var own = await CallAsync(harness, StoreAAdministrator(), "get_store", new { store_id = StoreA });
+        var other = await CallAsync(harness, StoreAAdministrator(), "get_store", new { store_id = StoreB });
+
+        //Assert
+        own.EnsureSucceeded();
+        other.EnsureOutcome(McpToolCallOutcome.Forbidden);
+    }
+
+    [Fact]
+    public async Task GetStore_ShowsAPartsState_OnlyWithThePartsReadPermissionForTheStore()
+    {
+        //Arrange
+        var shipping = new TestStatePart("shipping", new StoreSetupPermissions { Read = "shipping:read", StoreScopeType = "SelectedStoreScope" });
+        await using var harness = CreateHarness(shipping);
+        var withShipping = McpTestUser.Create("a").WithPermissions("store:read").WithScopedPermission("shipping:read", "SelectedStoreScope", StoreA);
+        var withoutShipping = McpTestUser.WithPermissions("b", "store:read");
+
+        //Act
+        var shown = await CallAsync(harness, withShipping, "get_store", new { store_id = StoreA });
+        var hidden = await CallAsync(harness, withoutShipping, "get_store", new { store_id = StoreA });
+
+        //Assert
+        var shownState = shown.EnsureSucceeded().Json.GetProperty("parts").GetProperty("shipping");
+        Assert.Equal("FixedRate", shownState.GetProperty("methods")[0].GetString());
+        var hiddenState = hidden.EnsureSucceeded().Json.GetProperty("parts").GetProperty("shipping");
+        Assert.Equal("Not shown: needs shipping:read.", hiddenState.GetString());
+        Assert.Equal("Store A", hidden.Json.GetProperty("parts").GetProperty("basics").GetProperty("name").GetString());
+    }
+
+    [Fact]
+    public async Task GetStoreReadinessReport_ShowsTheFindingsOfEveryPart_AndWhichPartsWereChecked()
+    {
+        //Arrange
+        var catalog = new TestCheckPart("catalog") { Findings = [TestCheckPart.CreateFinding("catalog-no-products", "catalog", StoreSetupFindingSeverity.Blocking)] };
+        await using var harness = CreateHarness(catalog);
+
+        //Act
+        var report = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA });
+
+        //Assert
+        var json = report.EnsureSucceeded().Json;
+        Assert.False(json.GetProperty("ready_to_open").GetBoolean());
+        Assert.Equal(["basics", "catalog"], json.GetProperty("checked_parts").EnumerateArray().Select(x => x.GetString()));
+        var finding = Assert.Single(json.GetProperty("findings").EnumerateArray());
+        Assert.Equal("catalog-no-products", finding.GetProperty("id").GetString());
+        Assert.Equal("critical", finding.GetProperty("severity").GetString());
+        Assert.True(finding.GetProperty("blocks_go_live").GetBoolean());
+        Assert.Equal("catalog", finding.GetProperty("category").GetString());
+        Assert.Equal("It matters.", finding.GetProperty("why").GetString());
+        Assert.Equal("Fix it. Back office: Stores > Test (https://admin.example.com/#!/workspace/store).", finding.GetProperty("fix").GetString());
+        Assert.Equal("https://admin.example.com/#!/workspace/store", json.GetProperty("back_office").GetString());
+    }
+
+    [Fact]
+    public async Task GetStoreReadinessReport_WithACurrency_ChecksThatCustomersCanPayInIt()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var report = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency = "EUR" });
+
+        //Assert
+        var json = report.EnsureSucceeded().Json;
+        Assert.False(json.GetProperty("ready_to_open").GetBoolean());
+        Assert.Equal("currency-not-in-store", Assert.Single(json.GetProperty("findings").EnumerateArray()).GetProperty("id").GetString());
+
+        var withStoreCurrency = (await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency = "USD" })).EnsureSucceeded().Json;
+        Assert.True(withStoreCurrency.GetProperty("ready_to_open").GetBoolean());
+        Assert.Empty(withStoreCurrency.GetProperty("findings").EnumerateArray());
+    }
+
+    [Fact]
+    public async Task GetStoreSettings_NeverListsASecret()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA });
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        var names = json.GetProperty("settings").GetProperty("items").EnumerateArray().Select(x => x.GetProperty("name").GetString());
+        Assert.Equal([TaxCalculation.Name], names);
+        Assert.DoesNotContain(MapsApiKeyValue, result.Text);
+        Assert.DoesNotContain(MapsApiKey.Name, result.Text);
+        Assert.Contains("back office", json.GetProperty("secrets").GetString());
+    }
+
+    [Fact]
+    public async Task CompareStoreSettings_ListsTheSettingsWhoseValuesDiffer()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreA, other_store_id = StoreB });
+
+        //Assert
+        var difference = Assert.Single(result.EnsureSucceeded().Json.GetProperty("differences").GetProperty("items").EnumerateArray());
+        Assert.Equal(TaxCalculation.Name, difference.GetProperty("name").GetString());
+        Assert.True(difference.GetProperty("value").GetBoolean());
+        Assert.False(difference.GetProperty("other_value").GetBoolean());
+        Assert.DoesNotContain(MapsApiKeyValue, result.Text);
+    }
+
+    [Fact]
+    public async Task GetStoreSetupOptions_ListsTheChoices_AndTheSchemaOfEachSection()
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestSectionPart("shipping"));
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_setup_options");
+
+        //Assert
+        var parts = result.EnsureSucceeded().Json.GetProperty("parts").EnumerateArray().ToDictionary(x => x.GetProperty("name").GetString());
+        Assert.Equal(["basics", "shipping"], parts.Keys);
+
+        var basics = parts["basics"];
+        Assert.False(basics.GetProperty("required_for_new_store").GetBoolean());
+        Assert.True(!basics.TryGetProperty("section_schema", out var basicsSchema) || basicsSchema.ValueKind == JsonValueKind.Null);
+        Assert.Contains(basics.GetProperty("choices").EnumerateArray(), x => x.GetProperty("field").GetString() == "basics.languages" && x.GetProperty("value").GetString() == "de-DE");
+
+        var shipping = parts["shipping"];
+        Assert.True(shipping.GetProperty("required_for_new_store").GetBoolean());
+        var methods = shipping.GetProperty("section_schema").GetProperty("properties").GetProperty("methods");
+        Assert.Equal("Codes of the active methods: the complete list.", methods.GetProperty("description").GetString());
+        Assert.Equal("shipping.methods", shipping.GetProperty("choices")[0].GetProperty("field").GetString());
+    }
+
+    [Fact]
+    public async Task GetStoreOverview_CountsTheStoresByState_AndListsTheClosedOnesFirst()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_overview");
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        Assert.Equal(1, json.GetProperty("stores_by_state").GetProperty("open").GetInt32());
+        Assert.Equal(1, json.GetProperty("stores_by_state").GetProperty("closed").GetInt32());
+        var stores = json.GetProperty("stores").EnumerateArray().ToList();
+        Assert.Equal([StoreA, StoreB], stores.Select(x => x.GetProperty("store_id").GetString()));
+        Assert.True(stores[0].GetProperty("ready_to_open").GetBoolean());
+        Assert.Equal(1, stores[1].GetProperty("warnings").GetInt32());
+        Assert.Equal("No catalog is linked to the store", stores[1].GetProperty("top_finding").GetString());
+    }
+
+    private static Task<McpToolCallResult> CallAsync(McpToolHarness harness, ClaimsPrincipal user, string toolName, object arguments = null)
+    {
+        return harness.CallAsync(user, toolName, arguments, cancellationToken: TestContext.Current.CancellationToken);
+    }
+
+    private static string[] GetStoreIds(JsonElement items)
+    {
+        return items.EnumerateArray().Select(x => x.GetProperty("store_id").GetString()).ToArray();
+    }
+}
