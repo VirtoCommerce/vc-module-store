@@ -50,47 +50,14 @@ public class StoreSettingsSetupPart(
         ArgumentNullException.ThrowIfNull(context);
 
         var plan = AbstractTypeFactory<StoreSettingsSetupPlan>.TryCreateInstance();
-        plan.Part = PartName;
 
-        var store = context.Store;
-        store.Settings = store.Settings?.ToList() ?? [];
-        var descriptors = GetDescriptors();
+        // The planned store carries the new values, so the checks of other parts see them.
+        var changed = setupSettings.PlanSettings(plan, context.Store, GetDescriptors(), ((StoreSettingsSection)section).Values,
+            fieldPrefix: string.Empty, ownerTitle: "The store", listedBy: "get_store_settings");
 
-        foreach (var (name, raw) in ((StoreSettingsSection)section).Values ?? new Dictionary<string, object>())
+        foreach (var (name, value) in changed)
         {
-            var descriptor = descriptors.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
-
-            if (descriptor == null)
-            {
-                plan.Errors.Add($"Store setting '{name}' does not exist. get_store_settings lists the names.");
-                continue;
-            }
-
-            if (!setupSettings.TryConvert(descriptor, raw, out var value, out var error))
-            {
-                plan.Errors.Add(error);
-                continue;
-            }
-
-            var entry = store.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
-            var current = entry?.Value ?? descriptor.DefaultValue;
-
-            // A null saves the default value itself: the platform's settings save skips a null for every setting without
-            // allowed values (SettingsManager keeps only entries that have values), so passing the null on would change
-            // nothing. The store then keeps today's default; following a later default would need the stored value deleted.
-            var target = value ?? descriptor.DefaultValue;
-
-            if (StoreSetupValues.AreEqual(current, target))
-            {
-                continue;
-            }
-
-            plan.AddChange(descriptor.Name, current, target);
-            plan.Values[descriptor.Name] = target;
-
-            // The planned store carries the new value, so the checks of other parts see it.
-            entry ??= AddEntry(store, descriptor);
-            entry.Value = target;
+            plan.Values[name] = value;
         }
 
         return Task.FromResult<StoreSetupPartPlan>(plan);

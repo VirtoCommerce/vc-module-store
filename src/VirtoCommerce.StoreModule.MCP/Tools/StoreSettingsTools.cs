@@ -10,7 +10,9 @@ using VirtoCommerce.MCP.Core.Attributes;
 using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
+using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.MCP.Services;
 using StorePermissions = VirtoCommerce.StoreModule.Core.ModuleConstants.Security.Permissions;
 
@@ -44,7 +46,7 @@ public class StoreSettingsTools(
         var paging = await pageSizeResolver.GetPagingAsync(skip, take);
 
         var settings = (await setupSettings.GetStoreSettingsAsync(store))
-            .Where(x => string.IsNullOrEmpty(module_id) || string.Equals(x.ModuleId, module_id, StringComparison.OrdinalIgnoreCase))
+            .Where(x => string.IsNullOrEmpty(module_id) || x.ModuleId.EqualsIgnoreCase(module_id))
             .Where(x => string.IsNullOrEmpty(keyword) || Contains(x.Name, keyword) || Contains(x.Title, keyword) || Contains(x.Description, keyword))
             .Where(x => !changed_only || x.IsChanged);
 
@@ -74,9 +76,8 @@ public class StoreSettingsTools(
         var paging = await pageSizeResolver.GetPagingAsync(skip, take);
 
         var settings = await setupSettings.GetStoreSettingsAsync(store);
-        var otherSettings = otherStore == null
-            ? null
-            : (await setupSettings.GetStoreSettingsAsync(otherStore)).ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        // The other store has the same settings, so only its values are read.
+        var otherValues = otherStore == null ? null : GetValues(otherStore);
 
         var differences = settings
             .Select(x => new
@@ -85,7 +86,7 @@ public class StoreSettingsTools(
                 title = x.Title,
                 module_id = x.ModuleId,
                 value = x.Value,
-                other_value = otherSettings == null ? x.DefaultValue : otherSettings.GetValueOrDefault(x.Name)?.Value,
+                other_value = otherValues?.GetValueOrDefault(x.Name) ?? x.DefaultValue,
             })
             .Where(x => !StoreSetupValues.AreEqual(x.value, x.other_value));
 
@@ -100,12 +101,17 @@ public class StoreSettingsTools(
 
     private async Task<string> GetSecretsNoteAsync(string storeName)
     {
-        var link = await links.GetStoresLinkAsync();
-        var screen = $"Stores > {storeName} > Settings";
+        var screen = StoreBackOfficeLinks.WithLink($"Stores > {storeName} > Settings", await links.GetStoresLinkAsync());
 
-        return string.IsNullOrEmpty(link)
-            ? $"Secrets are not listed. A person enters them in the back office: {screen}."
-            : $"Secrets are not listed. A person enters them in the back office: {screen} ({link}).";
+        return $"Secrets are not listed. A person enters them in the back office: {screen}.";
+    }
+
+    private static Dictionary<string, object> GetValues(Store store)
+    {
+        return (store.Settings ?? [])
+            .Where(x => !string.IsNullOrEmpty(x.Name))
+            .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool Contains(string text, string keyword)

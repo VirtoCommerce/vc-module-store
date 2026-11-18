@@ -1,4 +1,5 @@
 using ModelContextProtocol;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.MCP.Services;
@@ -12,13 +13,7 @@ public static class StoreStateNames
 
     public static string ToName(StoreState state)
     {
-        return state switch
-        {
-            StoreState.Open => Open,
-            StoreState.Closed => Closed,
-            StoreState.RestrictedAccess => RestrictedAccess,
-            _ => state.ToString(),
-        };
+        return state.ToString().ToSnakeCase();
     }
 
     public static StoreState Parse(string name)

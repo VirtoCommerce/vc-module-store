@@ -3,9 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using VirtoCommerce.CoreModule.Core.Currency;
-using VirtoCommerce.Platform.Core;
-using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
@@ -141,23 +138,18 @@ public class StoreBasicsSetupPartTests
         };
     }
 
+    // The platform's languages and countries as the tool tests have them, and two currencies.
     internal static StoreBasicsSetupPart CreatePart(IStoreService storeService = null)
     {
-        var settingsManager = new Mock<ISettingsManager>();
-        settingsManager
-            .Setup(x => x.GetObjectSettingAsync(PlatformConstants.Settings.General.Languages.Name, null, null))
-            .ReturnsAsync(new ObjectSettingEntry { Name = PlatformConstants.Settings.General.Languages.Name, AllowedValues = ["en-US", "de-DE"] });
-
         var currencyService = new Mock<ICurrencyService>();
         currencyService
             .Setup(x => x.GetAllCurrenciesAsync())
             .ReturnsAsync([new Currency { Code = "USD", Name = "US dollar" }, new Currency { Code = "EUR", Name = "Euro" }]);
 
-        var countriesService = new Mock<ICountriesService>();
-        countriesService
-            .Setup(x => x.GetCountriesAsync())
-            .ReturnsAsync([new Country { Id = "USA", Name = "United States" }, new Country { Id = "DEU", Name = "Germany" }]);
-
-        return new StoreBasicsSetupPart(settingsManager.Object, currencyService.Object, countriesService.Object, storeService ?? Mock.Of<IStoreService>());
+        return new StoreBasicsSetupPart(
+            StoreToolsTestContext.CreateSettingsManager(),
+            currencyService.Object,
+            StoreToolsTestContext.CreateCountriesService(),
+            storeService ?? Mock.Of<IStoreService>());
     }
 }

@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
+using VirtoCommerce.StoreModule.MCP.Services;
 
 namespace VirtoCommerce.StoreModule.MCP.Models;
 
@@ -10,6 +13,17 @@ public class StoreFinding : McpFinding
     public bool BlocksGoLive { get; set; }
 
     public string Why { get; set; }
+
+    // The findings as rows, most severe first.
+    public static IList<StoreFinding> CreateList(IEnumerable<StoreSetupFinding> findings, IEnumerable<IStoreSetupPart> parts, string backOfficeLink)
+    {
+        var sectionParts = parts.OfType<IStoreSetupSection>().Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return findings
+            .Select(x => Create(x, sectionParts.Contains(x.Part), backOfficeLink))
+            .OrderBy(x => McpFindingSeverities.GetRank(x.Severity))
+            .ToList();
+    }
 
     // The fix names the tool when the part takes a section, and the back-office screen with its link when there is one.
     public static StoreFinding Create(StoreSetupFinding finding, bool partTakesSection, string backOfficeLink)
@@ -51,9 +65,7 @@ public class StoreFinding : McpFinding
 
         if (!string.IsNullOrEmpty(finding.Screen))
         {
-            fix.Add(string.IsNullOrEmpty(backOfficeLink)
-                ? $"Back office: {finding.Screen}."
-                : $"Back office: {finding.Screen} ({backOfficeLink}).");
+            fix.Add($"Back office: {StoreBackOfficeLinks.WithLink(finding.Screen, backOfficeLink)}.");
         }
 
         return string.Join(" ", fix);

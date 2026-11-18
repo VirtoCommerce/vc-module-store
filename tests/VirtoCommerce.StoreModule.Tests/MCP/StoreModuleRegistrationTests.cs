@@ -12,9 +12,9 @@ namespace VirtoCommerce.StoreModule.Tests.MCP;
 public class StoreModuleRegistrationTests
 {
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void Initialize_RegistersStoresParts_Always_AndTheToolsOnlyWithTheMcpModule(bool mcpInstalled)
+    [InlineData(true, 11)]
+    [InlineData(false, 0)]
+    public void Initialize_RegistersStoresParts_Always_AndTheToolsOnlyWithTheMcpModule(bool mcpInstalled, int expectedToolCount)
     {
         //Arrange
         var services = new ServiceCollection();
@@ -30,14 +30,7 @@ public class StoreModuleRegistrationTests
         using var provider = services.BuildServiceProvider();
         var tools = provider.GetServices<McpServerTool>().Where(x => x.IsInMcpScope(McpScopes.Admin)).Select(x => x.ProtocolTool.Name).ToList();
 
-        if (mcpInstalled)
-        {
-            Assert.Equal(11, tools.Count);
-            Assert.Contains("get_store_readiness_report", tools);
-        }
-        else
-        {
-            Assert.Empty(tools);
-        }
+        Assert.Equal(expectedToolCount, tools.Count);
+        Assert.Equal(mcpInstalled, tools.Contains("get_store_readiness_report"));
     }
 }

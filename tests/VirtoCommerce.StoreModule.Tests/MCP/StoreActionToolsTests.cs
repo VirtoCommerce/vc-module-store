@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using VirtoCommerce.MCP.Core.Models;
@@ -145,17 +144,17 @@ public class StoreActionToolsTests
         Assert.Contains(GetWarnings(leftByAFailedCreate.EnsureSucceeded()), x => x.Contains("failed change change-1"));
     }
 
+    // Store B is open: it was opened since the failed create. Store A is closed, but a later create of it succeeded.
     [Theory]
-    [InlineData("opened since")]
-    [InlineData("created later by a create that succeeded")]
-    public async Task CreateConfiguredStore_OnAStoreAFailedCreateLeft_IsRefused_WhenTheStoreIsNoLongerALeftover(string since)
+    [InlineData(StoreB, false)]
+    [InlineData(StoreA, true)]
+    public async Task CreateConfiguredStore_OnAStoreAFailedCreateLeft_IsRefused_WhenTheStoreIsNoLongerALeftover(string storeId, bool laterCreateSucceeded)
     {
         //Arrange
         var data = new StoreToolsTestData();
-        var storeId = since == "opened since" ? StoreB : StoreA;
         data.PendingChanges.Add(CreateChange("change-1", storeId, McpPendingChangeStatus.Failed, minutesAgo: 10));
 
-        if (since != "opened since")
+        if (laterCreateSucceeded)
         {
             data.PendingChanges.Add(CreateChange("change-2", storeId, McpPendingChangeStatus.Applied, minutesAgo: 5));
         }
@@ -350,12 +349,5 @@ public class StoreActionToolsTests
     private static List<string> GetWarnings(McpToolCallResult result)
     {
         return result.Json.GetProperty("warnings").EnumerateArray().Select(x => x.GetString()).ToList();
-    }
-
-    private static Task<McpToolCallResult> CallAsync(McpToolHarness harness, ClaimsPrincipal user, string toolName, object arguments, bool approved = false)
-    {
-        var options = approved ? new McpToolCallOptions { AsApprovedChange = true } : null;
-
-        return harness.CallAsync(user, toolName, arguments, options, TestContext.Current.CancellationToken);
     }
 }

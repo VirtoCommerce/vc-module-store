@@ -25,7 +25,7 @@ public partial class StoreSetupSettings(
     private const string Language = "en";
 
     // Compared with the whole words of a setting name: "ApiKey" has the word Key, "Keyword" does not.
-    private static readonly string[] _secretWords = ["Key", "Secret", "Password", "Token", "Credential", "Credentials"];
+    private static readonly HashSet<string> _secretWords = new(StringComparer.OrdinalIgnoreCase) { "Key", "Secret", "Password", "Token", "Credential", "Credentials" };
 
     public virtual bool IsSecret(SettingDescriptor descriptor)
     {
@@ -33,7 +33,7 @@ public partial class StoreSetupSettings(
 
         return descriptor.ValueType == SettingValueType.SecureString
             || secretOptions.Value.SettingNames.Contains(descriptor.Name)
-            || GetNameWords(descriptor.Name).Any(word => _secretWords.Contains(word, StringComparer.OrdinalIgnoreCase));
+            || GetNameWords(descriptor.Name).Any(_secretWords.Contains);
     }
 
     public virtual StoreSetupSetting Describe(SettingDescriptor descriptor, object value)
@@ -62,8 +62,11 @@ public partial class StoreSetupSettings(
             return false;
         }
 
+        // A null returns the setting to its default, which is saved itself: the platform's settings save skips a null for
+        // most settings.
         if (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined })
         {
+            value = descriptor.DefaultValue;
             return true;
         }
 
@@ -112,17 +115,20 @@ public partial class StoreSetupSettings(
 
     protected virtual StoreSetupSetting Describe(SettingDescriptor descriptor, object value, JObject translation)
     {
+        var isSecret = IsSecret(descriptor);
+        var texts = FindNode(translation?["settings"], descriptor.Name.Split('.'), 0);
+
         var setting = AbstractTypeFactory<StoreSetupSetting>.TryCreateInstance();
         setting.Name = descriptor.Name;
-        setting.Title = GetText(translation, descriptor.Name, "title") ?? descriptor.DisplayName ?? descriptor.Name;
-        setting.Description = GetText(translation, descriptor.Name, "description");
+        setting.Title = GetText(texts, "title") ?? descriptor.DisplayName ?? descriptor.Name;
+        setting.Description = GetText(texts, "description");
         setting.ModuleId = descriptor.ModuleId;
         setting.ValueType = descriptor.ValueType.ToString();
         setting.IsRequired = descriptor.IsRequired;
-        setting.IsChangeable = CanChange(descriptor) && !IsSecret(descriptor);
+        setting.IsChangeable = !isSecret && CanChange(descriptor);
 
         // A secret is described without its values, whoever asks.
-        if (!IsSecret(descriptor))
+        if (!isSecret)
         {
             setting.DefaultValue = descriptor.DefaultValue;
             setting.Value = value ?? descriptor.DefaultValue;
@@ -182,9 +188,9 @@ public partial class StoreSetupSettings(
         };
     }
 
-    private static string GetText(JObject translation, string settingName, string key)
+    private static string GetText(JToken texts, string key)
     {
-        var text = FindNode(translation?["settings"], settingName.Split('.'), 0)?[key]?.ToString();
+        var text = texts?[key]?.ToString();
 
         return string.IsNullOrWhiteSpace(text) ? null : text;
     }

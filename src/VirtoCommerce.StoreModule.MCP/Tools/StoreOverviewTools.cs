@@ -27,7 +27,6 @@ namespace VirtoCommerce.StoreModule.MCP.Tools;
 public class StoreOverviewTools(
     StoreAccess access,
     IStoreSetupService setupService,
-    IStoreSetupSettings setupSettings,
     IMcpPageSizeResolver pageSizeResolver,
     ILogger<StoreOverviewTools> logger)
 {
@@ -52,14 +51,15 @@ public class StoreOverviewTools(
         foreach (var store in result.Results)
         {
             var findings = await setupService.CheckAsync(store);
+            var blocking = CountBlocking(findings);
 
             stores.Add(new
             {
                 store_id = store.Id,
                 name = store.Name,
                 state = StoreStateNames.ToName(store.StoreState),
-                ready_to_open = findings.All(x => x.Severity != StoreSetupFindingSeverity.Blocking),
-                blocking = findings.Count(x => x.Severity == StoreSetupFindingSeverity.Blocking),
+                ready_to_open = blocking == 0,
+                blocking,
                 warnings = findings.Count(x => x.Severity == StoreSetupFindingSeverity.Warning),
                 top_finding = findings.OrderBy(x => x.Severity).FirstOrDefault()?.Title,
             });
@@ -113,7 +113,7 @@ public class StoreOverviewTools(
             default_currency = store.DefaultCurrency,
             currencies = store.Currencies,
             catalog_id = store.Catalog,
-            url = string.IsNullOrEmpty(store.SecureUrl) ? store.Url : store.SecureUrl,
+            url = store.SecureUrl.IfNullOrEmpty(store.Url),
         });
     }
 
@@ -136,7 +136,7 @@ public class StoreOverviewTools(
         }
 
         var findings = await setupService.CheckAsync(store);
-        var settings = await setupSettings.GetStoreSettingsAsync(store);
+        var blocking = CountBlocking(findings);
 
         return new
         {
@@ -144,11 +144,12 @@ public class StoreOverviewTools(
             name = store.Name,
             state = StoreStateNames.ToName(store.StoreState),
             parts,
-            changed_settings = settings.Count(x => x.IsChanged),
+            // The settings part's state lists exactly the settings changed from their defaults.
+            changed_settings = parts.Values.OfType<StoreSettingsSection>().FirstOrDefault()?.Values.Count,
             readiness = new
             {
-                ready_to_open = findings.All(x => x.Severity != StoreSetupFindingSeverity.Blocking),
-                blocking = findings.Count(x => x.Severity == StoreSetupFindingSeverity.Blocking),
+                ready_to_open = blocking == 0,
+                blocking,
                 warnings = findings.Count(x => x.Severity == StoreSetupFindingSeverity.Warning),
                 top_findings = findings.OrderBy(x => x.Severity).Take(TopFindingCount).Select(x => x.Title).ToList(),
             },
@@ -174,6 +175,11 @@ public class StoreOverviewTools(
             logger.LogError(ex, "The store setup part {Part} could not read the store {StoreId}", part.Name, store.Id);
             return "Not shown: this part could not be read. Review it in the back office.";
         }
+    }
+
+    private static int CountBlocking(IList<StoreSetupFinding> findings)
+    {
+        return findings.Count(x => x.Severity == StoreSetupFindingSeverity.Blocking);
     }
 
     private async Task<int> CountAsync(ClaimsPrincipal user, StoreState state)

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.CoreModule.Core.Currency;
@@ -19,6 +21,7 @@ using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Web;
+using Xunit;
 
 namespace VirtoCommerce.StoreModule.Tests.MCP;
 
@@ -28,6 +31,7 @@ public static class StoreToolsTestContext
     public const string StoreA = "store-a";
     public const string StoreB = "store-b";
     public const string MapsApiKeyValue = "AIza-maps-secret";
+    public const string PublicOrigin = "https://admin.example.com";
 
     // The role of a store administrator who works through an AI agent, as the README writes it down.
     public static readonly string[] RolePermissions =
@@ -57,7 +61,7 @@ public static class StoreToolsTestContext
                 services.AddSingleton(CreatePendingChangeSearchService(data.PendingChanges));
                 services.AddSingleton(CreateCountriesService());
                 services.AddSingleton<IMcpPageSizeResolver, FixedPageSizeResolver>();
-                services.AddSingleton<IMcpPublicOriginResolver, FixedPublicOriginResolver>();
+                services.AddSingleton<IMcpPublicOriginResolver>(new McpPublicOriginResolver(Options.Create(new McpOptions { PublicOrigin = PublicOrigin })));
                 services.AddSingleton(CreateSettingsRegistrar());
                 services.AddSingleton(CreateTranslationService());
                 services.AddSingleton(CreateSettingsManager());
@@ -70,6 +74,13 @@ public static class StoreToolsTestContext
             },
             configureServices: null,
             scope: null);
+    }
+
+    public static Task<McpToolCallResult> CallAsync(McpToolHarness harness, ClaimsPrincipal user, string toolName, object arguments = null, bool approved = false)
+    {
+        var options = approved ? new McpToolCallOptions { AsApprovedChange = true } : null;
+
+        return harness.CallAsync(user, toolName, arguments, options, TestContext.Current.CancellationToken);
     }
 
     public static Module CreateModule(bool mcpInstalled)
@@ -157,7 +168,7 @@ public static class StoreToolsTestContext
         return searchService.Object;
     }
 
-    private static ICountriesService CreateCountriesService()
+    internal static ICountriesService CreateCountriesService()
     {
         var countriesService = new Mock<ICountriesService>();
         countriesService
@@ -185,7 +196,7 @@ public static class StoreToolsTestContext
         return translationService.Object;
     }
 
-    private static ISettingsManager CreateSettingsManager()
+    internal static ISettingsManager CreateSettingsManager()
     {
         var settingsManager = new Mock<ISettingsManager>();
         settingsManager

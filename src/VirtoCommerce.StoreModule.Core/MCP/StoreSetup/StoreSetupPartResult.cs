@@ -6,8 +6,6 @@ public class StoreSetupPartResult
 {
     public string Part { get; set; }
 
-    public string Title { get; set; }
-
     public StoreSetupPartStatus Status { get; set; }
 
     public IList<StoreSetupChange> Changes { get; set; } = [];

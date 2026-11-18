@@ -7,8 +7,6 @@ public class StoreSetupResult
 {
     public string StoreId { get; set; }
 
-    public bool IsNewStore { get; set; }
-
     // The store as planned, or as saved after applying.
     public Store Store { get; set; }
 
@@ -20,6 +18,4 @@ public class StoreSetupResult
 
     // What the store would miss after the change, for a plan; what it misses now, after applying.
     public IList<StoreSetupFinding> Findings { get; set; } = [];
-
-    public IList<string> CheckedParts { get; set; } = [];
 }

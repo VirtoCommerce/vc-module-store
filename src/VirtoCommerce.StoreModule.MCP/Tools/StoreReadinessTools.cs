@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -47,13 +46,8 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
         var findings = await setupService.CheckAsync(store, currency, country);
         var link = await links.GetStoresLinkAsync();
         var parts = setupService.GetParts();
-        var sectionParts = parts.OfType<IStoreSetupSection>().Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var rows = findings
-            .Select(x => StoreFinding.Create(x, sectionParts.Contains(x.Part), link))
-            .OrderBy(x => McpFindingSeverities.GetRank(x.Severity))
-            .ToList();
-        var readyToOpen = rows.TrueForAll(x => !x.BlocksGoLive);
+        var rows = StoreFinding.CreateList(findings, parts, link);
+        var readyToOpen = rows.All(x => !x.BlocksGoLive);
 
         return new
         {

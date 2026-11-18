@@ -9,7 +9,6 @@ using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 using Xunit;
 
@@ -17,9 +16,9 @@ namespace VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 
 public class StoreSettingsSectionTests
 {
-    private static readonly SettingDescriptor _taxCalculation = new() { Name = "Stores.TaxCalculationEnabled", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.Boolean, DefaultValue = false };
+    private static readonly SettingDescriptor _taxCalculation = StoreToolsTestContext.TaxCalculation;
     private static readonly SettingDescriptor _seoLinks = new() { Name = "Stores.SeoLinksType", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, DefaultValue = "Collapsed", AllowedValues = ["None", "Short", "Collapsed", "Long"] };
-    private static readonly SettingDescriptor _mapsApiKey = new() { Name = "Shipping.Bopis.GoogleMaps.ApiKey", ModuleId = "VirtoCommerce.Shipping", ValueType = SettingValueType.ShortText };
+    private static readonly SettingDescriptor _mapsApiKey = StoreToolsTestContext.MapsApiKey;
 
     [Fact]
     public async Task PlanAsync_RefusesAnUnknownSetting_AndASecret()
@@ -33,7 +32,7 @@ public class StoreSettingsSectionTests
         var plan = await CreatePart([]).PlanAsync(new StoreSetupContext { Store = CreateStore() }, section);
 
         //Assert
-        Assert.Contains(plan.Errors, x => x.Contains("'Stores.NoSuchSetting' does not exist") && x.Contains("get_store_settings"));
+        Assert.Contains("The store has no setting 'Stores.NoSuchSetting'. get_store_settings lists the settings.", plan.Errors);
         Assert.Contains(plan.Errors, x => x.Contains("is a secret") && x.Contains("back office"));
         Assert.DoesNotContain(plan.Errors, x => x.Contains("AIza-maps-secret"));
         Assert.Empty(plan.Changes);

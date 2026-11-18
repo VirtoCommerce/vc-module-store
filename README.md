@@ -140,6 +140,8 @@ A part implements `IStoreSetupPart` and the duties it covers, any of them:
 
 A part names the existing permissions that guard it, and the permission scope that limits them to stores (`StoreSetupPermissions`); the tools check them for every part. A setting typed `SecureString`, or with the word Key, Secret, Password, Token or Credential(s) in its name, is a secret. A module adds its other secrets with `serviceCollection.AddStoreSetupSecrets("MyModule.SigningCode")`.
 
+A part whose objects have settings, such as payment methods, follows Store's rules through `StoreSetupSettingsExtensions`: `DescribeAll` for its choices and `GetValues` for its state, both without secrets, and `PlanSettings` for a settings map in its section. `PlanSettings` refuses an unknown name, a secret and a wrong value, returns a setting to its default for a null, and changes nothing for the value already in effect. `StoreSetupFinding.ForStore` starts a finding about a store, with its back-office screen.
+
 ## Architecture
 
 ### Key Flow

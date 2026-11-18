@@ -52,7 +52,7 @@ public class StoreSetupServicePlanApplyTests
         var stores = new List<Store> { CreateStore() };
         var storeService = TestStoreService.Create(stores);
         var shipping = new TestApplyPart("shipping");
-        var catalog = new TestCheckPart("catalog") { Findings = [TestCheckPart.CreateFinding("catalog-no-products", "catalog", StoreSetupFindingSeverity.Blocking)] };
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", StoreSetupFindingSeverity.Blocking);
         var service = new StoreSetupService([shipping, catalog], storeService.Object, NullLogger<StoreSetupService>.Instance);
 
         //Act

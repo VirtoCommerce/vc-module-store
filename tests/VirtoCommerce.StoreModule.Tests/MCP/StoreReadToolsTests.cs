@@ -1,8 +1,8 @@
 using System.Linq;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using VirtoCommerce.MCP.Testing;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 using Xunit;
@@ -59,6 +59,28 @@ public class StoreReadToolsTests
     }
 
     [Fact]
+    public async Task GetStore_CountsTheSettingsChangedFromTheirDefaults_WithoutSecrets()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Single(x => x.Id == StoreA).Settings =
+        [
+            new ObjectSettingEntry(TaxCalculation) { Value = true },
+            new ObjectSettingEntry(MapsApiKey) { Value = MapsApiKeyValue },
+        ];
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store", new { store_id = StoreA });
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        Assert.Equal(1, json.GetProperty("changed_settings").GetInt32());
+        Assert.True(json.GetProperty("parts").GetProperty("settings").GetProperty("values").GetProperty(TaxCalculation.Name).GetBoolean());
+        Assert.DoesNotContain(MapsApiKeyValue, result.Text);
+    }
+
+    [Fact]
     public async Task GetStore_ShowsAPartsState_OnlyWithThePartsReadPermissionForTheStore()
     {
         //Arrange
@@ -83,7 +105,7 @@ public class StoreReadToolsTests
     public async Task GetStoreReadinessReport_ShowsTheFindingsOfEveryPart_AndWhichPartsWereChecked()
     {
         //Arrange
-        var catalog = new TestCheckPart("catalog") { Findings = [TestCheckPart.CreateFinding("catalog-no-products", "catalog", StoreSetupFindingSeverity.Blocking)] };
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", StoreSetupFindingSeverity.Blocking);
         await using var harness = CreateHarness(catalog);
 
         //Act
@@ -157,6 +179,22 @@ public class StoreReadToolsTests
         Assert.DoesNotContain(MapsApiKeyValue, result.Text);
     }
 
+    // Store B saves the value store A has, so the stores do not differ, although the value is not the default.
+    [Fact]
+    public async Task CompareStoreSettings_ReadsTheOtherStoresValues()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Single(x => x.Id == StoreB).Settings = [new ObjectSettingEntry(TaxCalculation) { Value = true }];
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreA, other_store_id = StoreB });
+
+        //Assert
+        Assert.Empty(result.EnsureSucceeded().Json.GetProperty("differences").GetProperty("items").EnumerateArray());
+    }
+
     [Fact]
     public async Task GetStoreSetupOptions_ListsTheChoices_AndTheSchemaOfEachSection()
     {
@@ -206,11 +244,6 @@ public class StoreReadToolsTests
         Assert.True(stores[0].GetProperty("ready_to_open").GetBoolean());
         Assert.Equal(1, stores[1].GetProperty("warnings").GetInt32());
         Assert.Equal("No catalog is linked to the store", stores[1].GetProperty("top_finding").GetString());
-    }
-
-    private static Task<McpToolCallResult> CallAsync(McpToolHarness harness, ClaimsPrincipal user, string toolName, object arguments = null)
-    {
-        return harness.CallAsync(user, toolName, arguments, cancellationToken: TestContext.Current.CancellationToken);
     }
 
     private static string[] GetStoreIds(JsonElement items)

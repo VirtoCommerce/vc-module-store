@@ -45,7 +45,7 @@ public class StoreSetupTools(
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
     };
 
-    [McpServerTool(Name = "create_configured_store", ReadOnly = false, Destructive = false, Idempotent = true)]
+    [McpServerTool(Name = StoreSetupLeftovers.CreateToolName, ReadOnly = false, Destructive = false, Idempotent = true)]
     [Authorize(StorePermissions.Create)]
     [McpRequiresApproval]
     [Description("Create a store with its whole setup in one call: the basics (required, with the name), the store " +
@@ -87,7 +87,7 @@ public class StoreSetupTools(
             warnings.Add($"Continues the setup of the closed store '{existingStore.Id}' that the failed change {failedChange.Id} left.");
         }
 
-        EnsurePartPermissions(user, sections.Keys, store_id, isNewStore);
+        EnsurePartPermissions(user, sections, store_id, isNewStore);
         warnings.AddRange(await GetSameNameWarningsAsync(sections, store_id));
 
         return await RunAsync("create", store_id, isNewStore, sections, dryRun, warnings);
@@ -109,7 +109,7 @@ public class StoreSetupTools(
     {
         var store = await access.GetUpdatableStoreAsync(context.User, store_id);
         var sections = ReadSections(setup);
-        EnsurePartPermissions(context.User, sections.Keys, store.Id, isNewStore: false);
+        EnsurePartPermissions(context.User, sections, store.Id, isNewStore: false);
 
         return await RunAsync("apply", store.Id, isNewStore: false, sections, dryRun, []);
     }
@@ -185,9 +185,10 @@ public class StoreSetupTools(
     }
 
     // A part checks its own module's permission: to create, the part's Create permission; to change, its Update one.
-    private void EnsurePartPermissions(ClaimsPrincipal user, IEnumerable<string> sectionNames, string storeId, bool isNewStore)
+    // The sections are keyed by part name, whatever its case (ReadSections).
+    private void EnsurePartPermissions(ClaimsPrincipal user, IDictionary<string, object> sections, string storeId, bool isNewStore)
     {
-        foreach (var part in setupService.GetParts().Where(x => sectionNames.Any(name => name.EqualsIgnoreCase(x.Name))))
+        foreach (var part in setupService.GetParts().Where(x => sections.ContainsKey(x.Name)))
         {
             var permission = isNewStore ? part.Permissions?.Create : part.Permissions?.Update;
             StoreAccess.EnsureAllowed(user, permission, part.Permissions?.StoreScopeType, storeId);
@@ -216,11 +217,7 @@ public class StoreSetupTools(
     private async Task<StoreSetupPreview> CreatePreviewAsync(string action, StoreSetupResult result, bool dryRun, IList<string> warnings)
     {
         var link = await links.GetStoresLinkAsync();
-        var sectionParts = setupService.GetParts().OfType<IStoreSetupSection>().Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var findings = result.Findings
-            .Select(x => StoreFinding.Create(x, sectionParts.Contains(x.Part), link))
-            .OrderBy(x => McpFindingSeverities.GetRank(x.Severity))
-            .ToList();
+        var findings = StoreFinding.CreateList(result.Findings, setupService.GetParts(), link);
 
         var preview = new StoreSetupPreview
         {
@@ -229,7 +226,7 @@ public class StoreSetupTools(
             ObjectId = result.StoreId,
             ObjectName = result.Store?.Name,
             DryRun = dryRun,
-            Parts = result.Parts.Select(x => new StoreSetupPartRow { Part = x.Part, Status = GetStatusName(x.Status), Changes = x.Changes.Count }).ToList(),
+            Parts = result.Parts.Select(x => new StoreSetupPartRow { Part = x.Part, Status = x.Status.ToString().ToSnakeCase(), Changes = x.Changes.Count }).ToList(),
             MissingAfter = findings,
             BackOffice = link,
             NextStep = GetNextStep(action, dryRun, findings),
@@ -239,7 +236,7 @@ public class StoreSetupTools(
         {
             foreach (var change in part.Changes)
             {
-                preview.Changes.Add(new McpFieldChange { Field = $"{part.Part}: {change.Field}", From = change.From, To = change.To });
+                preview.AddChange($"{part.Part}: {change.Field}", change.From, change.To);
             }
         }
 
@@ -295,18 +292,6 @@ public class StoreSetupTools(
         return action == "create"
             ? "Applied; the store is closed. When the user is ready, open_store opens it after approval."
             : "Applied. get_store_readiness_report shows what the store still misses.";
-    }
-
-    private static string GetStatusName(StoreSetupPartStatus status)
-    {
-        return status switch
-        {
-            StoreSetupPartStatus.NoChange => "no_change",
-            StoreSetupPartStatus.WillChange => "will_change",
-            StoreSetupPartStatus.Applied => "applied",
-            StoreSetupPartStatus.Failed => "failed",
-            _ => "not_applied",
-        };
     }
 
     private static string GetPartialFailureMessage(StoreSetupResult result)

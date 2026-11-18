@@ -17,11 +17,11 @@ public class StoreSetupSettingsTests
 {
     private const string KnownSecretName = "Contoso.MerchantCode";
 
-    private static readonly SettingDescriptor _taxCalculation = new() { Name = "Stores.TaxCalculationEnabled", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.Boolean, DefaultValue = false };
+    private static readonly SettingDescriptor _taxCalculation = StoreToolsTestContext.TaxCalculation;
     private static readonly SettingDescriptor _states = new() { Name = "Stores.States", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, IsDictionary = true, AllowedValues = ["Pending", "Live"] };
     private static readonly SettingDescriptor _hidden = new() { Name = "Stores.Internal", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, IsHidden = true };
     private static readonly SettingDescriptor _paymentMode = new() { Name = "VirtoCommerce.Payment.Mode", ModuleId = "VirtoCommerce.Payment", ValueType = SettingValueType.ShortText, DefaultValue = "Test", AllowedValues = ["Test", "Live"] };
-    private static readonly SettingDescriptor _apiKey = new() { Name = "Shipping.Bopis.GoogleMaps.ApiKey", ModuleId = "VirtoCommerce.Shipping", ValueType = SettingValueType.ShortText };
+    private static readonly SettingDescriptor _apiKey = StoreToolsTestContext.MapsApiKey;
     private static readonly SettingDescriptor _knownSecret = new() { Name = KnownSecretName, ModuleId = "Contoso", ValueType = SettingValueType.ShortText };
 
     [Theory]
@@ -116,7 +116,7 @@ public class StoreSetupSettingsTests
     [InlineData("Stores.TaxCalculationEnabled", "\"maybe\"", false, null)]
     [InlineData("VirtoCommerce.Payment.Mode", "\"live\"", true, "Live")]
     [InlineData("VirtoCommerce.Payment.Mode", "\"Sandbox\"", false, null)]
-    [InlineData("VirtoCommerce.Payment.Mode", "null", true, null)]
+    [InlineData("VirtoCommerce.Payment.Mode", "null", true, "Test")]
     [InlineData("Shipping.Bopis.GoogleMaps.ApiKey", "\"AIza-maps-secret\"", false, null)]
     [InlineData("Stores.States", "\"Live\"", false, null)]
     public void TryConvert_ConvertsTheValue_OrRefusesIt(string name, string json, bool expected, object expectedValue)

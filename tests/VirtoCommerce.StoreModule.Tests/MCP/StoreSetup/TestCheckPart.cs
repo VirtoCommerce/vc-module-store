@@ -13,7 +13,7 @@ public class TestCheckPart(string name) : IStoreSetupCheck
 
     public string Title => $"Test part {name}";
 
-    public StoreSetupPermissions Permissions { get; init; } = StoreSetupPermissions.ForStore();
+    public StoreSetupPermissions Permissions => StoreSetupPermissions.ForStore();
 
     public IList<StoreSetupFinding> Findings { get; init; } = [];
 
@@ -32,6 +32,13 @@ public class TestCheckPart(string name) : IStoreSetupCheck
         }
 
         return Task.FromResult(Findings);
+    }
+
+    // Adds a finding of this part.
+    public TestCheckPart WithFinding(string id, StoreSetupFindingSeverity severity)
+    {
+        Findings.Add(CreateFinding(id, Name, severity));
+        return this;
     }
 
     public static StoreSetupFinding CreateFinding(string id, string part, StoreSetupFindingSeverity severity)

@@ -33,7 +33,7 @@ public class TestApplyPart(string name) : IStoreSetupSection
     public Task<StoreSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
     {
         var methods = ((TestSection)section).Methods ?? [];
-        var plan = new StoreSetupPartPlan { Part = name };
+        var plan = new StoreSetupPartPlan();
 
         if (PlanError != null)
         {

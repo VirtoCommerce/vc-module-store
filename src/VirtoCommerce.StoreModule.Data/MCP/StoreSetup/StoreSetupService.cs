@@ -20,9 +20,13 @@ public class StoreSetupService(
     // basics. The other parts do not depend on each other, so they follow by name, in an order no module has to choose.
     private static readonly string[] _storePartNames = [StoreBasicsSetupPart.PartName, StoreSettingsSetupPart.PartName];
 
+    // One part per name. A module overrides a part by registering its subclass after the original, and the last
+    // registration of a name wins, as for any service.
     public virtual IList<IStoreSetupPart> GetParts()
     {
         return parts
+            .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(x => x.Last())
             .OrderBy(x => GetStorePartIndex(x.Name))
             .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -42,7 +46,13 @@ public class StoreSetupService(
 
     public virtual async Task<StoreSetupResult> PlanAsync(StoreSetupRequest request)
     {
-        var (result, _) = await PlanRequestAsync(request);
+        var (result, context) = await PlanRequestAsync(request);
+
+        // What the store would miss after the change.
+        if (result.Errors.Count == 0)
+        {
+            result.Findings = await RunChecksAsync(context);
+        }
 
         return result;
     }
@@ -93,14 +103,14 @@ public class StoreSetupService(
         return result;
     }
 
-    // Plans every section the request names, each seeing the plans before it, then checks the store as it would be.
+    // Plans every section the request names, each seeing the plans before it. The readiness checks are not part of it:
+    // they gate nothing, so a plan runs them on the planned store and an apply on the saved one.
     protected virtual async Task<(StoreSetupResult Result, StoreSetupContext Context)> PlanRequestAsync(StoreSetupRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         var result = AbstractTypeFactory<StoreSetupResult>.TryCreateInstance();
         result.StoreId = request.StoreId;
-        result.IsNewStore = request.IsNewStore;
 
         var store = await storeService.GetByIdAsync(request.StoreId);
 
@@ -122,23 +132,16 @@ public class StoreSetupService(
         result.Store = context.Store;
 
         var allParts = GetParts();
-        var sections = request.Sections ?? new Dictionary<string, object>();
+        // Keyed by part name whatever its case, whichever dictionary the caller passed.
+        var sections = new Dictionary<string, object>(request.Sections ?? new Dictionary<string, object>(), StringComparer.OrdinalIgnoreCase);
         AddRequestErrors(result, allParts, sections, request.IsNewStore);
 
         foreach (var part in allParts.OfType<IStoreSetupSection>())
         {
-            var name = sections.Keys.FirstOrDefault(x => x.EqualsIgnoreCase(part.Name));
-
-            if (name != null)
+            if (sections.TryGetValue(part.Name, out var section))
             {
-                await PlanPartAsync(result, context, part, sections[name]);
+                await PlanPartAsync(result, context, part, section);
             }
-        }
-
-        if (result.Errors.Count == 0)
-        {
-            result.Findings = await RunChecksAsync(context);
-            result.CheckedParts = allParts.OfType<IStoreSetupCheck>().Select(x => x.Name).ToList();
         }
 
         return (result, context);
@@ -162,7 +165,7 @@ public class StoreSetupService(
 
         if (isNewStore)
         {
-            foreach (var part in allParts.OfType<IStoreSetupSection>().Where(x => x.IsRequiredForNewStore && !sections.Keys.Any(name => name.EqualsIgnoreCase(x.Name))))
+            foreach (var part in allParts.OfType<IStoreSetupSection>().Where(x => x.IsRequiredForNewStore && !sections.ContainsKey(x.Name)))
             {
                 result.Errors.Add($"A new store needs the '{part.Name}' section.");
             }
@@ -173,7 +176,6 @@ public class StoreSetupService(
     {
         var partResult = AbstractTypeFactory<StoreSetupPartResult>.TryCreateInstance();
         partResult.Part = part.Name;
-        partResult.Title = part.Title;
         result.Parts.Add(partResult);
 
         if (section == null || !part.SectionType.IsInstanceOfType(section))
@@ -247,18 +249,11 @@ public class StoreSetupService(
 
     protected virtual StoreSetupFinding CreateNotCheckedFinding(IStoreSetupPart part, Store store)
     {
-        var finding = AbstractTypeFactory<StoreSetupFinding>.TryCreateInstance();
-        finding.Id = $"{part.Name}-not-checked";
-        finding.Part = part.Name;
-        finding.Severity = StoreSetupFindingSeverity.Blocking;
+        var finding = StoreSetupFinding.ForStore(store, part.Name, $"{part.Name}-not-checked", StoreSetupFindingSeverity.Blocking);
         finding.Title = $"{part.Title} could not be checked";
         finding.Why = "A store goes live only when every part of its setup is checked.";
         finding.Evidence = "The check failed; the platform log has the details.";
         finding.Fix = "Review this part of the store in the back office, or check again later.";
-        finding.Screen = $"Stores > {store.Name ?? store.Id}";
-        finding.ObjectType = nameof(Store);
-        finding.ObjectId = store.Id;
-        finding.ObjectName = store.Name;
 
         return finding;
     }

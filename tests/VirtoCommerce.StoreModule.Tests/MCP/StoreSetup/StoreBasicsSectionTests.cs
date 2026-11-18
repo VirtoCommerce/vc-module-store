@@ -49,39 +49,21 @@ public class StoreBasicsSectionTests
     public async Task PlanAsync_RefusesWhatTheStoreCannotTake(string gap, string expectedError)
     {
         //Arrange
-        var context = CreateNewStoreContext(gap == "store-id" ? "eu store" : "eu-store");
-        var section = new StoreBasicsSection { Name = gap == "name" ? null : "EU store" };
-
-        switch (gap)
+        var (storeId, section) = gap switch
         {
-            case "store-id":
-            case "name":
-                break;
-            case "language":
-                section.Languages = ["xx-XX"];
-                break;
-            case "default-language":
-                section.Languages = ["en-US"];
-                section.DefaultLanguage = "de-DE";
-                break;
-            case "currency":
-                section.Currencies = ["ABC"];
-                break;
-            case "country":
-                section.Country = "Narnia";
-                break;
-            case "url":
-                section.Url = "eu.example.com";
-                break;
-            case "email":
-                section.Email = "shop";
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(gap));
-        }
+            "store-id" => ("eu store", new StoreBasicsSection { Name = "EU store" }),
+            "name" => ("eu-store", new StoreBasicsSection()),
+            "language" => ("eu-store", new StoreBasicsSection { Name = "EU store", Languages = ["xx-XX"] }),
+            "default-language" => ("eu-store", new StoreBasicsSection { Name = "EU store", Languages = ["en-US"], DefaultLanguage = "de-DE" }),
+            "currency" => ("eu-store", new StoreBasicsSection { Name = "EU store", Currencies = ["ABC"] }),
+            "country" => ("eu-store", new StoreBasicsSection { Name = "EU store", Country = "Narnia" }),
+            "url" => ("eu-store", new StoreBasicsSection { Name = "EU store", Url = "eu.example.com" }),
+            "email" => ("eu-store", new StoreBasicsSection { Name = "EU store", Email = "shop" }),
+            _ => throw new ArgumentOutOfRangeException(nameof(gap)),
+        };
 
         //Act
-        var plan = await StoreBasicsSetupPartTests.CreatePart().PlanAsync(context, section);
+        var plan = await StoreBasicsSetupPartTests.CreatePart().PlanAsync(CreateNewStoreContext(storeId), section);
 
         //Assert
         Assert.Contains(plan.Errors, x => x.Contains(expectedError));

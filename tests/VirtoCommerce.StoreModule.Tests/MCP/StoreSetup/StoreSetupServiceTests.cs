@@ -26,12 +26,30 @@ public class StoreSetupServiceTests
         Assert.Equal(["basics", "settings", "audit", "tax"], names);
     }
 
+    // A module overrides a part by registering its subclass after the original: the last part of a name is the part.
+    [Fact]
+    public async Task GetParts_KeepsTheLastPartOfAName_WhateverItsCase()
+    {
+        //Arrange
+        var original = new TestCheckPart("payment").WithFinding("payment-original", StoreSetupFindingSeverity.Warning);
+        var replacement = new TestCheckPart("Payment").WithFinding("payment-replacement", StoreSetupFindingSeverity.Warning);
+        var service = CreateService(original, replacement);
+
+        //Act
+        var parts = service.GetParts();
+        var findings = await service.CheckAsync(TestCheckPart.CreateStore());
+
+        //Assert
+        Assert.Same(replacement, Assert.Single(parts));
+        Assert.Equal(["payment-replacement"], findings.Select(x => x.Id));
+    }
+
     [Fact]
     public async Task CheckAsync_CollectsTheFindingsOfEveryPartThatChecks()
     {
         //Arrange
-        var basics = new TestCheckPart("basics") { Findings = [TestCheckPart.CreateFinding("basics-no-catalog", "basics", StoreSetupFindingSeverity.Warning)] };
-        var catalog = new TestCheckPart("catalog") { Findings = [TestCheckPart.CreateFinding("catalog-empty", "catalog", StoreSetupFindingSeverity.Blocking)] };
+        var basics = new TestCheckPart("basics").WithFinding("basics-no-catalog", StoreSetupFindingSeverity.Warning);
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-empty", StoreSetupFindingSeverity.Blocking);
 
         //Act
         var findings = await CreateService(basics, catalog).CheckAsync(TestCheckPart.CreateStore(), "EUR", "DEU");
@@ -48,7 +66,7 @@ public class StoreSetupServiceTests
     {
         //Arrange
         var failing = new TestCheckPart("payment") { Error = new InvalidOperationException("Gateway: invalid key sk_live_123 at Stripe.Charge()") };
-        var working = new TestCheckPart("shipping") { Findings = [TestCheckPart.CreateFinding("shipping-no-active-method", "shipping", StoreSetupFindingSeverity.Blocking)] };
+        var working = new TestCheckPart("shipping").WithFinding("shipping-no-active-method", StoreSetupFindingSeverity.Blocking);
 
         //Act
         var findings = await CreateService(failing, working).CheckAsync(TestCheckPart.CreateStore());

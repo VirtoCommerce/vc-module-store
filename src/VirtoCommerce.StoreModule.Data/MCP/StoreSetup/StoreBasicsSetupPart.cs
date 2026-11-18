@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net.Mail;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.Platform.Core;
@@ -12,11 +10,12 @@ using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
+using VirtoCommerce.StoreModule.Data.Services.Validation;
 
 namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 
 // Store's own fields: the name, languages, currencies, addresses and the links to a catalog and fulfillment centers.
-public partial class StoreBasicsSetupPart(
+public class StoreBasicsSetupPart(
     ISettingsManager settingsManager,
     ICurrencyService currencyService,
     ICountriesService countriesService,
@@ -87,7 +86,7 @@ public partial class StoreBasicsSetupPart(
         var currencies = store.Currencies ?? [];
         var findings = new List<StoreSetupFinding>();
 
-        if (languages.Count == 0 || !languages.Contains(store.DefaultLanguage, StringComparer.OrdinalIgnoreCase))
+        if (languages.Count == 0 || !languages.ContainsIgnoreCase(store.DefaultLanguage))
         {
             findings.Add(CreateFinding(store, "basics-no-language", StoreSetupFindingSeverity.Blocking,
                 "The store has no language, or its default language is not one of its languages",
@@ -96,7 +95,7 @@ public partial class StoreBasicsSetupPart(
                 "Add the store's languages and choose the default among them."));
         }
 
-        if (currencies.Count == 0 || !currencies.Contains(store.DefaultCurrency, StringComparer.OrdinalIgnoreCase))
+        if (currencies.Count == 0 || !currencies.ContainsIgnoreCase(store.DefaultCurrency))
         {
             findings.Add(CreateFinding(store, "basics-no-currency", StoreSetupFindingSeverity.Blocking,
                 "The store has no currency, or its default currency is not one of its currencies",
@@ -105,7 +104,7 @@ public partial class StoreBasicsSetupPart(
                 "Add the store's currencies and choose the default among them."));
         }
 
-        if (!string.IsNullOrEmpty(context.Currency) && !currencies.Contains(context.Currency, StringComparer.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(context.Currency) && !currencies.ContainsIgnoreCase(context.Currency))
         {
             findings.Add(CreateFinding(store, "currency-not-in-store", StoreSetupFindingSeverity.Blocking,
                 $"{context.Currency} is not one of the store's currencies",
@@ -151,23 +150,19 @@ public partial class StoreBasicsSetupPart(
 
         var basics = (StoreBasicsSection)section;
         var plan = AbstractTypeFactory<StoreBasicsSetupPlan>.TryCreateInstance();
-        plan.Part = PartName;
         plan.Section = basics;
 
-        if (context.IsNewStore)
+        if (context.IsNewStore && string.IsNullOrWhiteSpace(basics.Name))
         {
-            if (string.IsNullOrEmpty(context.Store.Id) || !StoreIdRegex().IsMatch(context.Store.Id))
-            {
-                plan.Errors.Add("The store id may hold letters, digits, '_' and '-' only.");
-            }
-
-            if (string.IsNullOrWhiteSpace(basics.Name))
-            {
-                plan.Errors.Add("A new store needs a name.");
-            }
+            plan.Errors.Add("A new store needs a name.");
         }
 
         ApplySection(plan, context.Store, basics);
+
+        if (context.IsNewStore)
+        {
+            AddValidationErrors(plan, context.Store);
+        }
         await ValidateAsync(plan, context.Store, basics);
 
         return plan;
@@ -256,10 +251,23 @@ public partial class StoreBasicsSetupPart(
 
         foreach (var (field, email) in new[] { ("email", section.Email), ("admin_email", section.AdminEmail) }.Where(x => !string.IsNullOrWhiteSpace(x.Item2)))
         {
-            if (!MailAddress.TryCreate(email.Trim(), out _))
+            if (!email.Trim().IsValidEmail())
             {
                 plan.Errors.Add($"The {field} '{email}' is not an email address.");
             }
+        }
+    }
+
+    // A new store must pass the checks StoreService runs when it saves a store, here before anything is saved.
+    protected virtual void AddValidationErrors(StoreSetupPartPlan plan, Store store)
+    {
+        var errors = new StoreValidator().Validate(store).Errors
+            .Select(x => x.PropertyName == nameof(Store.Id) ? "The store id may hold letters, digits, '_' and '-' only." : x.ErrorMessage)
+            .Distinct();
+
+        foreach (var error in errors)
+        {
+            plan.Errors.Add(error);
         }
     }
 
@@ -270,7 +278,7 @@ public partial class StoreBasicsSetupPart(
         return (languages?.AllowedValues ?? [])
             .Select(x => x?.ToString())
             .Where(x => !string.IsNullOrEmpty(x))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .DistinctIgnoreCase()
             .ToList();
     }
 
@@ -286,18 +294,11 @@ public partial class StoreBasicsSetupPart(
 
     protected virtual StoreSetupFinding CreateFinding(Store store, string id, StoreSetupFindingSeverity severity, string title, string why, string evidence, string fix)
     {
-        var finding = AbstractTypeFactory<StoreSetupFinding>.TryCreateInstance();
-        finding.Id = id;
-        finding.Part = PartName;
-        finding.Severity = severity;
+        var finding = StoreSetupFinding.ForStore(store, PartName, id, severity);
         finding.Title = title;
         finding.Why = why;
         finding.Evidence = evidence;
         finding.Fix = fix;
-        finding.Screen = $"Stores > {store.Name ?? store.Id}";
-        finding.ObjectType = nameof(Store);
-        finding.ObjectId = store.Id;
-        finding.ObjectName = store.Name;
 
         return finding;
     }
@@ -316,7 +317,7 @@ public partial class StoreBasicsSetupPart(
             return;
         }
 
-        var newValue = value.Length == 0 ? null : value;
+        var newValue = value.EmptyToNull();
         plan.AddChange(field, current, newValue);
         set(newValue);
     }
@@ -332,17 +333,17 @@ public partial class StoreBasicsSetupPart(
         var values = requested
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .DistinctIgnoreCase()
             .ToList();
 
-        if (values.Count == currentValues.Count && values.TrueForAll(x => currentValues.Contains(x, StringComparer.OrdinalIgnoreCase)))
+        if (values.Count == currentValues.Count && values.TrueForAll(x => currentValues.ContainsIgnoreCase(x)))
         {
             return;
         }
 
         plan.AddChange(field, currentValues, values);
 
-        var removed = currentValues.Where(x => !values.Contains(x, StringComparer.OrdinalIgnoreCase)).ToList();
+        var removed = currentValues.Where(x => !values.ContainsIgnoreCase(x)).ToList();
 
         if (removed.Count > 0)
         {
@@ -354,7 +355,7 @@ public partial class StoreBasicsSetupPart(
 
     private static void AddUnknownValueErrors(StoreSetupPartPlan plan, string kind, IList<string> requested, IList<string> known, string knownName)
     {
-        foreach (var value in (requested ?? []).Where(x => !string.IsNullOrWhiteSpace(x) && !known.Contains(x.Trim(), StringComparer.OrdinalIgnoreCase)))
+        foreach (var value in (requested ?? []).Where(x => !string.IsNullOrWhiteSpace(x) && !known.ContainsIgnoreCase(x.Trim())))
         {
             plan.Errors.Add($"{kind} '{value}' is not one of {knownName}: {Join(known)}.");
         }
@@ -362,7 +363,7 @@ public partial class StoreBasicsSetupPart(
 
     private static void AddDefaultError(StoreSetupPartPlan plan, string kind, string kinds, string defaultValue, ICollection<string> values)
     {
-        if (!string.IsNullOrEmpty(defaultValue) && !(values ?? []).Contains(defaultValue, StringComparer.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(defaultValue) && !(values ?? []).ContainsIgnoreCase(defaultValue))
         {
             plan.Errors.Add($"The default {kind} '{defaultValue}' is not one of the store's {kinds}. Send the default and the list together.");
         }
@@ -384,7 +385,4 @@ public partial class StoreBasicsSetupPart(
     {
         return values.Count == 0 ? "none" : string.Join(", ", values);
     }
-
-    [GeneratedRegex("^[a-zA-Z0-9_-]+$")]
-    private static partial Regex StoreIdRegex();
 }

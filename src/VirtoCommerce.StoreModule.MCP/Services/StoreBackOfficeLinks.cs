@@ -12,6 +12,12 @@ public class StoreBackOfficeLinks(IHttpContextAccessor httpContextAccessor)
     // The route of the Stores screen. It takes no store id, so the link opens the list of stores.
     public const string StoresRoute = "/#!/workspace/store";
 
+    // A screen with its link in brackets, or the screen alone when there is no link.
+    public static string WithLink(string screen, string link)
+    {
+        return string.IsNullOrEmpty(link) ? screen : $"{screen} ({link})";
+    }
+
     // The link to the Stores screen, or null outside an MCP request.
     public virtual async Task<string> GetStoresLinkAsync()
     {
