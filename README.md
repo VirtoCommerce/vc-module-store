@@ -100,6 +100,8 @@ A store administrator who works through an AI agent needs these permissions (Sec
 ["store:access", "store:read", "store:create", "store:update", "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read"]
 ```
 
+`store:read`, `store:create` and `store:update` open the tools above; the `shipping` and `tax` ones open those parts of a store's setup; `platform:setting:read` opens the MCP module's `search_settings` and `explain_setting`, which explain the settings of the whole platform; `store:access` and `mcp:audit:read` open the **Stores** screen the answers link to and the **Agent audit log**.
+
 Limit `store:read` and `store:update` to some stores to let the agent work with those stores only. The approver needs `mcp:approve` and the same permissions, because an approved change runs as the approver.
 
 ### An example routine: launching a new store
