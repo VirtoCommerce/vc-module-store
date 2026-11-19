@@ -99,7 +99,7 @@ public class StoreBasicsSectionTests
     public async Task ApplyAsync_ExistingStore_AppliesTheSectionToTheSavedStore()
     {
         //Arrange
-        var stores = new List<Store> { new() { Id = "eu-store", Name = "EU store", Email = "old@example.com", Description = "Before" } };
+        var stores = new List<Store> { new() { Id = "eu-store", Name = "EU store", Catalog = "eu-catalog", Email = "old@example.com", Description = "Before" } };
         var part = StoreBasicsSetupPartTests.CreatePart(TestStoreService.Create(stores).Object);
         var context = new StoreSetupContext { Store = stores[0].CloneTyped() };
         var plan = await part.PlanAsync(context, new StoreBasicsSection { Email = "shop@example.com" });
@@ -136,12 +136,13 @@ public class StoreBasicsSectionTests
         Assert.Empty(saved.Settings);
     }
 
+    // A new store with the catalog id the Catalog module's part plans before the basics are saved.
     private static StoreSetupContext CreateNewStoreContext(string storeId)
     {
         return new StoreSetupContext
         {
             IsNewStore = true,
-            Store = new Store { Id = storeId, StoreState = StoreState.Closed, Languages = [], Currencies = [], Settings = [] },
+            Store = new Store { Id = storeId, Catalog = "eu-catalog", StoreState = StoreState.Closed, Languages = [], Currencies = [], Settings = [] },
         };
     }
 }

@@ -182,8 +182,10 @@ public class StoreReadToolsTests
         Assert.Equal("https://admin.example.com/#!/workspace/store", json.GetProperty("back_office").GetString());
     }
 
+    // A currency the store lacks keeps its customers from paying in it, but not the store from opening: ready_to_open is
+    // open_store's answer, and can_check_out is the currency's.
     [Fact]
-    public async Task GetStoreReadinessReport_WithACurrency_ChecksThatCustomersCanPayInIt()
+    public async Task GetStoreReadinessReport_WithACurrency_SaysWhetherCustomersCanPayInIt_ApartFromGoingLive()
     {
         //Arrange
         await using var harness = CreateHarness();
@@ -193,12 +195,17 @@ public class StoreReadToolsTests
 
         //Assert
         var json = report.EnsureSucceeded().Json;
-        Assert.False(json.GetProperty("ready_to_open").GetBoolean());
+        Assert.True(json.GetProperty("ready_to_open").GetBoolean());
+        Assert.False(json.GetProperty("can_check_out").GetBoolean());
         Assert.Equal("currency-not-in-store", Assert.Single(json.GetProperty("findings").EnumerateArray()).GetProperty("id").GetString());
 
         var withStoreCurrency = (await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency = "USD" })).EnsureSucceeded().Json;
         Assert.True(withStoreCurrency.GetProperty("ready_to_open").GetBoolean());
+        Assert.True(withStoreCurrency.GetProperty("can_check_out").GetBoolean());
         Assert.Empty(withStoreCurrency.GetProperty("findings").EnumerateArray());
+
+        var withoutCurrency = (await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA })).EnsureSucceeded().Json;
+        Assert.False(withoutCurrency.TryGetProperty("can_check_out", out _));
     }
 
     [Fact]
@@ -534,6 +541,100 @@ public class StoreReadToolsTests
         Assert.Equal("Stores > Test", finding.GetProperty("screen").GetString());
     }
 
+    [Fact]
+    public async Task ListStores_FiltersByState_AndPagesWithNextSkip()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var open = (await CallAsync(harness, StoreAdministrator(), "list_stores", new { state = "open" })).EnsureSucceeded().Json;
+        var first = (await CallAsync(harness, StoreAdministrator(), "list_stores", new { take = 1 })).EnsureSucceeded().Json;
+        var second = (await CallAsync(harness, StoreAdministrator(), "list_stores", new { skip = first.GetProperty("next_skip").GetInt32(), take = 1 })).EnsureSucceeded().Json;
+
+        //Assert
+        Assert.Equal([StoreB], GetStoreIds(open.GetProperty("items")));
+        Assert.Equal([StoreA], GetStoreIds(first.GetProperty("items")));
+        Assert.True(first.GetProperty("has_more").GetBoolean());
+        Assert.Equal(2, first.GetProperty("total_count").GetInt32());
+        Assert.Equal([StoreB], GetStoreIds(second.GetProperty("items")));
+        Assert.False(second.GetProperty("has_more").GetBoolean());
+        Assert.False(second.TryGetProperty("next_skip", out _));
+    }
+
+    // Store B keeps every default, store A changed one setting.
+    [Fact]
+    public async Task GetStoreSettings_ChangedOnly_ListsOnlyTheSettingsChangedFromTheirDefaults()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var storeA = (await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, changed_only = true })).EnsureSucceeded().Json;
+        var storeB = (await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreB, changed_only = true })).EnsureSucceeded().Json;
+        var storeBAll = (await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreB })).EnsureSucceeded().Json;
+
+        //Assert
+        Assert.Equal([TaxCalculation.Name], GetSettingNames(storeA));
+        Assert.Empty(GetSettingNames(storeB));
+        Assert.Equal([TaxCalculation.Name], GetSettingNames(storeBAll));
+    }
+
+    // Shipping's only store setting is a secret: the module is real, so the answer is an empty page with the note on
+    // secrets, not "a wrong id".
+    [Fact]
+    public async Task GetStoreSettings_AModuleWhoseStoreSettingsAreAllSecrets_IsAnEmptyPage_WithTheNoteOnSecrets()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, module_id = MapsApiKey.ModuleId });
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        Assert.Empty(GetSettingNames(json));
+        Assert.StartsWith("Secrets are not listed.", json.GetProperty("secrets").GetString());
+    }
+
+    [Fact]
+    public async Task CompareStoreSettings_WithoutAnotherStore_ComparesWithTheDefaults()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreA });
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        Assert.Equal("defaults", json.GetProperty("compared_with").GetString());
+        var difference = Assert.Single(json.GetProperty("differences").GetProperty("items").EnumerateArray());
+        Assert.Equal(TaxCalculation.Name, difference.GetProperty("name").GetString());
+        Assert.True(difference.GetProperty("value").GetBoolean());
+        Assert.False(difference.GetProperty("other_value").GetBoolean());
+    }
+
+    // A part that cannot list its options is named with a reason, never with the exception's text, and the others are
+    // still listed.
+    [Fact]
+    public async Task GetStoreSetupOptions_APartThatCannotListItsOptions_IsNamedUnavailable_AndTheOthersAreListed()
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestFailingChoicesPart());
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_setup_options");
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        var parts = json.GetProperty("parts").EnumerateArray().ToList();
+        var broken = Assert.Single(parts, x => x.GetProperty("name").GetString() == "broken");
+        Assert.StartsWith("Broken part could not list its options", broken.GetProperty("unavailable").GetString());
+        Assert.Contains(parts, x => x.GetProperty("name").GetString() == "basics");
+        Assert.DoesNotContain(TestFailingChoicesPart.ExceptionText, json.GetRawText());
+    }
+
     private static string[] GetStoreIds(JsonElement items)
     {
         return items.EnumerateArray().Select(x => x.GetProperty("store_id").GetString()).ToArray();
@@ -541,6 +642,11 @@ public class StoreReadToolsTests
 
     private static string[] GetSettingNames(McpToolCallResult result)
     {
-        return result.EnsureSucceeded().Json.GetProperty("settings").GetProperty("items").EnumerateArray().Select(x => x.GetProperty("name").GetString()).ToArray();
+        return GetSettingNames(result.EnsureSucceeded().Json);
+    }
+
+    private static string[] GetSettingNames(JsonElement json)
+    {
+        return json.GetProperty("settings").GetProperty("items").EnumerateArray().Select(x => x.GetProperty("name").GetString()).ToArray();
     }
 }

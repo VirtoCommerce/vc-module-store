@@ -12,6 +12,7 @@ using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.MCP.Services;
@@ -26,6 +27,7 @@ namespace VirtoCommerce.StoreModule.MCP.Tools;
 public class StoreSettingsTools(
     StoreAccess access,
     IStoreSetupSettings setupSettings,
+    ISettingsRegistrar settingsRegistrar,
     IMcpPageSizeResolver pageSizeResolver,
     StoreBackOfficeLinks links)
 {
@@ -51,8 +53,9 @@ public class StoreSettingsTools(
         {
             settings = settings.Where(x => x.ModuleId.EqualsIgnoreCase(module_id.Trim())).ToList();
 
-            // A wrong module id would otherwise read as a module without store settings.
-            if (settings.Count == 0)
+            // A wrong module id would otherwise read as a module without store settings. A module whose store settings are
+            // all secrets or hidden gets an empty page, with the note on secrets.
+            if (settings.Count == 0 && !HasStoreSettings(module_id))
             {
                 throw new McpException($"Module '{module_id}' has no store settings here. Module ids look like VirtoCommerce.Store; " +
                     "get_store_settings without module_id lists the store settings of every module.");
@@ -90,8 +93,12 @@ public class StoreSettingsTools(
         var paging = await pageSizeResolver.GetPagingAsync(skip, take);
 
         var settings = await setupSettings.GetStoreSettingsAsync(store);
-        // The other store has the same settings, so only its values are read.
-        var otherValues = otherStore == null ? null : GetValues(otherStore);
+        // The other store's values in effect, read as the first store's are.
+        var otherValues = otherStore == null
+            ? null
+            : (await setupSettings.GetStoreSettingsAsync(otherStore))
+                .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
         var differences = settings
             .Select(x => new
@@ -120,12 +127,10 @@ public class StoreSettingsTools(
         return $"Secrets are not listed. A person enters them in the back office: {screen}.";
     }
 
-    private static Dictionary<string, object> GetValues(Store store)
+    // Whether the module registers store-level settings, secret and hidden ones included.
+    private bool HasStoreSettings(string moduleId)
     {
-        return (store.Settings ?? [])
-            .Where(x => !string.IsNullOrEmpty(x.Name))
-            .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
+        return (settingsRegistrar.GetSettingsForType(nameof(Store)) ?? []).Any(x => x.ModuleId.EqualsIgnoreCase(moduleId.Trim()));
     }
 
     private static bool HasWord(McpSetupSetting setting, string word)

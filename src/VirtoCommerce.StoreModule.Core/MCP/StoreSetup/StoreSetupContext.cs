@@ -7,7 +7,8 @@ namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
 public class StoreSetupContext
 {
-    // A copy of the store as it will be after the sections planned so far, never a cached instance.
+    // A copy of the store as it will be after the sections planned so far, never a cached instance: its lists of codes and
+    // ids are copies too, so a part may change them in place.
     public Store Store { get; set; }
 
     public bool IsNewStore { get; set; }

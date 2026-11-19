@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
@@ -77,11 +78,32 @@ public class StoreSettingsSectionTests
         Assert.Equal("Long", saved.Settings.Single(x => x.Name == _seoLinks.Name).Value);
     }
 
+    // The platform's save skips a null, so a reset saves the default itself, and the store then has the default.
+    [Fact]
+    public async Task ApplyAsync_ANullSavesTheDefault_WhichTheSaveKeeps()
+    {
+        //Arrange
+        var stores = new List<Store> { CreateStore() };
+        var part = CreatePart(stores);
+        var context = new StoreSetupContext { Store = CreateStore() };
+        var section = new StoreSettingsSection();
+        section.Values[_taxCalculation.Name] = null;
+        var plan = await part.PlanAsync(context, section);
+
+        //Act
+        await part.ApplyAsync(context, plan);
+
+        //Assert
+        Assert.Equal(false, Assert.Single(stores).Settings.Single(x => x.Name == _taxCalculation.Name).Value);
+    }
+
     private static Store CreateStore()
     {
         return new Store
         {
             Id = "eu-store",
+            Name = "EU store",
+            Catalog = "eu-catalog",
             Settings =
             [
                 new ObjectSettingEntry(_taxCalculation) { Value = true },
@@ -103,7 +125,7 @@ public class StoreSettingsSectionTests
         var translationService = new Mock<ITranslationService>();
         translationService.Setup(x => x.GetTranslationDataForLanguage("en")).Returns(new JObject());
 
-        var setupSettings = new StoreSetupSettings(registrar.Object, translationService.Object, Options.Create(new McpSecretSettingsOptions()));
+        var setupSettings = new StoreSetupSettings(registrar.Object, new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())), new McpSettingTexts(translationService.Object));
 
         return new StoreSettingsSetupPart(setupSettings, registrar.Object, TestStoreService.Create(stores).Object);
     }

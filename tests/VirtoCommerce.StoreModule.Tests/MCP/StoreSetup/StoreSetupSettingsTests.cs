@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -185,6 +186,6 @@ public class StoreSetupSettingsTests
         var secretOptions = new McpSecretSettingsOptions();
         secretOptions.SettingNames.Add(KnownSecretName);
 
-        return new StoreSetupSettings(registrar.Object, translationService.Object, Options.Create(secretOptions));
+        return new StoreSetupSettings(registrar.Object, new McpSecretSettings(Options.Create(secretOptions)), new McpSettingTexts(translationService.Object));
     }
 }

@@ -18,7 +18,7 @@ namespace VirtoCommerce.StoreModule.MCP.Services;
 
 // The stores a user may work with. A permission limited to stores (StoreSelectedScope) is enforced here, inside the
 // tools: the tools are visible to such a user, and every call is narrowed to the user's stores.
-public class StoreAccess(IStoreService storeService, IStoreSearchService storeSearchService)
+public class StoreAccess(IStoreService storeService, IStoreSearchService storeSearchService, IStoreSetupService setupService)
 {
     public static readonly string StoreScopeType = nameof(StoreSelectedScope);
 
@@ -85,10 +85,10 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
     // The findings the user may read on the store: a finding belongs to the part named by its category and shows when the
     // part's state does (CanRead). The others are counted per part, with the permission that shows them, and are still
     // counted wherever readiness is decided.
-    public virtual (IList<T> Shown, IList<string> NotShown) SplitReadableFindings<T>(ClaimsPrincipal user, string storeId, IEnumerable<T> findings, IEnumerable<IStoreSetupPart> parts)
+    public virtual (IList<T> Shown, IList<string> NotShown) SplitReadableFindings<T>(ClaimsPrincipal user, string storeId, IEnumerable<T> findings)
         where T : McpFinding
     {
-        var partList = parts.ToList();
+        var partList = setupService.GetParts();
         var shown = new List<T>();
         var hidden = new List<(IStoreSetupPart Part, T Finding)>();
 
@@ -118,7 +118,7 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
     protected virtual string GetNotShownNote(IStoreSetupPart part, IList<McpFinding> findings)
     {
         var count = findings.Count == 1 ? "1 finding" : $"{findings.Count} findings";
-        var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
+        var blocking = findings.Count(setupService.BlocksGoLive);
         var blockingText = blocking > 0 ? $", {blocking} blocking going live" : string.Empty;
 
         return $"{part.Title}: {count} not shown{blockingText} (needs {part.Permissions?.Read})";

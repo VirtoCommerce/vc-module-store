@@ -25,14 +25,8 @@ public static class StoreSetupFindings
         return finding;
     }
 
-    // A critical finding means the store cannot go live (IStoreSetupCheck).
-    public static bool BlocksGoLive(McpFinding finding)
-    {
-        return McpFindingSeverities.Critical.EqualsIgnoreCase(finding.Severity);
-    }
-
-    // The evidence of empty required settings (StoreSetupSettingsExtensions.GetEmptyRequiredSettings), with secrets
-    // counted, never named: "Empty: Merchant name. 1 secret setting is empty."
+    // The evidence of empty required settings (IStoreSetupSettings.GetEmptyRequiredSettings), with secrets counted, never
+    // named: "Empty: Merchant name. 1 secret setting is empty."
     public static string GetEmptySettingsEvidence(IList<string> names, int secretCount)
     {
         var parts = new List<string>();

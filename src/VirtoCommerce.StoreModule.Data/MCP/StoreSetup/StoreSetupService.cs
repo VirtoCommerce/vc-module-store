@@ -38,11 +38,19 @@ public class StoreSetupService(
         ArgumentNullException.ThrowIfNull(store);
 
         var context = AbstractTypeFactory<StoreSetupContext>.TryCreateInstance();
-        context.Store = store.CloneTyped();
+        context.Store = CopyStore(store);
         context.Currency = currency;
         context.Country = country;
 
         return RunChecksAsync(context);
+    }
+
+    // A critical finding blocks going live, whatever the case of its severity.
+    public virtual bool BlocksGoLive(McpFinding finding)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        return McpFindingSeverities.Critical.EqualsIgnoreCase(finding.Severity);
     }
 
     public virtual async Task<StoreSetupResult> PlanAsync(StoreSetupRequest request)
@@ -80,20 +88,7 @@ public class StoreSetupService(
             }
 
             var part = sectionParts.First(x => x.Name.EqualsIgnoreCase(partResult.Part));
-
-            try
-            {
-                await part.ApplyAsync(context, context.Plans[part.Name]);
-                partResult.Status = McpSetupPartStatus.Applied;
-            }
-            catch (Exception ex)
-            {
-                // The answer never carries an exception's text: it may hold a third party's trace or a secret.
-                logger.LogError(ex, "The store setup part {Part} could not be applied to the store {StoreId}", part.Name, request.StoreId);
-                partResult.Status = McpSetupPartStatus.Failed;
-                partResult.Error = $"{part.Title} could not be saved; the platform log has the details";
-                failed = true;
-            }
+            failed = !await ApplyPartAsync(context, part, partResult);
         }
 
         // What the store misses now, from the saved data. A new store whose basics failed does not exist.
@@ -128,7 +123,7 @@ public class StoreSetupService(
         }
 
         var context = AbstractTypeFactory<StoreSetupContext>.TryCreateInstance();
-        context.Store = store ?? CreateNewStore(request.StoreId);
+        context.Store = store == null ? CreateNewStore(request.StoreId) : CopyStore(store);
         context.IsNewStore = request.IsNewStore;
         result.Store = context.Store;
 
@@ -215,6 +210,42 @@ public class StoreSetupService(
         {
             result.Errors.Add($"{part.Name}: {error}");
         }
+    }
+
+    // Applies one part's plan and says whether it was saved. A part that fails leaves the parts after it not applied.
+    protected virtual async Task<bool> ApplyPartAsync(StoreSetupContext context, IStoreSetupSection part, McpSetupPartResult partResult)
+    {
+        try
+        {
+            await part.ApplyAsync(context, context.Plans[part.Name]);
+            partResult.Status = McpSetupPartStatus.Applied;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // The answer never carries an exception's text: it may hold a third party's trace or a secret.
+            logger.LogError(ex, "The store setup part {Part} could not be applied to the store {StoreId}", part.Name, context.Store.Id);
+            partResult.Status = McpSetupPartStatus.Failed;
+            partResult.Error = $"{part.Title} could not be saved; the platform log has the details";
+
+            return false;
+        }
+    }
+
+    // A copy of the store for the parts: Store.Clone copies the settings and SEO infos but keeps the lists of the store it
+    // copies, which may be the cached one, so the lists of codes and ids are copied too. A list that is null stays null:
+    // a save leaves it alone.
+    protected virtual Store CopyStore(Store store)
+    {
+        var copy = store.CloneTyped();
+        copy.Languages = copy.Languages?.ToList();
+        copy.Currencies = copy.Currencies?.ToList();
+        copy.AdditionalFulfillmentCenterIds = copy.AdditionalFulfillmentCenterIds?.ToList();
+        copy.ReturnsFulfillmentCenterIds = copy.ReturnsFulfillmentCenterIds?.ToList();
+        copy.TrustedGroups = copy.TrustedGroups?.ToList();
+
+        return copy;
     }
 
     protected virtual async Task<IList<McpFinding>> RunChecksAsync(StoreSetupContext context)

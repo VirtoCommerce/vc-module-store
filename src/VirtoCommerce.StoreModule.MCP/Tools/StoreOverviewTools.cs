@@ -48,13 +48,12 @@ public class StoreOverviewTools(
         var result = await access.SearchReadableStoresAsync(context.User, criteria.WithPaging(paging));
 
         var stores = new List<object>();
-        var parts = setupService.GetParts();
 
         foreach (var store in result.Results)
         {
             var findings = await setupService.CheckAsync(store);
-            var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
-            var (shown, notShown) = access.SplitReadableFindings(context.User, store.Id, findings, parts);
+            var blocking = findings.Count(setupService.BlocksGoLive);
+            var (shown, notShown) = access.SplitReadableFindings(context.User, store.Id, findings);
 
             stores.Add(new
             {
@@ -140,8 +139,8 @@ public class StoreOverviewTools(
         }
 
         var findings = await setupService.CheckAsync(store);
-        var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
-        var (shown, notShown) = access.SplitReadableFindings(context.User, store.Id, findings, setupService.GetParts());
+        var blocking = findings.Count(setupService.BlocksGoLive);
+        var (shown, notShown) = access.SplitReadableFindings(context.User, store.Id, findings);
 
         return new
         {

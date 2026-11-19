@@ -534,6 +534,45 @@ public class StoreActionToolsTests
     }
 
     // The basics and settings of a store that only misses payment and shipping, which this test platform does not have.
+    // A store already named so may come after many stores whose names only hold the name: every store the keyword finds
+    // is read.
+    [Fact]
+    public async Task CreateConfiguredStore_ANameAnotherStoreHas_IsWarned_AfterManyStoresThatHoldIt()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.AddRange(Enumerable.Range(1, 21).Select(x => new Store { Id = $"a-shop-{x:00}", Name = $"A shop {x:00}", Catalog = "catalog-a", Settings = [] }));
+        data.Stores.Add(new Store { Id = "shop", Name = "Shop", Catalog = "catalog-a", Settings = [] });
+        await using var harness = CreateHarness(data);
+        var setup = CompleteSetup();
+        setup["basics"] = new { name = "shop", default_language = "en-US", languages = new[] { "en-US" }, default_currency = "USD", currencies = new[] { "USD" } };
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "create_configured_store", new { store_id = NewStoreId, setup, dryRun = true });
+
+        //Assert
+        Assert.Contains("Another store is already named 'shop'.", GetWarnings(result.EnsureSucceeded()));
+    }
+
+    // A rename through apply gets the warning a new store's name gets; a name that does not change gets none, though
+    // another store has it too.
+    [Fact]
+    public async Task ApplyStoreSetup_ARenameToAnotherStoresName_IsWarned_ButAnUnchangedNameIsNot()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Add(new Store { Id = "store-a-copy", Name = "Store A", Catalog = "catalog-a", Settings = [] });
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var renamed = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup = new { basics = new { name = "Store B" } }, dryRun = true });
+        var unchanged = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup = new { basics = new { name = "Store A", email = "new@example.com" } }, dryRun = true });
+
+        //Assert
+        Assert.Contains("Another store is already named 'Store B'.", GetWarnings(renamed.EnsureSucceeded()));
+        Assert.DoesNotContain(GetWarnings(unchanged.EnsureSucceeded()), x => x.StartsWith("Another store is already named"));
+    }
+
     private static Dictionary<string, object> CompleteSetup()
     {
         return new Dictionary<string, object>

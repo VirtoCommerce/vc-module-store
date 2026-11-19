@@ -36,8 +36,6 @@ public class StoreSetupTools(
     IStoreSearchService storeSearchService,
     IStoreSetupService setupService)
 {
-    private const int SameNameSearchSize = 20;
-
     // Sections are read with the names the agent sees. A field a section does not have is refused, not ignored, so a
     // misspelled field never changes nothing silently.
     private static readonly JsonSerializerOptions _sectionOptions = new(McpSerialization.Options)
@@ -111,8 +109,10 @@ public class StoreSetupTools(
         var store = await access.GetUpdatableStoreAsync(context.User, store_id);
         var sections = ReadSections(setup);
         EnsurePartPermissions(context.User, sections, store.Id, isNewStore: false);
+        // A rename gets the warning a new store's name gets.
+        var warnings = await GetSameNameWarningsAsync(sections, store.Id, store.Name);
 
-        return await RunAsync(context.User, "apply", store.Id, isNewStore: false, sections, dryRun, []);
+        return await RunAsync(context.User, "apply", store.Id, isNewStore: false, sections, dryRun, warnings);
     }
 
     private async Task<StoreSetupPreview> RunAsync(ClaimsPrincipal user, string action, string storeId, bool isNewStore, IDictionary<string, object> sections, bool dryRun, IList<string> warnings)
@@ -196,21 +196,22 @@ public class StoreSetupTools(
         }
     }
 
-    private async Task<IList<string>> GetSameNameWarningsAsync(IDictionary<string, object> sections, string storeId)
+    // A warning when another store has the name the basics section sends. An unchanged name gets none.
+    private async Task<IList<string>> GetSameNameWarningsAsync(IDictionary<string, object> sections, string storeId, string currentName = null)
     {
         var name = sections.Values.OfType<StoreBasicsSection>().FirstOrDefault()?.Name?.Trim();
 
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(name) || string.Equals(name, currentName, StringComparison.Ordinal))
         {
             return [];
         }
 
+        // Every store the keyword finds: the one with the name may come after many whose names only hold it.
         var criteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
         criteria.Keyword = name;
-        criteria.Take = SameNameSearchSize;
-        var result = await storeSearchService.SearchAsync(criteria);
+        var stores = await storeSearchService.SearchAllNoCloneAsync(criteria);
 
-        return result.Results.Any(x => !x.Id.EqualsIgnoreCase(storeId) && x.Name.EqualsIgnoreCase(name))
+        return stores.Any(x => !x.Id.EqualsIgnoreCase(storeId) && x.Name.EqualsIgnoreCase(name))
             ? [$"Another store is already named '{name}'."]
             : [];
     }
@@ -218,24 +219,21 @@ public class StoreSetupTools(
     private async Task<StoreSetupPreview> CreatePreviewAsync(ClaimsPrincipal user, string action, StoreSetupResult result, bool dryRun, IList<string> warnings)
     {
         var link = await links.GetStoresLinkAsync();
-        var parts = setupService.GetParts();
-        var findings = StoreFinding.CreateList(result.Findings, parts, link);
+        var findings = StoreFinding.CreateList(result.Findings, setupService, link);
         // A part's findings show with its state; the others are counted, and still decide whether the store is ready.
-        var (shown, notShown) = access.SplitReadableFindings(user, result.StoreId, findings, parts);
+        var (shown, notShown) = access.SplitReadableFindings(user, result.StoreId, findings);
 
-        var preview = new StoreSetupPreview
-        {
-            Action = action,
-            ObjectType = "store",
-            ObjectId = result.StoreId,
-            ObjectName = result.Store?.Name,
-            DryRun = dryRun,
-            Parts = result.Parts.Select(x => new StoreSetupPartRow { Part = x.Part, Status = x.Status.ToString().ToSnakeCase(), Changes = x.Changes.Count }).ToList(),
-            MissingAfter = shown,
-            NotShown = notShown,
-            BackOffice = link,
-            NextStep = GetNextStep(action, dryRun, findings),
-        };
+        var preview = AbstractTypeFactory<StoreSetupPreview>.TryCreateInstance();
+        preview.Action = action;
+        preview.ObjectType = "store";
+        preview.ObjectId = result.StoreId;
+        preview.ObjectName = result.Store?.Name;
+        preview.DryRun = dryRun;
+        preview.Parts = result.Parts.Select(CreatePartRow).ToList();
+        preview.MissingAfter = shown;
+        preview.NotShown = notShown;
+        preview.BackOffice = link;
+        preview.NextStep = GetNextStep(action, dryRun, findings);
 
         foreach (var part in result.Parts)
         {
@@ -250,7 +248,7 @@ public class StoreSetupTools(
             preview.AddWarning(warning);
         }
 
-        var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(user, result.StoreId, findings.Where(x => x.BlocksGoLive), parts);
+        var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(user, result.StoreId, findings.Where(x => x.BlocksGoLive));
 
         if (shownBlocking.Count + notShownBlocking.Count > 0)
         {
@@ -280,6 +278,16 @@ public class StoreSetupTools(
         }
 
         return preview;
+    }
+
+    private static StoreSetupPartRow CreatePartRow(McpSetupPartResult partResult)
+    {
+        var row = AbstractTypeFactory<StoreSetupPartRow>.TryCreateInstance();
+        row.Part = partResult.Part;
+        row.Status = partResult.Status.ToString().ToSnakeCase();
+        row.Changes = partResult.Changes.Count;
+
+        return row;
     }
 
     private static string GetNextStep(string action, bool dryRun, IList<StoreFinding> findings)

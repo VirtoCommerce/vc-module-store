@@ -4,39 +4,39 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Common;
-using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 
+// What a setting means for a setup, from the platform's settings and the MCP module's rules: secrets (IMcpSecretSettings)
+// and titles and descriptions (IMcpSettingTexts). The rules every part follows come from StoreSetupSettingsBase.
 public class StoreSetupSettings(
     ISettingsRegistrar settingsRegistrar,
-    ITranslationService translationService,
-    IOptions<McpSecretSettingsOptions> secretOptions)
-    : IStoreSetupSettings
+    IMcpSecretSettings secretSettings,
+    IMcpSettingTexts settingTexts)
+    : StoreSetupSettingsBase
 {
-    public virtual bool IsSecret(SettingDescriptor descriptor)
+    public override bool IsSecret(SettingDescriptor descriptor)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        return McpSecretSettings.IsSecret(descriptor.Name, descriptor.ValueType, secretOptions.Value);
+        return secretSettings.IsSecret(descriptor.Name, descriptor.ValueType);
     }
 
-    public virtual McpSetupSetting Describe(SettingDescriptor descriptor, object value)
+    public override McpSetupSetting Describe(SettingDescriptor descriptor, object value)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        return Describe(descriptor, value, translationService.GetTranslationDataForLanguage(McpSettingTexts.Language));
+        return Describe(descriptor, value, settingTexts.GetTranslation());
     }
 
-    public virtual bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error)
+    public override bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
@@ -92,11 +92,11 @@ public class StoreSetupSettings(
         return true;
     }
 
-    public virtual Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
+    public override Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
     {
         ArgumentNullException.ThrowIfNull(store);
 
-        var translation = translationService.GetTranslationDataForLanguage(McpSettingTexts.Language);
+        var translation = settingTexts.GetTranslation();
         var values = (store.Settings ?? [])
             .Where(x => !string.IsNullOrEmpty(x.Name))
             .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
@@ -116,7 +116,7 @@ public class StoreSetupSettings(
     protected virtual McpSetupSetting Describe(SettingDescriptor descriptor, object value, JObject translation)
     {
         var isSecret = IsSecret(descriptor);
-        var (title, description) = McpSettingTexts.Find(translation, descriptor.Name, descriptor.DisplayName);
+        var (title, description) = settingTexts.Find(translation, descriptor.Name, descriptor.DisplayName);
 
         var setting = AbstractTypeFactory<McpSetupSetting>.TryCreateInstance();
         setting.Name = descriptor.Name;

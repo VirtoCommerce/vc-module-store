@@ -27,7 +27,7 @@ public class StoreBasicsSection
     [Description("Storefront URL, used in links of emails and of the checkout handoff.")]
     public string Url { get; set; }
 
-    [Description("Storefront HTTPS URL.")]
+    [Description("Storefront URL for secure pages, such as the checkout; usually https.")]
     public string SecureUrl { get; set; }
 
     [Description("Store email: the sender of the store's notifications.")]

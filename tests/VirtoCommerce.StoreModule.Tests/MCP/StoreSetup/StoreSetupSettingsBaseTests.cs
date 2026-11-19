@@ -11,7 +11,7 @@ using Xunit;
 namespace VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 
 // The settings rules every part uses for an object that has settings, such as a payment method.
-public class StoreSetupSettingsExtensionsTests
+public class StoreSetupSettingsBaseTests
 {
     private static readonly SettingDescriptor _rate = new() { Name = "Test.Method.Rate", ValueType = SettingValueType.Decimal, DefaultValue = 0m };
     private static readonly SettingDescriptor _mode = new() { Name = "Test.Method.Mode", ValueType = SettingValueType.ShortText, DefaultValue = "Test" };
@@ -40,9 +40,11 @@ public class StoreSetupSettingsExtensionsTests
         var method = new TestMethod { Settings = [new ObjectSettingEntry(_rate) { Value = 4.5m }, new ObjectSettingEntry(_mode)] };
 
         //Act and assert
-        Assert.Equal(4.5m, StoreSetupSettingsExtensions.GetValue(method, _rate));
-        Assert.Equal("Test", StoreSetupSettingsExtensions.GetValue(method, _mode));
-        Assert.Equal("Test", StoreSetupSettingsExtensions.GetValue(new TestMethod(), _mode));
+        var setupSettings = new KeySecretSettings();
+
+        Assert.Equal(4.5m, setupSettings.GetValue(method, _rate));
+        Assert.Equal("Test", setupSettings.GetValue(method, _mode));
+        Assert.Equal("Test", setupSettings.GetValue(new TestMethod(), _mode));
     }
 
     [Theory]
@@ -57,17 +59,6 @@ public class StoreSetupSettingsExtensionsTests
         Assert.Equal(("payment-no-active-method", "payment", McpFindingSeverities.Critical), (finding.Id, finding.Category, finding.Severity));
         Assert.Equal(expectedScreen, finding.Screen);
         Assert.Equal((nameof(Store), "eu-store", "EU store"), (finding.ObjectType, finding.ObjectId, finding.ObjectName));
-    }
-
-    [Theory]
-    [InlineData(McpFindingSeverities.Critical, true)]
-    [InlineData("Critical", true)]
-    [InlineData(McpFindingSeverities.Warning, false)]
-    [InlineData(McpFindingSeverities.Info, false)]
-    [InlineData(null, false)]
-    public void BlocksGoLive_ForACriticalFinding_WhateverTheCase(string severity, bool expected)
-    {
-        Assert.Equal(expected, StoreSetupFindings.BlocksGoLive(new McpFinding { Severity = severity }));
     }
 
     [Fact]
@@ -89,6 +80,21 @@ public class StoreSetupSettingsExtensionsTests
         Assert.Equal("2 secret settings are empty.", StoreSetupFindings.GetEmptySettingsEvidence([], 2));
     }
 
+    // A solution changes a rule by overriding it: the other rules use the override, as the parts do.
+    [Fact]
+    public void GetEmptyRequiredSettings_UsesTheRuleOfASubclass()
+    {
+        //Arrange
+        var merchant = new SettingDescriptor { Name = "Test.Method.Merchant", ValueType = SettingValueType.ShortText, IsRequired = true };
+        var method = new TestMethod { Settings = [new ObjectSettingEntry(merchant) { Value = "-" }] };
+
+        //Act
+        var (names, _) = new DashIsEmptySettings().GetEmptyRequiredSettings(method, [merchant]);
+
+        //Assert
+        Assert.Equal([merchant.Name], names);
+    }
+
     // Applying a plan to a method read again: only what the plan changes is copied, and what changed since stays.
     [Fact]
     public void GetChangedFields_And_CopySettings_ApplyOnlyWhatThePlanChanges()
@@ -103,7 +109,7 @@ public class StoreSetupSettingsExtensionsTests
 
         //Act
         var fields = plan.GetChangedFields("methods.card.");
-        StoreSetupSettingsExtensions.CopySettings(planned, readAgain, fields);
+        new KeySecretSettings().CopySettings(planned, readAgain, fields);
 
         //Assert
         Assert.Equal(["active", _rate.Name], fields.Order());
@@ -138,28 +144,37 @@ public class StoreSetupSettingsExtensionsTests
     }
 
     // Store's settings rules in short: a name ending with Key is a secret.
-    private sealed class KeySecretSettings : IStoreSetupSettings
+    private class KeySecretSettings : StoreSetupSettingsBase
     {
-        public bool IsSecret(SettingDescriptor descriptor)
+        public override bool IsSecret(SettingDescriptor descriptor)
         {
             return descriptor.Name.EndsWith("Key", StringComparison.OrdinalIgnoreCase);
         }
 
-        public McpSetupSetting Describe(SettingDescriptor descriptor, object value)
+        public override McpSetupSetting Describe(SettingDescriptor descriptor, object value)
         {
             return new McpSetupSetting { Name = descriptor.Name, DefaultValue = descriptor.DefaultValue, Value = value ?? descriptor.DefaultValue };
         }
 
-        public bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error)
+        public override bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error)
         {
             value = raw ?? descriptor.DefaultValue;
             error = null;
             return true;
         }
 
-        public Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
+        public override Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
         {
             return Task.FromResult<IList<McpSetupSetting>>([]);
+        }
+    }
+
+    // A solution's rule: a dash is no value.
+    private sealed class DashIsEmptySettings : KeySecretSettings
+    {
+        protected override bool IsEmpty(object value)
+        {
+            return base.IsEmpty(value) || value is "-";
         }
     }
 }

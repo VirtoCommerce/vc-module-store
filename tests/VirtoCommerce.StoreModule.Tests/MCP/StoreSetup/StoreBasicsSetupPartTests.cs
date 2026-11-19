@@ -140,6 +140,41 @@ public class StoreBasicsSetupPartTests
         Assert.Contains(expectedError, plan.Errors);
     }
 
+    // Pricing and the cart compare codes exactly, so each code takes the platform's spelling before it is planned.
+    [Fact]
+    public async Task PlanAsync_TakesThePlatformsSpellingOfEachCode()
+    {
+        //Arrange
+        var context = new StoreSetupContext { Store = CreateCompleteStore() };
+        var section = new StoreBasicsSection { DefaultLanguage = "en-us", Languages = ["EN-US"], DefaultCurrency = "usd", Currencies = ["Usd", "eur"], Country = " deu " };
+
+        //Act
+        var plan = await CreatePart().PlanAsync(context, section);
+
+        //Assert
+        Assert.Empty(plan.Errors);
+        Assert.Equal("en-US", context.Store.DefaultLanguage);
+        Assert.Equal(["en-US"], context.Store.Languages);
+        Assert.Equal("USD", context.Store.DefaultCurrency);
+        Assert.Equal(["USD", "EUR"], context.Store.Currencies);
+        Assert.Equal("DEU", context.Store.Country);
+        Assert.Contains(plan.Changes, x => x.Field == "default_currency" && Equals(x.To, "USD"));
+    }
+
+    // A code sent in another case is the code the store has, so it changes nothing; an unknown code is refused as sent.
+    [Fact]
+    public async Task PlanAsync_ACodeInAnotherCase_ChangesNothing_AndAnUnknownCodeIsRefusedAsSent()
+    {
+        //Act
+        var sameCodes = await CreatePart().PlanAsync(new StoreSetupContext { Store = CreateCompleteStore() }, new StoreBasicsSection { DefaultCurrency = "eur", Currencies = ["eur"] });
+        var unknown = await CreatePart().PlanAsync(new StoreSetupContext { Store = CreateCompleteStore() }, new StoreBasicsSection { Currencies = ["eur", "gbp"] });
+
+        //Assert
+        Assert.Empty(sameCodes.Errors);
+        Assert.Empty(sameCodes.Changes);
+        Assert.Equal(["Currency 'gbp' is not one of the platform's currencies: USD, EUR."], unknown.Errors);
+    }
+
     private static Store CreateCompleteStore()
     {
         return new Store

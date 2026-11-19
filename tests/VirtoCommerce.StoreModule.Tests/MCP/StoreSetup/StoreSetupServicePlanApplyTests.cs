@@ -132,6 +132,26 @@ public class StoreSetupServicePlanApplyTests
             ("tax", new TestSection { Methods = ["FixedTax"] }));
     }
 
+    // The store table refuses texts longer than their columns, and the test store service refuses them as it does: the
+    // plan refuses them first, so an approved apply never fails on them, and nothing is saved.
+    [Fact]
+    public async Task ApplyAsync_TextsTheStoreTableRefuses_AreRefusedBeforeAnythingIsSaved()
+    {
+        //Arrange
+        var stores = new List<Store> { CreateStore() };
+        var storeService = TestStoreService.Create(stores);
+        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, NullLogger<StoreSetupService>.Instance);
+        var section = new StoreBasicsSection { Name = new string('n', 129), Description = new string('d', 257), Region = new string('r', 129) };
+
+        //Act
+        var result = await service.ApplyAsync(CreateRequest(("basics", section)));
+
+        //Assert
+        Assert.Equal(["basics: name takes at most 128 characters.", "basics: description takes at most 256 characters.", "basics: region takes at most 128 characters."], result.Errors);
+        Assert.Equal("EU store", Assert.Single(stores).Name);
+        storeService.Verify(x => x.SaveChangesAsync(It.IsAny<IList<Store>>()), Times.Never);
+    }
+
     private static StoreSetupRequest CreateRequest(params (string Name, object Section)[] sections)
     {
         var request = new StoreSetupRequest { StoreId = StoreId };
@@ -146,7 +166,7 @@ public class StoreSetupServicePlanApplyTests
 
     private static Store CreateStore()
     {
-        return new Store { Id = StoreId, Name = "EU store", StoreState = StoreState.Closed, Settings = [] };
+        return new Store { Id = StoreId, Name = "EU store", Catalog = "eu-catalog", StoreState = StoreState.Closed, Settings = [] };
     }
 
     private static StoreSetupService CreateService(List<Store> stores, params IStoreSetupPart[] parts)

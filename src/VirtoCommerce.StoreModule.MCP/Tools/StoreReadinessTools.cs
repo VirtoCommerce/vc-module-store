@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using VirtoCommerce.MCP.Core;
@@ -20,7 +22,7 @@ namespace VirtoCommerce.StoreModule.MCP.Tools;
 [McpServerToolType]
 [McpScope(McpScopes.Admin)]
 [McpPermission(StorePermissions.Read)]
-public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupService, StoreBackOfficeLinks links)
+public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupService, StoreBackOfficeLinks links, ILogger<StoreReadinessTools> logger)
 {
     // The rules every section of a setup follows.
     private static readonly string[] _setupRules =
@@ -36,7 +38,9 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
     [McpServerTool(Name = "get_store_readiness_report", ReadOnly = true, Destructive = false, Idempotent = true)]
     [Description("What a store is missing before it can go live. Each finding says what is missing, why it matters, how " +
         "to fix it (a tool or a back-office screen) and whether it blocks opening the store. With a currency or a country, " +
-        "it also says why that currency or country cannot check out. Use it before open_store and after every setup change.")]
+        "it also says why that currency or country cannot check out, and can_check_out says whether customers can. " +
+        "ready_to_open is the same with or without them, as open_store decides it. Use it before open_store and after " +
+        "every setup change.")]
     public async Task<object> GetStoreReadinessReport(
         RequestContext<CallToolRequestParams> context,
         [Description("Store id, as list_stores returns it.")] string store_id,
@@ -46,10 +50,12 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
         var store = await access.GetReadableStoreAsync(context.User, store_id);
         var findings = await setupService.CheckAsync(store, currency, country);
         var link = await links.GetStoresLinkAsync();
-        var parts = setupService.GetParts();
+        // Going live is decided as open_store decides it, without a currency or a country; with them, the findings say
+        // what keeps their customers from checking out, and can_check_out sums it up.
+        var forMarket = !string.IsNullOrWhiteSpace(currency) || !string.IsNullOrWhiteSpace(country);
+        var readyToOpen = !(forMarket ? await setupService.CheckAsync(store) : findings).Any(setupService.BlocksGoLive);
         // A part's findings show with its state: the others are counted, and still decide readiness.
-        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, StoreFinding.CreateList(findings, parts, link), parts);
-        var readyToOpen = !findings.Any(StoreSetupFindings.BlocksGoLive);
+        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, StoreFinding.CreateList(findings, setupService, link));
 
         return new
         {
@@ -57,9 +63,10 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
             name = store.Name,
             state = StoreStateNames.ToName(store.StoreState),
             ready_to_open = readyToOpen,
+            can_check_out = forMarket ? !findings.Any(setupService.BlocksGoLive) : (bool?)null,
             findings = rows,
             not_shown = notShown,
-            checked_parts = parts.OfType<IStoreSetupCheck>().Select(x => x.Name).ToList(),
+            checked_parts = setupService.GetParts().OfType<IStoreSetupCheck>().Select(x => x.Name).ToList(),
             back_office = link,
             next_step = GetNextStep(store, readyToOpen),
         };
@@ -76,15 +83,38 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
 
         foreach (var part in setupService.GetParts())
         {
+            var row = await GetOptionsAsync(part);
+
+            if (row != null)
+            {
+                parts.Add(row);
+            }
+        }
+
+        return new
+        {
+            parts,
+            rules = _setupRules,
+            next_step = "Fill the sections of the parts the store needs, then call create_configured_store for a new store or " +
+                "apply_store_setup for an existing one, with dryRun first.",
+        };
+    }
+
+    // A part's row: its section's schema and its choices, or null when it has neither. A part that cannot list its options
+    // is named with a reason, and the others are still listed.
+    protected virtual async Task<object> GetOptionsAsync(IStoreSetupPart part)
+    {
+        try
+        {
             var section = part as IStoreSetupSection;
             var choices = part is IStoreSetupChoices withChoices ? await withChoices.GetChoicesAsync() ?? [] : [];
 
             if (section == null && choices.Count == 0)
             {
-                continue;
+                return null;
             }
 
-            parts.Add(new
+            return new
             {
                 name = part.Name,
                 title = part.Title,
@@ -98,16 +128,20 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
                     description = x.Description,
                     settings = x.Settings?.Count > 0 ? x.Settings : null,
                 }).ToList(),
-            });
+            };
         }
-
-        return new
+        catch (Exception ex)
         {
-            parts,
-            rules = _setupRules,
-            next_step = "Fill the sections of the parts the store needs, then call create_configured_store for a new store or " +
-                "apply_store_setup for an existing one, with dryRun first.",
-        };
+            // The answer never carries an exception's text: it may hold a third party's trace or a secret.
+            logger.LogError(ex, "The store setup part {Part} could not list its options", part.Name);
+
+            return new
+            {
+                name = part.Name,
+                title = part.Title,
+                unavailable = $"{part.Title} could not list its options; the platform log has the details. Its section cannot be sent until it can.",
+            };
+        }
     }
 
     private static string GetNextStep(Store store, bool readyToOpen)

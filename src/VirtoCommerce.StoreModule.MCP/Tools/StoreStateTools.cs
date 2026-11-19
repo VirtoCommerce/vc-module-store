@@ -41,9 +41,8 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
 
         // Checked again when the approved change runs, so a store that stopped being ready in the meantime stays closed.
         var findings = await setupService.CheckAsync(store);
-        var parts = setupService.GetParts();
         // Every blocking finding keeps the store closed; one of a part the user may not read is named by its part only.
-        var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(context.User, store.Id, findings.Where(StoreSetupFindings.BlocksGoLive), parts);
+        var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(context.User, store.Id, findings.Where(setupService.BlocksGoLive));
 
         if (shownBlocking.Count + notShownBlocking.Count > 0)
         {
@@ -53,7 +52,7 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
         }
 
         var preview = CreatePreview("open", store, StoreState.Open, dryRun);
-        var (shownWarnings, _) = access.SplitReadableFindings(context.User, store.Id, findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)), parts);
+        var (shownWarnings, _) = access.SplitReadableFindings(context.User, store.Id, findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)));
 
         foreach (var finding in shownWarnings)
         {
@@ -105,14 +104,12 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
 
     private static McpChangePreview CreatePreview(string action, Store store, StoreState state, bool dryRun)
     {
-        var preview = new McpChangePreview
-        {
-            Action = action,
-            ObjectType = "store",
-            ObjectId = store.Id,
-            ObjectName = store.Name,
-            DryRun = dryRun,
-        };
+        var preview = AbstractTypeFactory<McpChangePreview>.TryCreateInstance();
+        preview.Action = action;
+        preview.ObjectType = "store";
+        preview.ObjectId = store.Id;
+        preview.ObjectName = store.Name;
+        preview.DryRun = dryRun;
 
         return preview.AddChange("state", StoreStateNames.ToName(store.StoreState), StoreStateNames.ToName(state));
     }

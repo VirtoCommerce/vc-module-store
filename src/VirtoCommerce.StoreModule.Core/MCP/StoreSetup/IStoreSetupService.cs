@@ -15,6 +15,9 @@ public interface IStoreSetupService
     // What the store is missing, from every part that checks. A part whose check fails gives one critical finding.
     Task<IList<McpFinding>> CheckAsync(Store store, string currency = null, string country = null);
 
+    // Whether a finding keeps the store from going live: the rule of the readiness report, open_store and the previews.
+    bool BlocksGoLive(McpFinding finding);
+
     // What the request would change and what the store would miss afterwards. Changes nothing.
     Task<StoreSetupResult> PlanAsync(StoreSetupRequest request);
 

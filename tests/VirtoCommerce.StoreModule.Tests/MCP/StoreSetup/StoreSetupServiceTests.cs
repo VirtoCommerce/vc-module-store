@@ -96,6 +96,34 @@ public class StoreSetupServiceTests
         Assert.NotSame(store, part.CheckedContext.Store);
     }
 
+    // The store a caller holds may share its lists with the cached store: the parts get copies they may change in place.
+    [Fact]
+    public async Task CheckAsync_GivesThePartsCopiesOfTheStoresLists()
+    {
+        //Arrange
+        var store = TestCheckPart.CreateStore();
+        store.Languages = ["en-US"];
+        store.Currencies = ["USD"];
+
+        //Act
+        await CreateService(new TestListChangingPart()).CheckAsync(store);
+
+        //Assert
+        Assert.Equal(["en-US"], store.Languages);
+        Assert.Equal(["USD"], store.Currencies);
+    }
+
+    [Theory]
+    [InlineData(McpFindingSeverities.Critical, true)]
+    [InlineData("Critical", true)]
+    [InlineData(McpFindingSeverities.Warning, false)]
+    [InlineData(McpFindingSeverities.Info, false)]
+    [InlineData(null, false)]
+    public void BlocksGoLive_ForACriticalFinding_WhateverTheCase(string severity, bool expected)
+    {
+        Assert.Equal(expected, CreateService().BlocksGoLive(new McpFinding { Severity = severity }));
+    }
+
     private static StoreSetupService CreateService(params IStoreSetupPart[] parts)
     {
         return new StoreSetupService(parts, Mock.Of<IStoreService>(), NullLogger<StoreSetupService>.Instance);

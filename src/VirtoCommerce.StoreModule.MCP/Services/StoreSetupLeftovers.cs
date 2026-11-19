@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
@@ -9,7 +10,7 @@ namespace VirtoCommerce.StoreModule.MCP.Services;
 
 // Tells a store left closed by a failed create_configured_store from a store made in the back office or by a create
 // that succeeded. Only the first may be continued by another create; the others are changed with apply_store_setup.
-public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSearchService)
+public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSearchService, ILogger<StoreSetupLeftovers> logger)
 {
     public const string CreateToolName = "create_configured_store";
 
@@ -28,13 +29,16 @@ public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSea
         criteria.Take = MaxCreateChangesToRead;
 
         var result = await pendingChangeSearchService.SearchAsync(criteria);
-        var lastChange = result.Results.FirstOrDefault(x => GetStoreId(x.Arguments).EqualsIgnoreCase(storeId));
+        var lastChange = result.Results.FirstOrDefault(x => GetStoreId(x).EqualsIgnoreCase(storeId));
 
         return lastChange?.Status == McpPendingChangeStatus.Failed ? lastChange : null;
     }
 
-    private static string GetStoreId(string arguments)
+    // The store id in a change's arguments; null when they name none, or are not JSON, which is logged.
+    protected virtual string GetStoreId(McpPendingChange change)
     {
+        var arguments = change.Arguments;
+
         if (string.IsNullOrEmpty(arguments))
         {
             return null;
@@ -50,8 +54,9 @@ public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSea
                     ? storeId.GetString()
                     : null;
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger.LogWarning(ex, "The arguments of the pending change {ChangeId} are not JSON; it is skipped", change.Id);
             return null;
         }
     }

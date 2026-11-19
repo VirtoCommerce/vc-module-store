@@ -155,6 +155,7 @@ public static class StoreToolsTestContext
                 Languages = ["en-US"],
                 DefaultCurrency = "USD",
                 Currencies = ["USD"],
+                Catalog = "catalog-b",
                 Url = "https://b.example.com",
                 Email = "b@example.com",
                 Settings = [],

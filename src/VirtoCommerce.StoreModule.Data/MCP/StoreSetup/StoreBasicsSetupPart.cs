@@ -149,6 +149,7 @@ public class StoreBasicsSetupPart(
             plan.Errors.Add("A new store needs a name.");
         }
 
+        await PlanCodesAsync(plan, basics);
         ApplySection(plan, context.Store, basics);
 
         if (!context.IsNewStore && string.IsNullOrWhiteSpace(context.Store.Name))
@@ -161,7 +162,7 @@ public class StoreBasicsSetupPart(
             AddValidationErrors(plan, context.Store);
         }
         AddLengthErrors(plan, context.Store);
-        await ValidateAsync(plan, context.Store, basics);
+        Validate(plan, context.Store, basics);
 
         return plan;
     }
@@ -233,32 +234,51 @@ public class StoreBasicsSetupPart(
         PlanList(plan, "additional_fulfillment_center_ids", store.AdditionalFulfillmentCenterIds, section.AdditionalFulfillmentCenterIds, x => store.AdditionalFulfillmentCenterIds = x);
     }
 
-    // The languages, currencies and country must be the platform's; each default must be one of its list. The links to
-    // fulfillment centers are not checked: their module owns them.
-    protected virtual async Task ValidateAsync(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
+    // Before the section is applied: each language, currency and country code takes the platform's spelling, as pricing
+    // and the cart compare codes exactly ("eur" becomes "EUR"), and a code the platform does not have is refused. The
+    // section is the request's, read for this plan.
+    protected virtual async Task PlanCodesAsync(McpSetupPartPlan plan, StoreBasicsSection section)
     {
         if (section.Languages != null || section.DefaultLanguage != null)
         {
             var platformLanguages = await GetPlatformLanguagesAsync();
+            section.Languages = ToPlatformSpelling(section.Languages, platformLanguages);
+            section.DefaultLanguage = ToPlatformSpelling(section.DefaultLanguage, platformLanguages);
             AddUnknownValueErrors(plan, "Language", section.Languages, platformLanguages, "the platform's languages");
-            AddDefaultError(plan, "language", "languages", store.DefaultLanguage, store.Languages);
         }
 
         if (section.Currencies != null || section.DefaultCurrency != null)
         {
             var platformCurrencies = (await currencyService.GetAllCurrenciesAsync() ?? []).Select(x => x.Code).ToList();
+            section.Currencies = ToPlatformSpelling(section.Currencies, platformCurrencies);
+            section.DefaultCurrency = ToPlatformSpelling(section.DefaultCurrency, platformCurrencies);
             AddUnknownValueErrors(plan, "Currency", section.Currencies, platformCurrencies, "the platform's currencies");
-            AddDefaultError(plan, "currency", "currencies", store.DefaultCurrency, store.Currencies);
         }
 
         if (!string.IsNullOrWhiteSpace(section.Country))
         {
-            var countries = await countriesService.GetCountriesAsync() ?? [];
+            var countries = (await countriesService.GetCountriesAsync() ?? []).Select(x => x.Id).ToList();
+            section.Country = ToPlatformSpelling(section.Country, countries);
 
-            if (!countries.Any(x => x.Id.EqualsIgnoreCase(section.Country.Trim())))
+            if (!countries.ContainsIgnoreCase(section.Country.Trim()))
             {
                 plan.Errors.Add($"Country '{section.Country}' is not one of the platform's countries. Use its ISO 3166-1 alpha-3 code, such as DEU.");
             }
+        }
+    }
+
+    // After the section is applied: each default must be one of its list, and the addresses must be addresses. The links
+    // to fulfillment centers are not checked: their module owns them.
+    protected virtual void Validate(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
+    {
+        if (section.Languages != null || section.DefaultLanguage != null)
+        {
+            AddDefaultError(plan, "language", "languages", store.DefaultLanguage, store.Languages);
+        }
+
+        if (section.Currencies != null || section.DefaultCurrency != null)
+        {
+            AddDefaultError(plan, "currency", "currencies", store.DefaultCurrency, store.Currencies);
         }
 
         foreach (var (field, url) in new[] { ("url", section.Url), ("secure_url", section.SecureUrl) }.Where(x => !string.IsNullOrWhiteSpace(x.Item2)))
@@ -323,7 +343,18 @@ public class StoreBasicsSetupPart(
         return finding;
     }
 
-    private static void PlanText(McpSetupPartPlan plan, string field, string current, string requested, Action<string> set)
+    // The platform's spelling of a code, or the code as sent when the platform does not have it.
+    protected virtual string ToPlatformSpelling(string code, IList<string> platformCodes)
+    {
+        return string.IsNullOrWhiteSpace(code) ? code : platformCodes.FirstOrDefault(x => x.EqualsIgnoreCase(code.Trim())) ?? code;
+    }
+
+    protected virtual IList<string> ToPlatformSpelling(IList<string> codes, IList<string> platformCodes)
+    {
+        return codes?.Select(x => ToPlatformSpelling(x, platformCodes)).ToList();
+    }
+
+    protected virtual void PlanText(McpSetupPartPlan plan, string field, string current, string requested, Action<string> set)
     {
         if (requested == null)
         {
@@ -342,7 +373,7 @@ public class StoreBasicsSetupPart(
         set(newValue);
     }
 
-    private static void PlanList(McpSetupPartPlan plan, string field, ICollection<string> current, IList<string> requested, Action<IList<string>> set)
+    protected virtual void PlanList(McpSetupPartPlan plan, string field, ICollection<string> current, IList<string> requested, Action<IList<string>> set)
     {
         if (requested == null)
         {
@@ -373,7 +404,7 @@ public class StoreBasicsSetupPart(
         set(values);
     }
 
-    private static void AddUnknownValueErrors(McpSetupPartPlan plan, string kind, IList<string> requested, IList<string> known, string knownName)
+    protected virtual void AddUnknownValueErrors(McpSetupPartPlan plan, string kind, IList<string> requested, IList<string> known, string knownName)
     {
         foreach (var value in (requested ?? []).Where(x => !string.IsNullOrWhiteSpace(x) && !known.ContainsIgnoreCase(x.Trim())))
         {
@@ -381,7 +412,7 @@ public class StoreBasicsSetupPart(
         }
     }
 
-    private static void AddDefaultError(McpSetupPartPlan plan, string kind, string kinds, string defaultValue, ICollection<string> values)
+    protected virtual void AddDefaultError(McpSetupPartPlan plan, string kind, string kinds, string defaultValue, ICollection<string> values)
     {
         if (!string.IsNullOrEmpty(defaultValue) && !(values ?? []).ContainsIgnoreCase(defaultValue))
         {
