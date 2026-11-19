@@ -45,9 +45,6 @@ public class StoreBasicsSection
     [Description("Region or state.")]
     public string Region { get; set; }
 
-    [Description("Id of an existing catalog the store sells from. Not checked.")]
-    public string CatalogId { get; set; }
-
     [Description("Id of an existing fulfillment center: the store's main one. Not checked.")]
     public string MainFulfillmentCenterId { get; set; }
 

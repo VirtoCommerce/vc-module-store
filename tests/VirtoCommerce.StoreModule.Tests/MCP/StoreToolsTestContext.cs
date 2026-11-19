@@ -33,6 +33,9 @@ public static class StoreToolsTestContext
     public const string MapsApiKeyValue = "AIza-maps-secret";
     public const string PublicOrigin = "https://admin.example.com";
 
+    // What a user without catalog:read gets in place of the finding of CreateCatalogPart.
+    public const string CatalogNotShown = "Test part catalog: 1 finding not shown, 1 blocking going live (needs catalog:read)";
+
     // The role of a store administrator who works through an AI agent, as the README writes it down.
     public static readonly string[] RolePermissions =
     [
@@ -66,6 +69,9 @@ public static class StoreToolsTestContext
                 services.AddSingleton(CreateTranslationService());
                 services.AddSingleton(CreateSettingsManager());
                 services.AddSingleton(CreateCurrencyService());
+
+                // The Catalog module's part, which a real installation has: a new store's catalog comes from it.
+                services.AddSingleton<IStoreSetupPart>(new TestCatalogPart());
 
                 foreach (var part in extraParts)
                 {
@@ -107,6 +113,14 @@ public static class StoreToolsTestContext
             .WithPermissions("store:access")
             .WithScopedPermission("store:read", "StoreSelectedScope", StoreA)
             .WithScopedPermission("store:update", "StoreSelectedScope", StoreA);
+    }
+
+    // The part of a module whose permissions cannot be limited to stores, so catalog:read counts only when it is granted
+    // globally. Its critical finding keeps every store from opening.
+    public static TestCheckPart CreateCatalogPart()
+    {
+        return new TestCheckPart("catalog") { Permissions = new McpSetupPermissions { Read = "catalog:read" } }
+            .WithFinding("catalog-no-products", McpFindingSeverities.Critical);
     }
 
     // Store A is closed and ready to open; store B is open and has no catalog.

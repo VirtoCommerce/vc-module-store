@@ -77,21 +77,21 @@ public class StoreBasicsSectionTests
         {
             Id = "eu-store",
             Name = "EU store",
-            Catalog = "b2b-catalog",
             DefaultLanguage = "de-DE",
             Languages = ["de-DE", "en-US"],
+            Url = "https://shop.example.com",
             Email = "shop@example.com",
         };
         var context = new StoreSetupContext { Store = store };
 
         //Act
-        var plan = await StoreBasicsSetupPartTests.CreatePart().PlanAsync(context, new StoreBasicsSection { Languages = ["de-DE"], CatalogId = "" });
+        var plan = await StoreBasicsSetupPartTests.CreatePart().PlanAsync(context, new StoreBasicsSection { Languages = ["de-DE"], Url = "" });
 
         //Assert
         Assert.Empty(plan.Errors);
-        Assert.Equal(["languages", "catalog_id"], plan.Changes.Select(x => x.Field));
+        Assert.Equal(["languages", "url"], plan.Changes.Select(x => x.Field));
         Assert.Contains("Removes from languages: en-US.", plan.Warnings);
-        Assert.Null(store.Catalog);
+        Assert.Null(store.Url);
         Assert.Equal("shop@example.com", store.Email);
     }
 

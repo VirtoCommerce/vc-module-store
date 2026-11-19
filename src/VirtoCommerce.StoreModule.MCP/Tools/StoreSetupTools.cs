@@ -83,14 +83,15 @@ public class StoreSetupTools(
                 throw new McpException($"Store '{existingStore.Id}' already exists. Change its setup with apply_store_setup.");
             }
 
-            StoreAccess.EnsureAllowed(user, StorePermissions.Update, StoreAccess.StoreScopeType, existingStore.Id);
+            // Continuing it changes the store: read and update access to it, as for every other change.
+            await access.GetUpdatableStoreAsync(user, existingStore.Id);
             warnings.Add($"Continues the setup of the closed store '{existingStore.Id}' that the failed change {failedChange.Id} left.");
         }
 
         EnsurePartPermissions(user, sections, store_id, isNewStore);
         warnings.AddRange(await GetSameNameWarningsAsync(sections, store_id));
 
-        return await RunAsync("create", store_id, isNewStore, sections, dryRun, warnings);
+        return await RunAsync(user, "create", store_id, isNewStore, sections, dryRun, warnings);
     }
 
     [McpServerTool(Name = "apply_store_setup", ReadOnly = false, Destructive = true, Idempotent = true)]
@@ -111,10 +112,10 @@ public class StoreSetupTools(
         var sections = ReadSections(setup);
         EnsurePartPermissions(context.User, sections, store.Id, isNewStore: false);
 
-        return await RunAsync("apply", store.Id, isNewStore: false, sections, dryRun, []);
+        return await RunAsync(context.User, "apply", store.Id, isNewStore: false, sections, dryRun, []);
     }
 
-    private async Task<StoreSetupPreview> RunAsync(string action, string storeId, bool isNewStore, IDictionary<string, object> sections, bool dryRun, IList<string> warnings)
+    private async Task<StoreSetupPreview> RunAsync(ClaimsPrincipal user, string action, string storeId, bool isNewStore, IDictionary<string, object> sections, bool dryRun, IList<string> warnings)
     {
         var request = AbstractTypeFactory<StoreSetupRequest>.TryCreateInstance();
         request.StoreId = storeId;
@@ -139,7 +140,7 @@ public class StoreSetupTools(
             throw new McpException(GetPartialFailureMessage(result));
         }
 
-        return await CreatePreviewAsync(action, result, dryRun, warnings);
+        return await CreatePreviewAsync(user, action, result, dryRun, warnings);
     }
 
     // Each section in the type of its part. A name no part takes stays in, without a section, so the setup service
@@ -214,10 +215,13 @@ public class StoreSetupTools(
             : [];
     }
 
-    private async Task<StoreSetupPreview> CreatePreviewAsync(string action, StoreSetupResult result, bool dryRun, IList<string> warnings)
+    private async Task<StoreSetupPreview> CreatePreviewAsync(ClaimsPrincipal user, string action, StoreSetupResult result, bool dryRun, IList<string> warnings)
     {
         var link = await links.GetStoresLinkAsync();
-        var findings = StoreFinding.CreateList(result.Findings, setupService.GetParts(), link);
+        var parts = setupService.GetParts();
+        var findings = StoreFinding.CreateList(result.Findings, parts, link);
+        // A part's findings show with its state; the others are counted, and still decide whether the store is ready.
+        var (shown, notShown) = access.SplitReadableFindings(user, result.StoreId, findings, parts);
 
         var preview = new StoreSetupPreview
         {
@@ -227,7 +231,8 @@ public class StoreSetupTools(
             ObjectName = result.Store?.Name,
             DryRun = dryRun,
             Parts = result.Parts.Select(x => new StoreSetupPartRow { Part = x.Part, Status = x.Status.ToString().ToSnakeCase(), Changes = x.Changes.Count }).ToList(),
-            MissingAfter = findings,
+            MissingAfter = shown,
+            NotShown = notShown,
             BackOffice = link,
             NextStep = GetNextStep(action, dryRun, findings),
         };
@@ -245,14 +250,15 @@ public class StoreSetupTools(
             preview.AddWarning(warning);
         }
 
-        var blocking = findings.Where(x => x.BlocksGoLive).Select(x => x.Title).ToList();
+        var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(user, result.StoreId, findings.Where(x => x.BlocksGoLive), parts);
 
-        if (blocking.Count > 0)
+        if (shownBlocking.Count + notShownBlocking.Count > 0)
         {
+            var blocking = shownBlocking.Select(x => x.Title).Concat(notShownBlocking);
             preview.AddWarning($"The store will not be ready to open: {string.Join("; ", blocking)}.");
         }
 
-        foreach (var finding in findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)))
+        foreach (var finding in shown.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)))
         {
             preview.AddWarning($"{finding.Title}.");
         }

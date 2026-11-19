@@ -56,9 +56,16 @@ public class StoreSetupSettings(
         }
 
         // A null returns the setting to its default, which is saved itself: the platform's settings save skips a null for
-        // most settings.
+        // a setting without allowed values. So such a setting without a default has nothing to return to: saving its null
+        // would change nothing.
         if (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined })
         {
+            if (descriptor.DefaultValue == null && descriptor.AllowedValues.IsNullOrEmpty())
+            {
+                error = $"Setting '{descriptor.Name}' has no default to return to. Send a value; an empty text clears a text setting.";
+                return false;
+            }
+
             value = descriptor.DefaultValue;
             return true;
         }
@@ -72,7 +79,7 @@ public class StoreSetupSettings(
         if (!descriptor.AllowedValues.IsNullOrEmpty())
         {
             // The allowed value itself is kept, with its spelling: modules compare these values as they declared them.
-            converted = descriptor.AllowedValues.FirstOrDefault(x => McpSetupValues.AreEqual(x, converted));
+            converted = descriptor.AllowedValues.FirstOrDefault(x => McpSetupValues.AreEqual(x, converted, StringComparison.OrdinalIgnoreCase));
 
             if (converted == null)
             {

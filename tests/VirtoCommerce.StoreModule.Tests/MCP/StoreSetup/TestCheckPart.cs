@@ -14,7 +14,7 @@ public class TestCheckPart(string name) : IStoreSetupCheck
 
     public string Title => $"Test part {name}";
 
-    public McpSetupPermissions Permissions => StoreSetupPermissions.ForStore();
+    public McpSetupPermissions Permissions { get; init; } = StoreSetupPermissions.ForStore();
 
     public IList<McpFinding> Findings { get; init; } = [];
 
@@ -51,6 +51,7 @@ public class TestCheckPart(string name) : IStoreSetupCheck
             Severity = severity,
             Title = $"Finding {id}",
             Why = "It matters.",
+            Evidence = $"Evidence of {id}",
             Fix = "Fix it.",
             Screen = "Stores > Test",
         };

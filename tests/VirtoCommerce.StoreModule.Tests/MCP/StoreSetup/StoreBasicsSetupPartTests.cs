@@ -33,7 +33,6 @@ public class StoreBasicsSetupPartTests
     [InlineData("default-language-not-among-them", "basics-no-language", McpFindingSeverities.Critical)]
     [InlineData("no-currencies", "basics-no-currency", McpFindingSeverities.Critical)]
     [InlineData("default-currency-not-among-them", "basics-no-currency", McpFindingSeverities.Critical)]
-    [InlineData("no-catalog", "basics-no-catalog", McpFindingSeverities.Warning)]
     [InlineData("no-storefront-url", "basics-no-storefront-url", McpFindingSeverities.Warning)]
     [InlineData("no-email", "basics-no-email", McpFindingSeverities.Warning)]
     public async Task CheckAsync_ReportsWhatTheStoreIsMissing(string gap, string expectedId, string expectedSeverity)
@@ -54,9 +53,6 @@ public class StoreBasicsSetupPartTests
                 break;
             case "default-currency-not-among-them":
                 store.DefaultCurrency = "JPY";
-                break;
-            case "no-catalog":
-                store.Catalog = null;
                 break;
             case "no-storefront-url":
                 store.Url = null;
@@ -120,7 +116,28 @@ public class StoreBasicsSetupPartTests
         Assert.Equal("EU store", section.Name);
         Assert.Equal(["de-DE", "en-US"], section.Languages);
         Assert.Equal("EUR", section.DefaultCurrency);
-        Assert.Equal("b2b-catalog", section.CatalogId);
+    }
+
+    // Saving the store would refuse these after the approval; the plan refuses them first.
+    [Theory]
+    [InlineData("cleared name", "A store needs a name: it cannot be cleared.")]
+    [InlineData("long name", "name takes at most 128 characters.")]
+    [InlineData("long url", "url takes at most 256 characters.")]
+    public async Task PlanAsync_RefusesWhatTheStoresColumnsCannotHold(string gap, string expectedError)
+    {
+        //Arrange
+        var section = gap switch
+        {
+            "cleared name" => new StoreBasicsSection { Name = "" },
+            "long name" => new StoreBasicsSection { Name = new string('n', 129) },
+            _ => new StoreBasicsSection { Url = $"https://{new string('u', 250)}.example.com" },
+        };
+
+        //Act
+        var plan = await CreatePart().PlanAsync(new StoreSetupContext { Store = CreateCompleteStore() }, section);
+
+        //Assert
+        Assert.Contains(expectedError, plan.Errors);
     }
 
     private static Store CreateCompleteStore()

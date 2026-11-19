@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ModelContextProtocol;
 using VirtoCommerce.MCP.Core;
 using VirtoCommerce.MCP.Core.Extensions;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -78,6 +80,48 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
     public static bool CanRead(ClaimsPrincipal user, IStoreSetupPart part, string storeId)
     {
         return IsAllowed(user, part.Permissions?.Read, part.Permissions?.ScopeType, storeId);
+    }
+
+    // The findings the user may read on the store: a finding belongs to the part named by its category and shows when the
+    // part's state does (CanRead). The others are counted per part, with the permission that shows them, and are still
+    // counted wherever readiness is decided.
+    public virtual (IList<T> Shown, IList<string> NotShown) SplitReadableFindings<T>(ClaimsPrincipal user, string storeId, IEnumerable<T> findings, IEnumerable<IStoreSetupPart> parts)
+        where T : McpFinding
+    {
+        var partList = parts.ToList();
+        var shown = new List<T>();
+        var hidden = new List<(IStoreSetupPart Part, T Finding)>();
+
+        foreach (var finding in findings)
+        {
+            var part = partList.FirstOrDefault(x => x.Name.EqualsIgnoreCase(finding.Category));
+
+            if (part == null || CanRead(user, part, storeId))
+            {
+                shown.Add(finding);
+            }
+            else
+            {
+                hidden.Add((part, finding));
+            }
+        }
+
+        var notShown = hidden
+            .GroupBy(x => x.Part)
+            .Select(x => GetNotShownNote(x.Key, x.Select(y => (McpFinding)y.Finding).ToList()))
+            .ToList();
+
+        return (shown, notShown);
+    }
+
+    // "Tax: 2 findings not shown, 1 blocking going live (needs tax:read)".
+    protected virtual string GetNotShownNote(IStoreSetupPart part, IList<McpFinding> findings)
+    {
+        var count = findings.Count == 1 ? "1 finding" : $"{findings.Count} findings";
+        var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
+        var blockingText = blocking > 0 ? $", {blocking} blocking going live" : string.Empty;
+
+        return $"{part.Title}: {count} not shown{blockingText} (needs {part.Permissions?.Read})";
     }
 
     public static void EnsureAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)

@@ -145,6 +145,14 @@ public class StoreSetupService(
             }
         }
 
+        // The store's row needs a catalog, which Store cannot create: the Catalog module's part plans it. Without that
+        // part, a new store would fail only when it is saved, after the approval.
+        if (request.IsNewStore && result.Errors.Count == 0 && string.IsNullOrEmpty(context.Store.Catalog))
+        {
+            result.Errors.Add("A new store needs a catalog, and no installed module creates one. Update the Catalog module: " +
+                "its 'catalog' section creates the store's catalog.");
+        }
+
         return (result, context);
     }
 

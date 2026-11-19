@@ -28,7 +28,8 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
         "A section that is left out changes nothing, and neither does a field that is left out.",
         "An empty text clears a field.",
         "A list is the complete new list: what it does not name is removed.",
-        "A settings map sets the named settings and leaves the others as they are; null returns a setting to its default.",
+        "A settings map sets the named settings and leaves the others as they are; null returns a setting to its default, " +
+            "and a setting without a default takes a value instead.",
         "Secrets, such as payment keys, are never sent here: a person enters them in the back office.",
     ];
 
@@ -46,8 +47,9 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
         var findings = await setupService.CheckAsync(store, currency, country);
         var link = await links.GetStoresLinkAsync();
         var parts = setupService.GetParts();
-        var rows = StoreFinding.CreateList(findings, parts, link);
-        var readyToOpen = rows.All(x => !x.BlocksGoLive);
+        // A part's findings show with its state: the others are counted, and still decide readiness.
+        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, StoreFinding.CreateList(findings, parts, link), parts);
+        var readyToOpen = !findings.Any(StoreSetupFindings.BlocksGoLive);
 
         return new
         {
@@ -56,6 +58,7 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
             state = StoreStateNames.ToName(store.StoreState),
             ready_to_open = readyToOpen,
             findings = rows,
+            not_shown = notShown,
             checked_parts = parts.OfType<IStoreSetupCheck>().Select(x => x.Name).ToList(),
             back_office = link,
             next_step = GetNextStep(store, readyToOpen),

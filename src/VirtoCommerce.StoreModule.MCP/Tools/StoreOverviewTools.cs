@@ -48,11 +48,13 @@ public class StoreOverviewTools(
         var result = await access.SearchReadableStoresAsync(context.User, criteria.WithPaging(paging));
 
         var stores = new List<object>();
+        var parts = setupService.GetParts();
 
         foreach (var store in result.Results)
         {
             var findings = await setupService.CheckAsync(store);
             var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
+            var (shown, notShown) = access.SplitReadableFindings(context.User, store.Id, findings, parts);
 
             stores.Add(new
             {
@@ -62,7 +64,8 @@ public class StoreOverviewTools(
                 ready_to_open = blocking == 0,
                 blocking,
                 warnings = findings.CountBySeverity(McpFindingSeverities.Warning),
-                top_finding = findings.OrderBySeverity().FirstOrDefault()?.Title,
+                top_finding = shown.OrderBySeverity().FirstOrDefault()?.Title,
+                not_shown = notShown,
             });
         }
 
@@ -119,8 +122,8 @@ public class StoreOverviewTools(
     }
 
     [McpServerTool(Name = "get_store", ReadOnly = true, Destructive = false, Idempotent = true)]
-    [Description("One store with its whole setup: the basics (name, languages, currencies, addresses, the catalog and " +
-        "fulfillment center links), the current state of every installed module's part (such as payment and shipping " +
+    [Description("One store with its whole setup: the basics (name, languages, currencies, addresses and fulfillment " +
+        "center links), the current state of every installed module's part (such as the catalog, payment and shipping " +
         "methods and the tax provider), the settings changed from their defaults, and a readiness summary. Secrets are " +
         "never shown. Use it before changing a store's setup.")]
     public async Task<object> GetStore(
@@ -138,6 +141,7 @@ public class StoreOverviewTools(
 
         var findings = await setupService.CheckAsync(store);
         var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
+        var (shown, notShown) = access.SplitReadableFindings(context.User, store.Id, findings, setupService.GetParts());
 
         return new
         {
@@ -152,7 +156,8 @@ public class StoreOverviewTools(
                 ready_to_open = blocking == 0,
                 blocking,
                 warnings = findings.CountBySeverity(McpFindingSeverities.Warning),
-                top_findings = findings.OrderBySeverity().Take(TopFindingCount).Select(x => x.Title).ToList(),
+                top_findings = shown.OrderBySeverity().Take(TopFindingCount).Select(x => x.Title).ToList(),
+                not_shown = notShown,
             },
             next_step = "get_store_readiness_report for every finding with its fix; get_store_settings for every setting.",
         };

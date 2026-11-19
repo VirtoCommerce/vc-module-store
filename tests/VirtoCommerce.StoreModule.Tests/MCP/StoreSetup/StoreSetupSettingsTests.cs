@@ -131,6 +131,26 @@ public class StoreSetupSettingsTests
         Assert.Equal(expected, error == null);
     }
 
+    // The platform's settings save skips a null for a setting without allowed values, so a null could not return a
+    // setting without a default to anything: it is refused, and an empty text still clears a text.
+    [Fact]
+    public void TryConvert_Null_IsRefused_ForASettingWithoutADefault()
+    {
+        //Arrange
+        var measurementId = new SettingDescriptor { Name = "GoogleAnalytics4.MeasurementId", ModuleId = "VirtoCommerce.GoogleAnalytics4", ValueType = SettingValueType.ShortText };
+        var settings = CreateSettings();
+
+        //Act
+        var nullConverted = settings.TryConvert(measurementId, raw: null, out _, out var error);
+        var emptyConverted = settings.TryConvert(measurementId, JsonDocument.Parse("\"\"").RootElement, out var emptyValue, out _);
+
+        //Assert
+        Assert.False(nullConverted);
+        Assert.Equal("Setting 'GoogleAnalytics4.MeasurementId' has no default to return to. Send a value; an empty text clears a text setting.", error);
+        Assert.True(emptyConverted);
+        Assert.Equal(string.Empty, emptyValue);
+    }
+
     [Fact]
     public void TryConvert_Secret_IsRefused_WithAMessageThatNamesTheBackOffice()
     {

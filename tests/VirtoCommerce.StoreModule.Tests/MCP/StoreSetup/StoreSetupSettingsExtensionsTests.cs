@@ -70,6 +70,64 @@ public class StoreSetupSettingsExtensionsTests
         Assert.Equal(expected, StoreSetupFindings.BlocksGoLive(new McpFinding { Severity = severity }));
     }
 
+    [Fact]
+    public void GetEmptyRequiredSettings_NamesTheEmptyOnes_AndOnlyCountsSecrets()
+    {
+        //Arrange
+        var merchant = new SettingDescriptor { Name = "Test.Method.Merchant", ValueType = SettingValueType.ShortText, IsRequired = true };
+        var apiKey = new SettingDescriptor { Name = "Test.Method.ApiKey", ValueType = SettingValueType.ShortText, IsRequired = true };
+        var region = new SettingDescriptor { Name = "Test.Method.Region", ValueType = SettingValueType.ShortText, IsRequired = true, DefaultValue = "EU" };
+        var method = new TestMethod { Settings = [new ObjectSettingEntry(merchant) { Value = " " }] };
+
+        //Act
+        var (names, secretCount) = new KeySecretSettings().GetEmptyRequiredSettings(method, [merchant, apiKey, region, _mode]);
+
+        //Assert
+        Assert.Equal([merchant.Name], names);
+        Assert.Equal(1, secretCount);
+        Assert.Equal("Empty: Test.Method.Merchant. 1 secret setting is empty.", StoreSetupFindings.GetEmptySettingsEvidence(names, secretCount));
+        Assert.Equal("2 secret settings are empty.", StoreSetupFindings.GetEmptySettingsEvidence([], 2));
+    }
+
+    // Applying a plan to a method read again: only what the plan changes is copied, and what changed since stays.
+    [Fact]
+    public void GetChangedFields_And_CopySettings_ApplyOnlyWhatThePlanChanges()
+    {
+        //Arrange
+        var plan = new McpSetupPartPlan()
+            .AddChange("methods.card.active", false, true)
+            .AddChange($"methods.card.{_rate.Name}", 4.5m, 5m)
+            .AddChange("methods.cash.active", true, false);
+        var planned = new TestMethod { Settings = [new ObjectSettingEntry(_rate) { Value = 5m }, new ObjectSettingEntry(_mode) { Value = "Live" }] };
+        var readAgain = new TestMethod { Settings = [new ObjectSettingEntry(_mode) { Value = "Edited since" }] };
+
+        //Act
+        var fields = plan.GetChangedFields("methods.card.");
+        StoreSetupSettingsExtensions.CopySettings(planned, readAgain, fields);
+
+        //Assert
+        Assert.Equal(["active", _rate.Name], fields.Order());
+        Assert.Equal(5m, readAgain.Settings.Single(x => x.Name == _rate.Name).Value);
+        Assert.Equal("Edited since", readAgain.Settings.Single(x => x.Name == _mode.Name).Value);
+    }
+
+    // A change of letter case is a change of a text, as the platform compares setting values.
+    [Fact]
+    public void PlanSettings_ACaseOnlyChange_IsAChange()
+    {
+        //Arrange
+        var plan = new McpSetupPartPlan();
+        var method = new TestMethod { Settings = [new ObjectSettingEntry(_mode) { Value = "Test" }] };
+
+        //Act
+        var changed = new KeySecretSettings().PlanSettings(plan, method, [_mode], new Dictionary<string, object> { [_mode.Name] = "test" },
+            "methods.card.", "Method 'card'", "the options");
+
+        //Assert
+        Assert.Equal("test", changed[_mode.Name]);
+        Assert.Equal([$"methods.card.{_mode.Name}"], plan.Changes.Select(x => x.Field));
+    }
+
     private sealed class TestMethod : IHasSettings
     {
         public string Id { get; set; }

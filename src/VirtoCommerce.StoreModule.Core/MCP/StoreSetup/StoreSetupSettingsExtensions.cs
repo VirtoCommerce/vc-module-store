@@ -44,7 +44,8 @@ public static class StoreSetupSettingsExtensions
     // Plans a settings map on an object, as every part's section takes one:
     // - a name the object does not take, or a value TryConvert refuses (a secret, among others), is an error;
     // - a null returns the setting to its default: TryConvert turns it into the default value, which is then saved
-    //   itself, because the platform's settings save skips a null for most settings; the object keeps today's default;
+    //   itself, because the platform's settings save skips a null for most settings; the object keeps today's default.
+    //   A setting without a default, and without allowed values, refuses a null;
     // - a value equal to the one in effect changes nothing.
     // The object carries the planned values, and each change is a row of the plan whose field is the prefix and the
     // setting's name. Returns the changed settings with their new values.
@@ -108,5 +109,61 @@ public static class StoreSetupSettingsExtensions
         }
 
         return changed;
+    }
+
+    // The required settings of an object that have no value in effect, as a finding names them: the names of those that
+    // are not secrets, and how many secrets, which are never named.
+    public static (IList<string> Names, int SecretCount) GetEmptyRequiredSettings(this IStoreSetupSettings setupSettings, IHasSettings owner, IEnumerable<SettingDescriptor> descriptors)
+    {
+        ArgumentNullException.ThrowIfNull(setupSettings);
+
+        var empty = (descriptors ?? [])
+            .Where(x => x.IsRequired && IsEmpty(GetValue(owner, x)))
+            .ToList();
+
+        return (empty.Where(x => !setupSettings.IsSecret(x)).Select(x => x.Name).ToList(), empty.Count(setupSettings.IsSecret));
+    }
+
+    // The fields a plan changes on one object, from its rows: the field of each row whose field starts with the prefix,
+    // such as "active" or a setting's name for "methods.<code>.".
+    public static ISet<string> GetChangedFields(this McpSetupPartPlan plan, string fieldPrefix)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(fieldPrefix);
+
+        return plan.Changes
+            .Where(x => x.Field.StartsWith(fieldPrefix, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.Field[fieldPrefix.Length..])
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
+    // Applying a plan to an object read again: the settings named here take their planned values, and the others keep the
+    // values the object has now, so a change made since the plan stays.
+    public static void CopySettings(IHasSettings planned, IHasSettings target, ICollection<string> names)
+    {
+        ArgumentNullException.ThrowIfNull(planned);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(names);
+
+        target.Settings = target.Settings?.ToList() ?? [];
+
+        foreach (var plannedEntry in (planned.Settings ?? []).Where(x => names.Contains(x.Name)))
+        {
+            var entry = target.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(plannedEntry.Name));
+
+            if (entry == null)
+            {
+                target.Settings.Add(plannedEntry);
+            }
+            else
+            {
+                entry.Value = plannedEntry.Value;
+            }
+        }
+    }
+
+    private static bool IsEmpty(object value)
+    {
+        return value == null || value is string text && string.IsNullOrWhiteSpace(text);
     }
 }

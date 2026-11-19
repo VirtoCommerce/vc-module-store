@@ -35,6 +35,7 @@ public class StoreFinding : McpFinding
             Evidence = finding.Evidence,
             Fix = GetFix(finding, partTakesSection, backOfficeLink),
             Screen = finding.Screen,
+            ManualOnly = finding.ManualOnly,
             Category = finding.Category,
             ObjectType = finding.ObjectType,
             ObjectId = finding.ObjectId,
@@ -51,7 +52,8 @@ public class StoreFinding : McpFinding
             fix.Add(finding.Fix);
         }
 
-        if (partTakesSection)
+        // A finding only a person can fix, such as an empty secret, names no tool.
+        if (partTakesSection && !finding.ManualOnly)
         {
             fix.Add($"Tool: apply_store_setup with the '{finding.Category}' section.");
         }

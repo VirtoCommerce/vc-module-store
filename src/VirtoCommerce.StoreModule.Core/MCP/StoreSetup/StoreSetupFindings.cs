@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -28,5 +29,24 @@ public static class StoreSetupFindings
     public static bool BlocksGoLive(McpFinding finding)
     {
         return McpFindingSeverities.Critical.EqualsIgnoreCase(finding.Severity);
+    }
+
+    // The evidence of empty required settings (StoreSetupSettingsExtensions.GetEmptyRequiredSettings), with secrets
+    // counted, never named: "Empty: Merchant name. 1 secret setting is empty."
+    public static string GetEmptySettingsEvidence(IList<string> names, int secretCount)
+    {
+        var parts = new List<string>();
+
+        if (names?.Count > 0)
+        {
+            parts.Add($"Empty: {string.Join(", ", names)}.");
+        }
+
+        if (secretCount > 0)
+        {
+            parts.Add(secretCount == 1 ? "1 secret setting is empty." : $"{secretCount} secret settings are empty.");
+        }
+
+        return string.Join(" ", parts);
     }
 }

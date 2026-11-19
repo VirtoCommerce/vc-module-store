@@ -9,8 +9,11 @@ public class StoreSetupPreview : McpChangePreview
 {
     public IList<StoreSetupPartRow> Parts { get; set; } = [];
 
-    // What the store would miss after the change, or misses now after it.
+    // What the store would miss after the change, or misses now after it, from the parts the user may read.
     public IList<StoreFinding> MissingAfter { get; set; } = [];
+
+    // The findings of the parts the user may not read, counted per part with the permission that shows them.
+    public IList<string> NotShown { get; set; } = [];
 
     public string BackOffice { get; set; }
 

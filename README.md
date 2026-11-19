@@ -97,10 +97,10 @@ Every action waits in Agent approvals until a person with `mcp:approve` approves
 A store administrator who works through an AI agent needs these permissions (Security > Roles):
 
 ```json
-["store:access", "store:read", "store:create", "store:update", "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read"]
+["store:access", "store:read", "store:create", "store:update", "catalog:read", "catalog:create", "catalog:update", "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read"]
 ```
 
-`store:read`, `store:create` and `store:update` open the tools above; the `shipping` and `tax` ones open those parts of a store's setup; `platform:setting:read` opens the MCP module's `search_settings` and `explain_setting`, which explain the settings of the whole platform; `store:access` and `mcp:audit:read` open the **Stores** screen the answers link to and the **Agent audit log**.
+`store:read`, `store:create` and `store:update` open the tools above; the `catalog`, `shipping` and `tax` ones open those parts of a store's setup (the catalog part creates a new store's catalog and renames it later); `platform:setting:read` opens the MCP module's `search_settings` and `explain_setting`, which explain the settings of the whole platform; `store:access` and `mcp:audit:read` open the **Stores** screen the answers link to and the **Agent audit log**.
 
 Limit `store:read` and `store:update` to some stores to let the agent work with those stores only. The approver needs `mcp:approve` and the same permissions, because an approved change runs as the approver.
 
@@ -110,8 +110,8 @@ The module ships no routines: each person keeps their own in their assistant, fo
 
 ```text
 Launch a new store with the Virto Commerce store admin tools.
-1. Read get_store_setup_options. Ask me for the store's id and name, its languages and currencies, and the payment
-   methods, shipping methods and tax provider it uses. Offer only what the options list.
+1. Read get_store_setup_options. Ask me for the store's id and name, the name of its catalog, its languages and
+   currencies, and the payment methods, shipping methods and tax provider it uses. Offer only what the options list.
 2. Call create_configured_store with dryRun. Show me the changes and what the store would still miss. If it would
    not be ready, ask whether to create it anyway and finish it in the back office, or to complete the setup first.
 3. When I confirm, call it again without dryRun. It waits in Agent approvals: tell me so.
@@ -123,7 +123,7 @@ Never ask me for a secret, such as a payment key: I enter it in the back office.
 
 ### A module's part of a store's setup
 
-A store's setup is made of parts. Store owns two: `basics` (its own fields, including the optional links to a catalog and fulfillment centers) and `settings` (the store-level settings of every module). Another module adds its part in its `Initialize`, and Store never references it:
+A store's setup is made of parts. Store owns two: `basics` (its own fields, including the optional links to fulfillment centers) and `settings` (the store-level settings of every module). The store's catalog is the Catalog module's `catalog` part: a new store needs it, as its catalog is created by its name, and the same section renames the catalog later. Another module adds its part in its `Initialize`, and Store never references it:
 
 ```csharp
 serviceCollection.AddStoreSetupPart<PaymentStoreSetupPart>();
@@ -133,7 +133,7 @@ A part implements `IStoreSetupPart` and the duties it covers, any of them:
 
 | Interface | Duty |
 |-----------|------|
-| `IStoreSetupChoices` | What can be chosen on the installation, such as method codes. A choice names the field it fills with its section, such as `basics.catalog_id`. |
+| `IStoreSetupChoices` | What can be chosen on the installation, such as method codes. A choice names the field it fills with its section, such as `payment.methods.code`. |
 | `IStoreSetupState` | The store's current state for the part, in the shape of its section, without secrets. |
 | `IStoreSetupCheck` | What the store is missing: critical findings block going live, then warnings and notes. |
 | `IStoreSetupSection` | Applies the part's section of a setup: plans it without side effects, then applies it so that a repeat changes nothing. |
@@ -142,7 +142,7 @@ The shapes a part exchanges come from `VirtoCommerce.MCP.Core`, which Store.Core
 
 A part names the existing permissions that guard it, and the permission scope that limits them to stores (`McpSetupPermissions`; `StoreSetupPermissions.ForStore()` gives Store's own); the tools check them for every part. Secrets follow the MCP module's rule, `McpSecretSettings` ([Describe settings](https://github.com/VirtoCommerce/vc-module-mcp/blob/dev/docs/toolset-helpers.md#describe-settings)). A module adds its other secrets with `serviceCollection.AddMcpSecretSettings("MyModule.SigningCode")`.
 
-A part whose objects have settings, such as payment methods, follows Store's rules through `StoreSetupSettingsExtensions`: `DescribeAll` for its choices and `GetValues` for its state, both without secrets, and `PlanSettings` for a settings map in its section. `PlanSettings` refuses an unknown name, a secret and a wrong value, returns a setting to its default for a null, and changes nothing for the value already in effect. `StoreSetupFindings.ForStore` starts a finding about a store, with its back-office screen.
+A part whose objects have settings, such as payment methods, follows Store's rules through `StoreSetupSettingsExtensions`: `DescribeAll` for its choices and `GetValues` for its state, both without secrets, and `PlanSettings` for a settings map in its section. `PlanSettings` refuses an unknown name, a secret and a wrong value, returns a setting to its default for a null (a setting without a default refuses the null), and changes nothing for the value already in effect. `StoreSetupFindings.ForStore` starts a finding about a store, with its back-office screen.
 
 ## Architecture
 

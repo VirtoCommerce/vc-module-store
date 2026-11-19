@@ -15,7 +15,8 @@ using VirtoCommerce.StoreModule.Data.Services.Validation;
 
 namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 
-// Store's own fields: the name, languages, currencies, addresses and the links to a catalog and fulfillment centers.
+// Store's own fields: the name, languages, currencies, addresses and the links to fulfillment centers. The store's
+// catalog is the Catalog module's part ("catalog" section), as Store cannot create a catalog.
 public class StoreBasicsSetupPart(
     ISettingsManager settingsManager,
     ICurrencyService currencyService,
@@ -71,7 +72,6 @@ public class StoreBasicsSetupPart(
         section.TimeZone = store.TimeZone;
         section.Country = store.Country;
         section.Region = store.Region;
-        section.CatalogId = store.Catalog;
         section.MainFulfillmentCenterId = store.MainFulfillmentCenterId;
         section.AdditionalFulfillmentCenterIds = store.AdditionalFulfillmentCenterIds?.ToList() ?? [];
 
@@ -114,15 +114,6 @@ public class StoreBasicsSetupPart(
                 $"Add {context.Currency} to the store's currencies."));
         }
 
-        if (string.IsNullOrEmpty(store.Catalog))
-        {
-            findings.Add(CreateFinding(store, "basics-no-catalog", McpFindingSeverities.Warning,
-                "No catalog is linked to the store",
-                "Without a catalog the store has nothing to sell.",
-                "Catalog: none.",
-                "Link the catalog the store sells from."));
-        }
-
         if (string.IsNullOrEmpty(store.Url) && string.IsNullOrEmpty(store.SecureUrl))
         {
             findings.Add(CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
@@ -160,13 +151,42 @@ public class StoreBasicsSetupPart(
 
         ApplySection(plan, context.Store, basics);
 
+        if (!context.IsNewStore && string.IsNullOrWhiteSpace(context.Store.Name))
+        {
+            plan.Errors.Add("A store needs a name: it cannot be cleared.");
+        }
+
         if (context.IsNewStore)
         {
             AddValidationErrors(plan, context.Store);
         }
+        AddLengthErrors(plan, context.Store);
         await ValidateAsync(plan, context.Store, basics);
 
         return plan;
+    }
+
+    // The lengths of the store's columns: a longer text would be refused only when the store is saved, after the approval.
+    protected virtual void AddLengthErrors(McpSetupPartPlan plan, Store store)
+    {
+        var fields = new (string Field, string Value, int MaxLength)[]
+        {
+            ("name", store.Name, 128),
+            ("description", store.Description, 256),
+            ("url", store.Url, 256),
+            ("secure_url", store.SecureUrl, 128),
+            ("email", store.Email, 128),
+            ("admin_email", store.AdminEmail, 128),
+            ("time_zone", store.TimeZone, 128),
+            ("country", store.Country, 128),
+            ("region", store.Region, 128),
+            ("main_fulfillment_center_id", store.MainFulfillmentCenterId, 128),
+        };
+
+        foreach (var (field, value, maxLength) in fields.Where(x => x.Value?.Length > x.MaxLength))
+        {
+            plan.Errors.Add($"{field} takes at most {maxLength} characters.");
+        }
     }
 
     public virtual async Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan)
@@ -209,13 +229,12 @@ public class StoreBasicsSetupPart(
         PlanText(plan, "time_zone", store.TimeZone, section.TimeZone, x => store.TimeZone = x);
         PlanText(plan, "country", store.Country, section.Country, x => store.Country = x);
         PlanText(plan, "region", store.Region, section.Region, x => store.Region = x);
-        PlanText(plan, "catalog_id", store.Catalog, section.CatalogId, x => store.Catalog = x);
         PlanText(plan, "main_fulfillment_center_id", store.MainFulfillmentCenterId, section.MainFulfillmentCenterId, x => store.MainFulfillmentCenterId = x);
         PlanList(plan, "additional_fulfillment_center_ids", store.AdditionalFulfillmentCenterIds, section.AdditionalFulfillmentCenterIds, x => store.AdditionalFulfillmentCenterIds = x);
     }
 
-    // The languages, currencies and country must be the platform's; each default must be one of its list. The links to a
-    // catalog and fulfillment centers are not checked: their modules own them.
+    // The languages, currencies and country must be the platform's; each default must be one of its list. The links to
+    // fulfillment centers are not checked: their module owns them.
     protected virtual async Task ValidateAsync(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
     {
         if (section.Languages != null || section.DefaultLanguage != null)

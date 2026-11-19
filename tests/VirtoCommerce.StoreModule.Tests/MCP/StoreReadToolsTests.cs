@@ -58,6 +58,45 @@ public class StoreReadToolsTests
         other.EnsureOutcome(McpToolCallOutcome.Forbidden);
     }
 
+    // The comparison starts from the user's own store, which the user may read, so only the other store refuses it.
+    [Fact]
+    public async Task StoreReads_OfAStoreTheUserDoesNotManage_AreForbidden()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var ownComparison = await CallAsync(harness, StoreAAdministrator(), "compare_store_settings", new { store_id = StoreA });
+        var report = await CallAsync(harness, StoreAAdministrator(), "get_store_readiness_report", new { store_id = StoreB });
+        var settings = await CallAsync(harness, StoreAAdministrator(), "get_store_settings", new { store_id = StoreB });
+        var comparison = await CallAsync(harness, StoreAAdministrator(), "compare_store_settings", new { store_id = StoreA, other_store_id = StoreB });
+
+        //Assert
+        ownComparison.EnsureSucceeded();
+        report.EnsureOutcome(McpToolCallOutcome.Forbidden);
+        settings.EnsureOutcome(McpToolCallOutcome.Forbidden);
+        comparison.EnsureOutcome(McpToolCallOutcome.Forbidden);
+    }
+
+    // Access is checked before the store is loaded: a user of one store learns nothing about other ids, not even whether
+    // a store has one.
+    [Fact]
+    public async Task GetStore_OfAnUnknownId_IsForbidden_ForAUserOfOneStore()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var ofOneStore = await CallAsync(harness, StoreAAdministrator(), "get_store", new { store_id = "no-such-store" });
+        var ofEveryStore = await CallAsync(harness, StoreAdministrator(), "get_store", new { store_id = "no-such-store" });
+
+        //Assert
+        ofOneStore.EnsureOutcome(McpToolCallOutcome.Forbidden);
+        Assert.DoesNotContain("not found", ofOneStore.Error);
+        ofEveryStore.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Contains("was not found", ofEveryStore.Error);
+    }
+
     [Fact]
     public async Task GetStore_CountsTheSettingsChangedFromTheirDefaults_WithoutSecrets()
     {
@@ -99,6 +138,24 @@ public class StoreReadToolsTests
         var hiddenState = hidden.EnsureSucceeded().Json.GetProperty("parts").GetProperty("shipping");
         Assert.Equal("Not shown: needs shipping:read.", hiddenState.GetString());
         Assert.Equal("Store A", hidden.Json.GetProperty("parts").GetProperty("basics").GetProperty("name").GetString());
+    }
+
+    // The part's read permission is limited to stores, and the user's grant names store B only.
+    [Fact]
+    public async Task GetStore_WithThePartsReadPermissionForAnotherStoreOnly_DoesNotShowThePart()
+    {
+        //Arrange
+        var shipping = new TestStatePart("shipping", new McpSetupPermissions { Read = "shipping:read", ScopeType = "StoreSelectedScope" });
+        await using var harness = CreateHarness(shipping);
+        var user = McpTestUser.Create("store-b-shipping").WithPermissions("store:read").WithScopedPermission("shipping:read", "StoreSelectedScope", StoreB);
+
+        //Act
+        var storeA = await CallAsync(harness, user, "get_store", new { store_id = StoreA });
+        var storeB = await CallAsync(harness, user, "get_store", new { store_id = StoreB });
+
+        //Assert
+        Assert.Equal("Not shown: needs shipping:read.", storeA.EnsureSucceeded().Json.GetProperty("parts").GetProperty("shipping").GetString());
+        Assert.Equal("FixedRate", storeB.EnsureSucceeded().Json.GetProperty("parts").GetProperty("shipping").GetProperty("methods")[0].GetString());
     }
 
     [Fact]
@@ -253,13 +310,15 @@ public class StoreReadToolsTests
 
         //Assert
         var parts = result.EnsureSucceeded().Json.GetProperty("parts").EnumerateArray().ToDictionary(x => x.GetProperty("name").GetString());
-        Assert.Equal(["basics", "settings", "shipping"], parts.Keys);
+        Assert.Equal(["basics", "settings", "catalog", "shipping"], parts.Keys);
 
         var basics = parts["basics"];
         Assert.True(basics.GetProperty("required_for_new_store").GetBoolean());
         var basicsFields = basics.GetProperty("section_schema").GetProperty("properties");
         Assert.Equal("Store name. Required for a new store.", basicsFields.GetProperty("name").GetProperty("description").GetString());
-        Assert.True(basicsFields.TryGetProperty("catalog_id", out _));
+        Assert.True(basicsFields.TryGetProperty("main_fulfillment_center_id", out _));
+        Assert.False(basicsFields.TryGetProperty("catalog_id", out _));
+        Assert.True(parts["catalog"].GetProperty("required_for_new_store").GetBoolean());
         Assert.Contains(basics.GetProperty("choices").EnumerateArray(), x => x.GetProperty("field").GetString() == "basics.languages" && x.GetProperty("value").GetString() == "de-DE");
 
         var settings = parts["settings"];
@@ -289,8 +348,25 @@ public class StoreReadToolsTests
         var stores = json.GetProperty("stores").EnumerateArray().ToList();
         Assert.Equal([StoreA, StoreB], stores.Select(x => x.GetProperty("store_id").GetString()));
         Assert.True(stores[0].GetProperty("ready_to_open").GetBoolean());
-        Assert.Equal(1, stores[1].GetProperty("warnings").GetInt32());
-        Assert.Equal("No catalog is linked to the store", stores[1].GetProperty("top_finding").GetString());
+        Assert.Equal(0, stores[1].GetProperty("warnings").GetInt32());
+        Assert.False(stores[1].TryGetProperty("top_finding", out _));
+    }
+
+    // Store B, which store A's administrator may not read, is open: a count of every store would show it.
+    [Fact]
+    public async Task GetStoreOverview_UserOfOneStore_CountsOnlyThatStore()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAAdministrator(), "get_store_overview");
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        var byState = json.GetProperty("stores_by_state");
+        Assert.Equal((0, 1, 0), (byState.GetProperty("open").GetInt32(), byState.GetProperty("closed").GetInt32(), byState.GetProperty("restricted_access").GetInt32()));
+        Assert.Equal([StoreA], GetStoreIds(json.GetProperty("stores")));
     }
 
     // A warning comes before an info, which the order of the severities' names would reverse.
@@ -340,6 +416,89 @@ public class StoreReadToolsTests
         Assert.Equal((1, false), (storeA.GetProperty("blocking").GetInt32(), storeA.GetProperty("ready_to_open").GetBoolean()));
         var readiness = store.EnsureSucceeded().Json.GetProperty("readiness");
         Assert.Equal((1, false), (readiness.GetProperty("blocking").GetInt32(), readiness.GetProperty("ready_to_open").GetBoolean()));
+    }
+
+    // A finding shows with its part's state only. A user who may not read the catalog part gets the part's note instead,
+    // and the finding still keeps the store from opening.
+    [Fact]
+    public async Task GetStoreReadinessReport_FindingOfAPartTheUserMayNotRead_IsCountedNotShown_AndStillBlocks()
+    {
+        //Arrange
+        await using var harness = CreateHarness(CreateCatalogPart());
+        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
+        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+
+        //Act
+        var hidden = await CallAsync(harness, withoutCatalogRead, "get_store_readiness_report", new { store_id = StoreA });
+        var shown = await CallAsync(harness, withCatalogRead, "get_store_readiness_report", new { store_id = StoreA });
+
+        //Assert
+        var hiddenJson = hidden.EnsureSucceeded().Json;
+        Assert.Empty(hiddenJson.GetProperty("findings").EnumerateArray());
+        Assert.Equal([CatalogNotShown], hiddenJson.GetProperty("not_shown").EnumerateArray().Select(x => x.GetString()));
+        Assert.False(hiddenJson.GetProperty("ready_to_open").GetBoolean());
+        Assert.DoesNotContain("Finding catalog-no-products", hidden.Text);
+        Assert.DoesNotContain("Evidence of catalog-no-products", hidden.Text);
+
+        var shownJson = shown.EnsureSucceeded().Json;
+        Assert.Equal("catalog-no-products", Assert.Single(shownJson.GetProperty("findings").EnumerateArray()).GetProperty("id").GetString());
+        Assert.Empty(shownJson.GetProperty("not_shown").EnumerateArray());
+        Assert.Contains("Evidence of catalog-no-products", shown.Text);
+    }
+
+    // On store B, the warning the user may read is the top finding, although the hidden finding is more severe.
+    [Fact]
+    public async Task GetStoreOverview_FindingOfAPartTheUserMayNotRead_IsCountedNotShown_AndStillBlocks()
+    {
+        //Arrange
+        var notes = new TestCheckPart("notes").WithFinding("note-warning", McpFindingSeverities.Warning);
+        await using var harness = CreateHarness(CreateCatalogPart(), notes);
+        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
+        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+
+        //Act
+        var hidden = await CallAsync(harness, withoutCatalogRead, "get_store_overview");
+        var shown = await CallAsync(harness, withCatalogRead, "get_store_overview");
+
+        //Assert
+        var hiddenStoreA = hidden.EnsureSucceeded().Json.GetProperty("stores").EnumerateArray().Single(x => x.GetProperty("store_id").GetString() == StoreA);
+        // The warning the user may read is the top finding, although the hidden one is more severe.
+        Assert.Equal("Finding note-warning", hiddenStoreA.GetProperty("top_finding").GetString());
+        Assert.Equal((1, false), (hiddenStoreA.GetProperty("blocking").GetInt32(), hiddenStoreA.GetProperty("ready_to_open").GetBoolean()));
+        Assert.Equal([CatalogNotShown], hiddenStoreA.GetProperty("not_shown").EnumerateArray().Select(x => x.GetString()));
+        Assert.DoesNotContain("Finding catalog-no-products", hidden.Text);
+        Assert.DoesNotContain("Evidence of catalog-no-products", hidden.Text);
+
+        var shownStoreA = shown.EnsureSucceeded().Json.GetProperty("stores").EnumerateArray().Single(x => x.GetProperty("store_id").GetString() == StoreA);
+        Assert.Equal("Finding catalog-no-products", shownStoreA.GetProperty("top_finding").GetString());
+        Assert.Empty(shownStoreA.GetProperty("not_shown").EnumerateArray());
+        Assert.Contains("Finding catalog-no-products", shown.Text);
+    }
+
+    [Fact]
+    public async Task GetStore_FindingOfAPartTheUserMayNotRead_IsCountedNotShown_AndStillBlocks()
+    {
+        //Arrange
+        await using var harness = CreateHarness(CreateCatalogPart());
+        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
+        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+
+        //Act
+        var hidden = await CallAsync(harness, withoutCatalogRead, "get_store", new { store_id = StoreA });
+        var shown = await CallAsync(harness, withCatalogRead, "get_store", new { store_id = StoreA });
+
+        //Assert
+        var hiddenReadiness = hidden.EnsureSucceeded().Json.GetProperty("readiness");
+        Assert.Empty(hiddenReadiness.GetProperty("top_findings").EnumerateArray());
+        Assert.Equal((1, false), (hiddenReadiness.GetProperty("blocking").GetInt32(), hiddenReadiness.GetProperty("ready_to_open").GetBoolean()));
+        Assert.Equal([CatalogNotShown], hiddenReadiness.GetProperty("not_shown").EnumerateArray().Select(x => x.GetString()));
+        Assert.DoesNotContain("Finding catalog-no-products", hidden.Text);
+        Assert.DoesNotContain("Evidence of catalog-no-products", hidden.Text);
+
+        var shownReadiness = shown.EnsureSucceeded().Json.GetProperty("readiness");
+        Assert.Equal(["Finding catalog-no-products"], shownReadiness.GetProperty("top_findings").EnumerateArray().Select(x => x.GetString()));
+        Assert.Empty(shownReadiness.GetProperty("not_shown").EnumerateArray());
+        Assert.Contains("Finding catalog-no-products", shown.Text);
     }
 
     [Fact]
