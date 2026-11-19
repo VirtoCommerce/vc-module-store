@@ -25,8 +25,9 @@ namespace VirtoCommerce.StoreModule.MCP.Tools;
 [McpPermission(StorePermissions.Read)]
 public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupService, StoreBackOfficeLinks links, ILogger<StoreReadinessTools> logger)
 {
-    // The most choices listed per part; a part lists its most likely choices first.
-    public const int MaxChoicesPerPart = 50;
+    // The most choices listed per field of a part, such as the basics' languages and currencies; a part lists its most
+    // likely choices first.
+    public const int MaxChoicesPerField = 50;
 
     // The rules every section of a setup follows.
     private static readonly string[] _setupRules =
@@ -80,7 +81,7 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
     [Description("What a store's setup consists of on this installation: every part (the store's basics and settings, and " +
         "the parts of installed modules such as payment, shipping and tax), the fields of each part's section as a JSON " +
         "schema, and what can be chosen (languages, currencies, catalogs, method and provider codes with their settings). " +
-        "A part's choices show with the part's read permission, at most 50 per part. Read it before setting up a store, " +
+        "A part's choices show with the part's read permission, at most 50 per field. Read it before setting up a store, " +
         "and send only what it lists.")]
     public async Task<object> GetStoreSetupOptions(RequestContext<CallToolRequestParams> context)
     {
@@ -122,13 +123,17 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
                 return null;
             }
 
+            // Capped per field, so a long list of one field, such as the languages, never hides another, such as the
+            // currencies. Each field keeps the part's order.
+            var fields = choices.GroupBy(x => x.Field, StringComparer.OrdinalIgnoreCase).ToList();
+
             return new
             {
                 name = part.Name,
                 title = part.Title,
                 required_for_new_store = section?.IsRequiredForNewStore ?? false,
                 section_schema = section == null ? (object)null : AIJsonUtilities.CreateJsonSchema(section.SectionType, serializerOptions: McpSerialization.Options),
-                choices = choices.Take(MaxChoicesPerPart).Select(x => new
+                choices = fields.SelectMany(x => x.Take(MaxChoicesPerField)).Select(x => new
                 {
                     field = x.Field,
                     value = x.Value,
@@ -136,7 +141,10 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
                     description = x.Description,
                     settings = x.Settings?.Count > 0 ? x.Settings : null,
                 }).ToList(),
-                choices_cut = choices.Count > MaxChoicesPerPart ? $"{MaxChoicesPerPart} of {choices.Count} choices listed, the most likely first." : null,
+                choices_cut = fields
+                    .Where(x => x.Count() > MaxChoicesPerField)
+                    .Select(x => $"{x.Key}: {MaxChoicesPerField} of {x.Count()} listed, the most likely first.")
+                    .ToList() is { Count: > 0 } cut ? cut : null,
                 choices_not_shown = withChoices != null && !choicesShown ? $"needs {part.Permissions?.Read}" : null,
             };
         }

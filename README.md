@@ -84,7 +84,7 @@ With the [MCP module](https://github.com/VirtoCommerce/vc-module-mcp) installed 
 | `get_store_settings` | The store-level settings of every installed module, with their meaning, default and value. |
 | `compare_store_settings` | The settings that differ between two stores, or between a store and the defaults. |
 | `get_store_readiness_report` | What a store is missing before it goes live: why each item matters, how to fix it and whether it blocks opening the store. With a currency or a country, whether its customers can check out (`can_check_out`), apart from going live. |
-| `get_store_setup_options` | What a store's setup consists of on this installation, and what can be chosen. A part's choices, such as the catalogs, show with the part's read permission, at most 50 per part. |
+| `get_store_setup_options` | What a store's setup consists of on this installation, and what can be chosen. A part's choices, such as the catalogs, show with the part's read permission, at most 50 per field. |
 | `create_configured_store` | Creates a store with its whole setup in one call. The store is created closed. |
 | `apply_store_setup` | Changes one part or several of a store's setup in one call. |
 | `open_store` | Opens a store; refused while something blocks it from going live. |

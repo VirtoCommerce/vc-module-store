@@ -674,11 +674,13 @@ public class StoreReadToolsTests
         Assert.False(basics.TryGetProperty("choices_not_shown", out _));
     }
 
+    // The cap is per field: 60 lists are cut to 50, and the kinds after them are all listed, as the currencies after a
+    // long list of languages are.
     [Fact]
-    public async Task GetStoreSetupOptions_ListsAtMost50ChoicesPerPart_AndSaysWhenItCuts()
+    public async Task GetStoreSetupOptions_ListsAtMost50ChoicesPerField_AndSaysWhichFieldItCuts()
     {
         //Arrange
-        await using var harness = CreateHarness(new TestChoicesPart(60));
+        await using var harness = CreateHarness(new TestChoicesPart(60, kindCount: 3));
         var reader = McpTestUser.Create("lists-reader").WithPermissions(RolePermissions).WithPermissions(TestChoicesPart.ReadPermission);
 
         //Act
@@ -686,10 +688,12 @@ public class StoreReadToolsTests
 
         //Assert
         var part = GetOptionsPart(result, "lists");
-        var choices = part.GetProperty("choices").EnumerateArray().ToList();
-        Assert.Equal(50, choices.Count);
-        Assert.Equal("list-01", choices[0].GetProperty("value").GetString());
-        Assert.Equal("50 of 60 choices listed, the most likely first.", part.GetProperty("choices_cut").GetString());
+        var choices = part.GetProperty("choices").EnumerateArray().Select(x => x.GetProperty("value").GetString()).ToList();
+        Assert.Equal(53, choices.Count);
+        Assert.Equal("list-01", choices[0]);
+        Assert.Equal("list-50", choices[49]);
+        Assert.Equal(["kind-1", "kind-2", "kind-3"], choices.Skip(50));
+        Assert.Equal(["lists.id: 50 of 60 listed, the most likely first."], part.GetProperty("choices_cut").EnumerateArray().Select(x => x.GetString()));
     }
 
     private static JsonElement GetOptionsPart(McpToolCallResult result, string name)
