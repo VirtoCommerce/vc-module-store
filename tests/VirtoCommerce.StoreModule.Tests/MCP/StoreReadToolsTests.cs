@@ -635,6 +635,68 @@ public class StoreReadToolsTests
         Assert.DoesNotContain(TestFailingChoicesPart.ExceptionText, json.GetRawText());
     }
 
+    // A part's choices are its module's data: they show with the part's read permission, as its state and findings do,
+    // and the row says when they do not.
+    [Fact]
+    public async Task GetStoreSetupOptions_ShowsAPartsChoices_OnlyWithThePartsReadPermission()
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestChoicesPart(2));
+        var reader = McpTestUser.Create("lists-reader").WithPermissions(RolePermissions).WithPermissions(TestChoicesPart.ReadPermission);
+
+        //Act
+        var withoutGrant = await CallAsync(harness, StoreAdministrator(), "get_store_setup_options");
+        var withGrant = await CallAsync(harness, reader, "get_store_setup_options");
+
+        //Assert
+        var hidden = GetOptionsPart(withoutGrant, "lists");
+        Assert.Empty(hidden.GetProperty("choices").EnumerateArray());
+        Assert.Equal("needs test:read", hidden.GetProperty("choices_not_shown").GetString());
+        var shown = GetOptionsPart(withGrant, "lists");
+        Assert.Equal(["list-01", "list-02"], shown.GetProperty("choices").EnumerateArray().Select(x => x.GetProperty("value").GetString()));
+        Assert.False(shown.TryGetProperty("choices_not_shown", out _));
+    }
+
+    // Store's own parts are limited to stores: a user of one store reads them for that store, so their choices show,
+    // though the options name no store.
+    [Fact]
+    public async Task GetStoreSetupOptions_ShowsStoresOwnChoices_ToAUserOfOneStore()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAAdministrator(), "get_store_setup_options");
+
+        //Assert
+        var basics = GetOptionsPart(result, "basics");
+        Assert.NotEmpty(basics.GetProperty("choices").EnumerateArray());
+        Assert.False(basics.TryGetProperty("choices_not_shown", out _));
+    }
+
+    [Fact]
+    public async Task GetStoreSetupOptions_ListsAtMost50ChoicesPerPart_AndSaysWhenItCuts()
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestChoicesPart(60));
+        var reader = McpTestUser.Create("lists-reader").WithPermissions(RolePermissions).WithPermissions(TestChoicesPart.ReadPermission);
+
+        //Act
+        var result = await CallAsync(harness, reader, "get_store_setup_options");
+
+        //Assert
+        var part = GetOptionsPart(result, "lists");
+        var choices = part.GetProperty("choices").EnumerateArray().ToList();
+        Assert.Equal(50, choices.Count);
+        Assert.Equal("list-01", choices[0].GetProperty("value").GetString());
+        Assert.Equal("50 of 60 choices listed, the most likely first.", part.GetProperty("choices_cut").GetString());
+    }
+
+    private static JsonElement GetOptionsPart(McpToolCallResult result, string name)
+    {
+        return result.EnsureSucceeded().Json.GetProperty("parts").EnumerateArray().Single(x => x.GetProperty("name").GetString() == name);
+    }
+
     private static string[] GetStoreIds(JsonElement items)
     {
         return items.EnumerateArray().Select(x => x.GetProperty("store_id").GetString()).ToArray();

@@ -12,6 +12,7 @@ using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using VirtoCommerce.MCP.Core;
 using VirtoCommerce.MCP.Core.Attributes;
+using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
@@ -65,7 +66,7 @@ public class StoreSetupTools(
         }
 
         var user = context.User;
-        var sections = ReadSections(setup);
+        var sections = await ReadSectionsAsync(setup);
         var warnings = new List<string>();
         var existingStore = await storeService.GetByIdAsync(store_id);
         var isNewStore = existingStore == null;
@@ -107,7 +108,7 @@ public class StoreSetupTools(
         bool dryRun = false)
     {
         var store = await access.GetUpdatableStoreAsync(context.User, store_id);
-        var sections = ReadSections(setup);
+        var sections = await ReadSectionsAsync(setup);
         EnsurePartPermissions(context.User, sections, store.Id, isNewStore: false);
         // A rename gets the warning a new store's name gets.
         var warnings = await GetSameNameWarningsAsync(sections, store.Id, store.Name);
@@ -126,7 +127,7 @@ public class StoreSetupTools(
 
         if (result.Errors.Count > 0)
         {
-            throw new McpException($"The setup was refused, and nothing was changed. {string.Join(" ", result.Errors)}");
+            throw await CreateRefusalAsync(result.Errors);
         }
 
         // An approval for nothing is not submitted.
@@ -145,7 +146,7 @@ public class StoreSetupTools(
 
     // Each section in the type of its part. A name no part takes stays in, without a section, so the setup service
     // names it in its refusal with every other error of the request.
-    private IDictionary<string, object> ReadSections(Dictionary<string, JsonElement> setup)
+    private async Task<IDictionary<string, object>> ReadSectionsAsync(Dictionary<string, JsonElement> setup)
     {
         if (setup == null || setup.Count == 0)
         {
@@ -179,14 +180,14 @@ public class StoreSetupTools(
 
         if (errors.Count > 0)
         {
-            throw new McpException($"The setup was refused, and nothing was changed. {string.Join(" ", errors)}");
+            throw await CreateRefusalAsync(errors);
         }
 
         return sections;
     }
 
     // A part checks its own module's permission: to create, the part's Create permission; to change, its Update one.
-    // The sections are keyed by part name, whatever its case (ReadSections).
+    // The sections are keyed by part name, whatever its case (ReadSectionsAsync).
     private void EnsurePartPermissions(ClaimsPrincipal user, IDictionary<string, object> sections, string storeId, bool isNewStore)
     {
         foreach (var part in setupService.GetParts().Where(x => sections.ContainsKey(x.Name)))
@@ -278,6 +279,15 @@ public class StoreSetupTools(
         }
 
         return preview;
+    }
+
+    // A refusal names every error, then the Stores screen, where a person can also finish the setup: a part's error, such
+    // as a catalog the store cannot change through a setup, names its screen without a link.
+    private async Task<McpException> CreateRefusalAsync(IEnumerable<string> errors)
+    {
+        var link = await links.GetStoresLinkAsync();
+
+        return new McpException($"The setup was refused, and nothing was changed. {string.Join(" ", errors)} Back office: {"Stores".WithLink(link)}.");
     }
 
     private static StoreSetupPartRow CreatePartRow(McpSetupPartResult partResult)

@@ -39,8 +39,8 @@ public static class StoreToolsTestContext
     // The role of a store administrator who works through an AI agent, as the README writes it down.
     public static readonly string[] RolePermissions =
     [
-        "store:access", "store:read", "store:create", "store:update", "shipping:read", "shipping:update", "tax:read",
-        "tax:update", "platform:setting:read", "mcp:audit:read",
+        "store:access", "store:read", "store:create", "store:update", "catalog:read", "catalog:create", "catalog:update",
+        "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read",
     ];
 
     public static readonly SettingDescriptor TaxCalculation = new() { Name = "Stores.TaxCalculationEnabled", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.Boolean, DefaultValue = false };

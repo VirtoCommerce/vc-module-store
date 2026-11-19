@@ -82,6 +82,16 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
         return IsAllowed(user, part.Permissions?.Read, part.Permissions?.ScopeType, storeId);
     }
 
+    // Whether the user may read the part for some store, as the setup options name no store: a global grant, or, for a
+    // part limited to stores, a grant for any of them.
+    public static bool CanReadForSomeStore(ClaimsPrincipal user, IStoreSetupPart part)
+    {
+        var scopeType = part.Permissions?.ScopeType;
+        var grant = user.GetMcpPermissionGrant(part.Permissions?.Read);
+
+        return grant != null && (grant.IsGlobal || (!string.IsNullOrEmpty(scopeType) && grant.GetScopeValues(scopeType).Count > 0));
+    }
+
     // The findings the user may read on the store: a finding belongs to the part named by its category and shows when the
     // part's state does (CanRead). The others are counted per part, with the permission that shows them, and are still
     // counted wherever readiness is decided.

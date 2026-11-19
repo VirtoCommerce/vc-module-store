@@ -573,6 +573,23 @@ public class StoreActionToolsTests
         Assert.DoesNotContain(GetWarnings(unchanged.EnsureSucceeded()), x => x.StartsWith("Another store is already named"));
     }
 
+    // A refusal ends with the Stores screen and its link, where a person can also finish the setup: a part's error names
+    // its screen in words only.
+    [Fact]
+    public async Task ApplyStoreSetup_ARefusal_EndsWithTheStoresScreen_AndItsLink()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup = new { basics = new { name = "" } }, dryRun = true });
+
+        //Assert
+        Assert.Equal(McpToolCallOutcome.Failed, result.Outcome);
+        Assert.StartsWith("The setup was refused, and nothing was changed. basics: A store needs a name", result.Error);
+        Assert.EndsWith("Back office: Stores (https://admin.example.com/#!/workspace/store).", result.Error);
+    }
+
     private static Dictionary<string, object> CompleteSetup()
     {
         return new Dictionary<string, object>

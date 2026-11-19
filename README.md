@@ -84,7 +84,7 @@ With the [MCP module](https://github.com/VirtoCommerce/vc-module-mcp) installed 
 | `get_store_settings` | The store-level settings of every installed module, with their meaning, default and value. |
 | `compare_store_settings` | The settings that differ between two stores, or between a store and the defaults. |
 | `get_store_readiness_report` | What a store is missing before it goes live: why each item matters, how to fix it and whether it blocks opening the store. With a currency or a country, whether its customers can check out (`can_check_out`), apart from going live. |
-| `get_store_setup_options` | What a store's setup consists of on this installation, and what can be chosen. |
+| `get_store_setup_options` | What a store's setup consists of on this installation, and what can be chosen. A part's choices, such as the catalogs, show with the part's read permission, at most 50 per part. |
 | `create_configured_store` | Creates a store with its whole setup in one call. The store is created closed. |
 | `apply_store_setup` | Changes one part or several of a store's setup in one call. |
 | `open_store` | Opens a store; refused while something blocks it from going live. |
@@ -100,7 +100,7 @@ A store administrator who works through an AI agent needs these permissions (Sec
 ["store:access", "store:read", "store:create", "store:update", "catalog:read", "catalog:create", "catalog:update", "shipping:read", "shipping:update", "tax:read", "tax:update", "platform:setting:read", "mcp:audit:read"]
 ```
 
-`store:read`, `store:create` and `store:update` open the tools above; the `catalog`, `shipping` and `tax` ones open those parts of a store's setup (the catalog part creates a new store's catalog and renames it later); `platform:setting:read` opens the MCP module's `search_settings` and `explain_setting`, which explain the settings of the whole platform; `store:access` and `mcp:audit:read` open the **Stores** screen the answers link to and the **Agent audit log**.
+`store:read`, `store:create` and `store:update` open the tools above; the `catalog`, `shipping` and `tax` ones open those parts of a store's setup (the catalog part gives a new store a new catalog or an existing one, and renames a store's catalog later); `platform:setting:read` opens the MCP module's `search_settings` and `explain_setting`, which explain the settings of the whole platform; `store:access` and `mcp:audit:read` open the **Stores** screen the answers link to and the **Agent audit log**.
 
 Limit `store:read` and `store:update` to some stores to let the agent work with those stores only. The approver needs `mcp:approve` and the same permissions, because an approved change runs as the approver.
 
@@ -110,8 +110,9 @@ The module ships no routines: each person keeps their own in their assistant, fo
 
 ```text
 Launch a new store with the Virto Commerce store admin tools.
-1. Read get_store_setup_options. Ask me for the store's id and name, the name of its catalog, its languages and
-   currencies, and the payment methods, shipping methods and tax provider it uses. Offer only what the options list.
+1. Read get_store_setup_options. Ask me for the store's id and name, its catalog (an existing catalog from the
+   options, sent by its id, or a new one, sent by its name), its languages and currencies, and the payment methods,
+   shipping methods and tax provider it uses. Offer only what the options list.
 2. Call create_configured_store with dryRun. Show me the changes and what the store would still miss. If it would
    not be ready, ask whether to create it anyway and finish it in the back office, or to complete the setup first.
 3. When I confirm, call it again without dryRun. It waits in Agent approvals: tell me so.
@@ -123,7 +124,7 @@ Never ask me for a secret, such as a payment key: I enter it in the back office.
 
 ### A module's part of a store's setup
 
-A store's setup is made of parts. Store owns two: `basics` (its own fields, including the optional links to fulfillment centers) and `settings` (the store-level settings of every module). The store's catalog is the Catalog module's `catalog` part: a new store needs it, as its catalog is created by its name, and the same section renames the catalog later. Another module adds its part in its `Initialize`, and Store never references it:
+A store's setup is made of parts. Store owns two: `basics` (its own fields, including the optional links to fulfillment centers) and `settings` (the store-level settings of every module). The store's catalog is the Catalog module's `catalog` part, which a new store needs: its `id` gives the store an existing catalog, shared with the stores that already sell from it, and its `name` alone creates a new, empty catalog. For an existing store, the section renames its catalog; which catalog a store sells from is changed in the back office. Whenever the section is planned, the catalog gains the store's languages it lacks, and never loses one. Another module adds its part in its `Initialize`, and Store never references it:
 
 ```csharp
 serviceCollection.AddStoreSetupPart<PaymentStoreSetupPart>();

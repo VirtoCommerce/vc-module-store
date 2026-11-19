@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,9 @@ namespace VirtoCommerce.StoreModule.MCP.Tools;
 [McpPermission(StorePermissions.Read)]
 public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupService, StoreBackOfficeLinks links, ILogger<StoreReadinessTools> logger)
 {
+    // The most choices listed per part; a part lists its most likely choices first.
+    public const int MaxChoicesPerPart = 50;
+
     // The rules every section of a setup follows.
     private static readonly string[] _setupRules =
     [
@@ -75,15 +79,16 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
     [McpServerTool(Name = "get_store_setup_options", ReadOnly = true, Destructive = false, Idempotent = true)]
     [Description("What a store's setup consists of on this installation: every part (the store's basics and settings, and " +
         "the parts of installed modules such as payment, shipping and tax), the fields of each part's section as a JSON " +
-        "schema, and what can be chosen (languages, currencies, method and provider codes with their settings). Read it " +
-        "before setting up a store, and send only what it lists.")]
-    public async Task<object> GetStoreSetupOptions()
+        "schema, and what can be chosen (languages, currencies, catalogs, method and provider codes with their settings). " +
+        "A part's choices show with the part's read permission, at most 50 per part. Read it before setting up a store, " +
+        "and send only what it lists.")]
+    public async Task<object> GetStoreSetupOptions(RequestContext<CallToolRequestParams> context)
     {
         var parts = new List<object>();
 
         foreach (var part in setupService.GetParts())
         {
-            var row = await GetOptionsAsync(part);
+            var row = await GetOptionsAsync(context.User, part);
 
             if (row != null)
             {
@@ -100,16 +105,19 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
         };
     }
 
-    // A part's row: its section's schema and its choices, or null when it has neither. A part that cannot list its options
-    // is named with a reason, and the others are still listed.
-    protected virtual async Task<object> GetOptionsAsync(IStoreSetupPart part)
+    // A part's row: its section's schema and its choices, or null when it has neither. The choices are the part's data,
+    // such as the catalogs, so they show with the part's read permission, as its state and findings do; without it, the
+    // row says so. A part that cannot list its options is named with a reason, and the others are still listed.
+    protected virtual async Task<object> GetOptionsAsync(ClaimsPrincipal user, IStoreSetupPart part)
     {
         try
         {
             var section = part as IStoreSetupSection;
-            var choices = part is IStoreSetupChoices withChoices ? await withChoices.GetChoicesAsync() ?? [] : [];
+            var withChoices = part as IStoreSetupChoices;
+            var choicesShown = withChoices != null && StoreAccess.CanReadForSomeStore(user, part);
+            var choices = choicesShown ? await withChoices.GetChoicesAsync() ?? [] : [];
 
-            if (section == null && choices.Count == 0)
+            if (section == null && choices.Count == 0 && (withChoices == null || choicesShown))
             {
                 return null;
             }
@@ -120,7 +128,7 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
                 title = part.Title,
                 required_for_new_store = section?.IsRequiredForNewStore ?? false,
                 section_schema = section == null ? (object)null : AIJsonUtilities.CreateJsonSchema(section.SectionType, serializerOptions: McpSerialization.Options),
-                choices = choices.Select(x => new
+                choices = choices.Take(MaxChoicesPerPart).Select(x => new
                 {
                     field = x.Field,
                     value = x.Value,
@@ -128,6 +136,8 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
                     description = x.Description,
                     settings = x.Settings?.Count > 0 ? x.Settings : null,
                 }).ToList(),
+                choices_cut = choices.Count > MaxChoicesPerPart ? $"{MaxChoicesPerPart} of {choices.Count} choices listed, the most likely first." : null,
+                choices_not_shown = withChoices != null && !choicesShown ? $"needs {part.Permissions?.Read}" : null,
             };
         }
         catch (Exception ex)
