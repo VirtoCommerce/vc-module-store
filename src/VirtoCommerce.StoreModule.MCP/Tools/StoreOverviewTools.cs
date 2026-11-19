@@ -52,7 +52,7 @@ public class StoreOverviewTools(
         foreach (var store in result.Results)
         {
             var findings = await setupService.CheckAsync(store);
-            var blocking = findings.CountBySeverity(McpFindingSeverities.Critical);
+            var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
 
             stores.Add(new
             {
@@ -137,7 +137,7 @@ public class StoreOverviewTools(
         }
 
         var findings = await setupService.CheckAsync(store);
-        var blocking = findings.CountBySeverity(McpFindingSeverities.Critical);
+        var blocking = findings.Count(StoreSetupFindings.BlocksGoLive);
 
         return new
         {
@@ -177,7 +177,6 @@ public class StoreOverviewTools(
             return "Not shown: this part could not be read. Review it in the back office.";
         }
     }
-
 
     private async Task<int> CountAsync(ClaimsPrincipal user, StoreState state)
     {

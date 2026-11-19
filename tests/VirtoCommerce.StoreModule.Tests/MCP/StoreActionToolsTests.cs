@@ -263,6 +263,24 @@ public class StoreActionToolsTests
         Assert.Equal(StoreState.Closed, data.Stores.Single(x => x.Id == StoreA).StoreState);
     }
 
+    // Severities are text that other modules' parts write: a critical finding blocks, whatever its case.
+    [Fact]
+    public async Task OpenStore_IsRefused_ForACriticalFinding_WhateverTheCaseOfItsSeverity()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", "Critical");
+        await using var harness = CreateHarness(data, catalog);
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "open_store", new { store_id = StoreA });
+
+        //Assert
+        result.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Contains("Finding catalog-no-products", result.Error);
+        Assert.Equal(StoreState.Closed, data.Stores.Single(x => x.Id == StoreA).StoreState);
+    }
+
     [Fact]
     public async Task OpenStore_ReadyStore_WaitsForApproval_AndOpensWhenApproved()
     {

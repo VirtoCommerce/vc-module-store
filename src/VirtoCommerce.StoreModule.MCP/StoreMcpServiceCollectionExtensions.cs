@@ -8,7 +8,6 @@ public static class StoreMcpServiceCollectionExtensions
     // The services the store admin tools use. The tools themselves are added by AddMcpCapabilities.
     public static IServiceCollection AddStoreMcpServices(this IServiceCollection services)
     {
-        services.AddHttpContextAccessor();
         services.AddTransient<StoreAccess>();
         services.AddTransient<StoreBackOfficeLinks>();
         services.AddTransient<StoreSetupLeftovers>();

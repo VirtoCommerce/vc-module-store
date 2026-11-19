@@ -252,7 +252,7 @@ public class StoreSetupTools(
             preview.AddWarning($"The store will not be ready to open: {string.Join("; ", blocking)}.");
         }
 
-        foreach (var finding in findings.Where(x => x.Severity == McpFindingSeverities.Warning))
+        foreach (var finding in findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)))
         {
             preview.AddWarning($"{finding.Title}.");
         }

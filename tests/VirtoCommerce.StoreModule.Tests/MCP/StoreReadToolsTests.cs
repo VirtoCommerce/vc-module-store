@@ -162,6 +162,39 @@ public class StoreReadToolsTests
         Assert.Contains("back office", json.GetProperty("secrets").GetString());
     }
 
+    // "calculation tax" is not a part of any text, but both words are in the title "Tax calculation".
+    [Fact]
+    public async Task GetStoreSettings_NeedsEveryWordOfTheKeyword_InTheNameTitleOrDescription()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var bothWords = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, keyword = "calculation tax" });
+        var oneWordMissing = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, keyword = "tax shipping" });
+
+        //Assert
+        Assert.Equal([TaxCalculation.Name], GetSettingNames(bothWords));
+        Assert.Empty(GetSettingNames(oneWordMissing));
+    }
+
+    [Fact]
+    public async Task GetStoreSettings_RefusesAModuleWithoutStoreSettings_AndTakesTheIdInAnyCase()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var unknown = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, module_id = "VirtoCommerce.Stores" });
+        var anyCase = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, module_id = " virtocommerce.store " });
+
+        //Assert
+        unknown.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Contains("Module 'VirtoCommerce.Stores' has no store settings here", unknown.Error);
+        Assert.Contains("get_store_settings without module_id", unknown.Error);
+        Assert.Equal([TaxCalculation.Name], GetSettingNames(anyCase));
+    }
+
     [Fact]
     public async Task GetStoreSettings_SendsSecretsToTheStoresScreen_WithItsLink()
     {
@@ -292,6 +325,42 @@ public class StoreReadToolsTests
     }
 
     [Fact]
+    public async Task GetStoreOverview_And_GetStore_CountWhatBlocksTheStore()
+    {
+        //Arrange
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", McpFindingSeverities.Critical).WithFinding("catalog-few-images", McpFindingSeverities.Warning);
+        await using var harness = CreateHarness(catalog);
+
+        //Act
+        var overview = await CallAsync(harness, StoreAdministrator(), "get_store_overview");
+        var store = await CallAsync(harness, StoreAdministrator(), "get_store", new { store_id = StoreA });
+
+        //Assert
+        var storeA = overview.EnsureSucceeded().Json.GetProperty("stores").EnumerateArray().Single(x => x.GetProperty("store_id").GetString() == StoreA);
+        Assert.Equal((1, false), (storeA.GetProperty("blocking").GetInt32(), storeA.GetProperty("ready_to_open").GetBoolean()));
+        var readiness = store.EnsureSucceeded().Json.GetProperty("readiness");
+        Assert.Equal((1, false), (readiness.GetProperty("blocking").GetInt32(), readiness.GetProperty("ready_to_open").GetBoolean()));
+    }
+
+    [Fact]
+    public async Task GetStoreReadinessReport_ListsTheFindings_MostSevereFirst()
+    {
+        //Arrange
+        var notes = new TestCheckPart("notes")
+            .WithFinding("note-info", McpFindingSeverities.Info)
+            .WithFinding("note-warning", McpFindingSeverities.Warning)
+            .WithFinding("note-critical", McpFindingSeverities.Critical);
+        await using var harness = CreateHarness(notes);
+
+        //Act
+        var report = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA });
+
+        //Assert
+        var ids = report.EnsureSucceeded().Json.GetProperty("findings").EnumerateArray().Select(x => x.GetProperty("id").GetString());
+        Assert.Equal(["note-critical", "note-warning", "note-info"], ids);
+    }
+
+    [Fact]
     public async Task GetStoreReadinessReport_SaysOnWhichScreenEachFindingIsFixed()
     {
         //Arrange
@@ -309,5 +378,10 @@ public class StoreReadToolsTests
     private static string[] GetStoreIds(JsonElement items)
     {
         return items.EnumerateArray().Select(x => x.GetProperty("store_id").GetString()).ToArray();
+    }
+
+    private static string[] GetSettingNames(McpToolCallResult result)
+    {
+        return result.EnsureSucceeded().Json.GetProperty("settings").GetProperty("items").EnumerateArray().Select(x => x.GetProperty("name").GetString()).ToArray();
     }
 }

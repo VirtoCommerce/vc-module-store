@@ -10,7 +10,7 @@ namespace VirtoCommerce.StoreModule.MCP.Models;
 // A part's finding as the tools return it: whether it blocks going live, and the tool and the back-office link in its fix.
 public class StoreFinding : McpFinding
 {
-    public bool BlocksGoLive { get; set; }
+    public bool BlocksGoLive => StoreSetupFindings.BlocksGoLive(this);
 
     // The findings as rows, most severe first.
     public static IList<StoreFinding> CreateList(IEnumerable<McpFinding> findings, IEnumerable<IStoreSetupPart> parts, string backOfficeLink)
@@ -18,8 +18,8 @@ public class StoreFinding : McpFinding
         var sectionParts = parts.OfType<IStoreSetupSection>().Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return findings
+            .OrderBySeverity()
             .Select(x => Create(x, sectionParts.Contains(x.Category), backOfficeLink))
-            .OrderBy(x => McpFindingSeverities.GetRank(x.Severity))
             .ToList();
     }
 
@@ -36,7 +36,6 @@ public class StoreFinding : McpFinding
             Fix = GetFix(finding, partTakesSection, backOfficeLink),
             Screen = finding.Screen,
             Category = finding.Category,
-            BlocksGoLive = finding.Severity == McpFindingSeverities.Critical,
             ObjectType = finding.ObjectType,
             ObjectId = finding.ObjectId,
             ObjectName = finding.ObjectName,

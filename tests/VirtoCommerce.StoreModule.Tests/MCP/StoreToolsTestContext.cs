@@ -62,7 +62,6 @@ public static class StoreToolsTestContext
                 services.AddSingleton(CreateCountriesService());
                 services.AddSingleton<IMcpPageSizeResolver, FixedPageSizeResolver>();
                 services.AddSingleton<IMcpPublicOriginResolver>(new McpPublicOriginResolver(Options.Create(new McpOptions { PublicOrigin = PublicOrigin })));
-                services.AddTransient<IMcpLinkResolver, McpLinkResolver>();
                 services.AddSingleton(CreateSettingsRegistrar());
                 services.AddSingleton(CreateTranslationService());
                 services.AddSingleton(CreateSettingsManager());

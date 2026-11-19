@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VirtoCommerce.MCP.Core.Extensions;
-using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.NotificationsModule.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.DynamicProperties;
@@ -108,7 +107,6 @@ namespace VirtoCommerce.StoreModule.Web
             // A store's setup: Store's own parts here; other modules add theirs with AddStoreSetupPart.
             serviceCollection.AddTransient<IStoreSetupService, StoreSetupService>();
             serviceCollection.AddTransient<IStoreSetupSettings, StoreSetupSettings>();
-            serviceCollection.AddMcpSecretSettings(McpKnownSecretSettings.SettingNames);
             serviceCollection.AddStoreSetupPart<StoreBasicsSetupPart>();
             serviceCollection.AddStoreSetupPart<StoreSettingsSetupPart>();
 

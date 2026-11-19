@@ -23,4 +23,10 @@ public static class StoreSetupFindings
 
         return finding;
     }
+
+    // A critical finding means the store cannot go live (IStoreSetupCheck).
+    public static bool BlocksGoLive(McpFinding finding)
+    {
+        return McpFindingSeverities.Critical.EqualsIgnoreCase(finding.Severity);
+    }
 }

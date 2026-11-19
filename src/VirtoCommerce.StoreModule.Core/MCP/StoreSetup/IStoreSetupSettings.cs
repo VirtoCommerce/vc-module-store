@@ -10,9 +10,8 @@ namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 // parts and the parts of other modules (method and provider settings) share it.
 public interface IStoreSetupSettings
 {
-    // A secret by the MCP module's rule (McpSecretSettings): a SecureString, a setting a module names with
-    // AddMcpSecretSettings, or a name with the word Key, Secret, Password, Token or Credential(s). A secret is never
-    // listed, accepted or returned.
+    // A secret by the MCP module's rule (McpSecretSettings), with the settings modules name with AddMcpSecretSettings. A
+    // secret is never listed, accepted or returned.
     bool IsSecret(SettingDescriptor descriptor);
 
     // The setting with its title and description in English. A secret is described without its values.

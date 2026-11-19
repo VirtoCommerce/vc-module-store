@@ -18,21 +18,17 @@ public class StoreSetupSettingsTests
     private const string KnownSecretName = "Contoso.MerchantCode";
 
     private static readonly SettingDescriptor _taxCalculation = StoreToolsTestContext.TaxCalculation;
-    private static readonly SettingDescriptor _states = new() { Name = "Stores.States", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, IsDictionary = true, AllowedValues = ["Pending", "Live"] };
+    private static readonly SettingDescriptor _states = new() { Name = "Stores.States", DisplayName = "Store states", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, IsDictionary = true, AllowedValues = ["Pending", "Live"] };
     private static readonly SettingDescriptor _hidden = new() { Name = "Stores.Internal", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, IsHidden = true };
     private static readonly SettingDescriptor _paymentMode = new() { Name = "VirtoCommerce.Payment.Mode", ModuleId = "VirtoCommerce.Payment", ValueType = SettingValueType.ShortText, DefaultValue = "Test", AllowedValues = ["Test", "Live"] };
     private static readonly SettingDescriptor _apiKey = StoreToolsTestContext.MapsApiKey;
     private static readonly SettingDescriptor _knownSecret = new() { Name = KnownSecretName, ModuleId = "Contoso", ValueType = SettingValueType.ShortText };
 
+    // The MCP module's tests hold the rule itself (McpSecretSettings); these show Store applies it, with the names that
+    // modules add.
     [Theory]
     [InlineData("Stores.TaxCalculationEnabled", SettingValueType.Boolean, false)]
-    [InlineData("Stores.SeoLinksType", SettingValueType.ShortText, false)]
-    [InlineData("Search.KeywordBoost", SettingValueType.Integer, false)]
     [InlineData("Shipping.Bopis.GoogleMaps.ApiKey", SettingValueType.ShortText, true)]
-    [InlineData("Payments.Stripe.ClientSecret", SettingValueType.ShortText, true)]
-    [InlineData("GDPR.GDPRPassword", SettingValueType.ShortText, true)]
-    [InlineData("Sanity.ApiToken", SettingValueType.ShortText, true)]
-    [InlineData("Avalara.Credentials.AccountNumber", SettingValueType.ShortText, true)]
     [InlineData("Payments.Gateway.Login", SettingValueType.SecureString, true)]
     [InlineData(KnownSecretName, SettingValueType.ShortText, true)]
     public void IsSecret_FindsKnownAndDiscoveredSecrets(string name, SettingValueType valueType, bool expected)
@@ -93,8 +89,9 @@ public class StoreSetupSettingsTests
         Assert.Equal("Test", paymentMode.Value);
         Assert.False(paymentMode.IsChanged);
 
+        // Without a title in the localization files, the display name.
         var states = settings[_states.Name];
-        Assert.Equal(_states.Name, states.Title);
+        Assert.Equal("Store states", states.Title);
         Assert.False(states.IsChangeable);
     }
 

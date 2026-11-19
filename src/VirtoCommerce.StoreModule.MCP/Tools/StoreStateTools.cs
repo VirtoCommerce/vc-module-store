@@ -41,7 +41,7 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
 
         // Checked again when the approved change runs, so a store that stopped being ready in the meantime stays closed.
         var findings = await setupService.CheckAsync(store);
-        var blocking = findings.Where(x => x.Severity == McpFindingSeverities.Critical).Select(x => x.Title).ToList();
+        var blocking = findings.Where(StoreSetupFindings.BlocksGoLive).Select(x => x.Title).ToList();
 
         if (blocking.Count > 0)
         {
@@ -51,7 +51,7 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
 
         var preview = CreatePreview("open", store, StoreState.Open, dryRun);
 
-        foreach (var finding in findings.Where(x => x.Severity == McpFindingSeverities.Warning))
+        foreach (var finding in findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)))
         {
             preview.AddWarning($"{finding.Title}.");
         }

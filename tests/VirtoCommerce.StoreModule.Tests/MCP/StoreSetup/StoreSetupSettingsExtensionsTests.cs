@@ -59,6 +59,17 @@ public class StoreSetupSettingsExtensionsTests
         Assert.Equal((nameof(Store), "eu-store", "EU store"), (finding.ObjectType, finding.ObjectId, finding.ObjectName));
     }
 
+    [Theory]
+    [InlineData(McpFindingSeverities.Critical, true)]
+    [InlineData("Critical", true)]
+    [InlineData(McpFindingSeverities.Warning, false)]
+    [InlineData(McpFindingSeverities.Info, false)]
+    [InlineData(null, false)]
+    public void BlocksGoLive_ForACriticalFinding_WhateverTheCase(string severity, bool expected)
+    {
+        Assert.Equal(expected, StoreSetupFindings.BlocksGoLive(new McpFinding { Severity = severity }));
+    }
+
     private sealed class TestMethod : IHasSettings
     {
         public string Id { get; set; }

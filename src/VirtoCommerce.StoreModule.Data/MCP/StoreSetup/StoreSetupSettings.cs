@@ -22,9 +22,6 @@ public class StoreSetupSettings(
     IOptions<McpSecretSettingsOptions> secretOptions)
     : IStoreSetupSettings
 {
-    // Titles and descriptions come from the English localization files of the modules, as in the back office.
-    private const string Language = "en";
-
     public virtual bool IsSecret(SettingDescriptor descriptor)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
@@ -36,7 +33,7 @@ public class StoreSetupSettings(
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        return Describe(descriptor, value, translationService.GetTranslationDataForLanguage(Language));
+        return Describe(descriptor, value, translationService.GetTranslationDataForLanguage(McpSettingTexts.Language));
     }
 
     public virtual bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error)
@@ -92,7 +89,7 @@ public class StoreSetupSettings(
     {
         ArgumentNullException.ThrowIfNull(store);
 
-        var translation = translationService.GetTranslationDataForLanguage(Language);
+        var translation = translationService.GetTranslationDataForLanguage(McpSettingTexts.Language);
         var values = (store.Settings ?? [])
             .Where(x => !string.IsNullOrEmpty(x.Name))
             .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
@@ -112,11 +109,11 @@ public class StoreSetupSettings(
     protected virtual McpSetupSetting Describe(SettingDescriptor descriptor, object value, JObject translation)
     {
         var isSecret = IsSecret(descriptor);
-        var (title, description) = McpSettingTexts.Find(translation, descriptor.Name);
+        var (title, description) = McpSettingTexts.Find(translation, descriptor.Name, descriptor.DisplayName);
 
         var setting = AbstractTypeFactory<McpSetupSetting>.TryCreateInstance();
         setting.Name = descriptor.Name;
-        setting.Title = title ?? descriptor.DisplayName ?? descriptor.Name;
+        setting.Title = title;
         setting.Description = description;
         setting.ModuleId = descriptor.ModuleId;
         setting.ValueType = descriptor.ValueType.ToString();
@@ -183,5 +180,4 @@ public class StoreSetupSettings(
             _ => "a text",
         };
     }
-
 }
