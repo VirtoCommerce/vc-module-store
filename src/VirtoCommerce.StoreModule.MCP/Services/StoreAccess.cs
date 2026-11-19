@@ -77,7 +77,7 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
     // Whether the user may read a part's state on the store: the part's own read permission, limited by its scope type.
     public static bool CanRead(ClaimsPrincipal user, IStoreSetupPart part, string storeId)
     {
-        return IsAllowed(user, part.Permissions?.Read, part.Permissions?.StoreScopeType, storeId);
+        return IsAllowed(user, part.Permissions?.Read, part.Permissions?.ScopeType, storeId);
     }
 
     public static void EnsureAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)

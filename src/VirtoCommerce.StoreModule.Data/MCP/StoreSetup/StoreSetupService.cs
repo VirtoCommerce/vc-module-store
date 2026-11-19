@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -32,7 +33,7 @@ public class StoreSetupService(
             .ToList();
     }
 
-    public virtual Task<IList<StoreSetupFinding>> CheckAsync(Store store, string currency = null, string country = null)
+    public virtual Task<IList<McpFinding>> CheckAsync(Store store, string currency = null, string country = null)
     {
         ArgumentNullException.ThrowIfNull(store);
 
@@ -70,11 +71,11 @@ public class StoreSetupService(
         var sectionParts = GetParts().OfType<IStoreSetupSection>().ToList();
         var failed = false;
 
-        foreach (var partResult in result.Parts.Where(x => x.Status == StoreSetupPartStatus.WillChange))
+        foreach (var partResult in result.Parts.Where(x => x.Status == McpSetupPartStatus.WillChange))
         {
             if (failed)
             {
-                partResult.Status = StoreSetupPartStatus.NotApplied;
+                partResult.Status = McpSetupPartStatus.NotApplied;
                 continue;
             }
 
@@ -83,13 +84,13 @@ public class StoreSetupService(
             try
             {
                 await part.ApplyAsync(context, context.Plans[part.Name]);
-                partResult.Status = StoreSetupPartStatus.Applied;
+                partResult.Status = McpSetupPartStatus.Applied;
             }
             catch (Exception ex)
             {
                 // The answer never carries an exception's text: it may hold a third party's trace or a secret.
                 logger.LogError(ex, "The store setup part {Part} could not be applied to the store {StoreId}", part.Name, request.StoreId);
-                partResult.Status = StoreSetupPartStatus.Failed;
+                partResult.Status = McpSetupPartStatus.Failed;
                 partResult.Error = $"{part.Title} could not be saved; the platform log has the details";
                 failed = true;
             }
@@ -174,7 +175,7 @@ public class StoreSetupService(
 
     protected virtual async Task PlanPartAsync(StoreSetupResult result, StoreSetupContext context, IStoreSetupSection part, object section)
     {
-        var partResult = AbstractTypeFactory<StoreSetupPartResult>.TryCreateInstance();
+        var partResult = AbstractTypeFactory<McpSetupPartResult>.TryCreateInstance();
         partResult.Part = part.Name;
         result.Parts.Add(partResult);
 
@@ -184,7 +185,7 @@ public class StoreSetupService(
             return;
         }
 
-        StoreSetupPartPlan plan;
+        McpSetupPartPlan plan;
 
         try
         {
@@ -200,7 +201,7 @@ public class StoreSetupService(
         context.Plans[part.Name] = plan;
         partResult.Changes = plan.Changes;
         partResult.Warnings = plan.Warnings;
-        partResult.Status = plan.Changes.Count > 0 ? StoreSetupPartStatus.WillChange : StoreSetupPartStatus.NoChange;
+        partResult.Status = plan.Changes.Count > 0 ? McpSetupPartStatus.WillChange : McpSetupPartStatus.NoChange;
 
         foreach (var error in plan.Errors)
         {
@@ -208,9 +209,9 @@ public class StoreSetupService(
         }
     }
 
-    protected virtual async Task<IList<StoreSetupFinding>> RunChecksAsync(StoreSetupContext context)
+    protected virtual async Task<IList<McpFinding>> RunChecksAsync(StoreSetupContext context)
     {
-        var findings = new List<StoreSetupFinding>();
+        var findings = new List<McpFinding>();
 
         foreach (var check in GetParts().OfType<IStoreSetupCheck>())
         {
@@ -247,9 +248,9 @@ public class StoreSetupService(
         return store;
     }
 
-    protected virtual StoreSetupFinding CreateNotCheckedFinding(IStoreSetupPart part, Store store)
+    protected virtual McpFinding CreateNotCheckedFinding(IStoreSetupPart part, Store store)
     {
-        var finding = StoreSetupFinding.ForStore(store, part.Name, $"{part.Name}-not-checked", StoreSetupFindingSeverity.Blocking);
+        var finding = StoreSetupFindings.ForStore(store, part.Name, $"{part.Name}-not-checked", McpFindingSeverities.Critical);
         finding.Title = $"{part.Title} could not be checked";
         finding.Why = "A store goes live only when every part of its setup is checked.";
         finding.Evidence = "The check failed; the platform log has the details.";

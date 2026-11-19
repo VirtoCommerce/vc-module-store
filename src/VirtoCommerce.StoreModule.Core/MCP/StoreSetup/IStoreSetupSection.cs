@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 
 namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
@@ -12,7 +13,8 @@ public interface IStoreSetupSection : IStoreSetupPart
 
     bool IsRequiredForNewStore { get; }
 
-    Task<StoreSetupPartPlan> PlanAsync(StoreSetupContext context, object section);
+    // Any error of the plan refuses the whole request.
+    Task<McpSetupPartPlan> PlanAsync(StoreSetupContext context, object section);
 
-    Task ApplyAsync(StoreSetupContext context, StoreSetupPartPlan plan);
+    Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan);
 }

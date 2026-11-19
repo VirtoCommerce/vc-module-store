@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using VirtoCommerce.CoreModule.Core.Currency;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
@@ -28,16 +29,16 @@ public class StoreBasicsSetupPart(
 
     public virtual string Title => "Store basics";
 
-    public virtual StoreSetupPermissions Permissions => StoreSetupPermissions.ForStore();
+    public virtual McpSetupPermissions Permissions => StoreSetupPermissions.ForStore();
 
     public virtual Type SectionType => typeof(StoreBasicsSection);
 
     // Without basics a store cannot be created: they hold its name.
     public virtual bool IsRequiredForNewStore => true;
 
-    public virtual async Task<IList<StoreSetupChoice>> GetChoicesAsync()
+    public virtual async Task<IList<McpSetupChoice>> GetChoicesAsync()
     {
-        var choices = new List<StoreSetupChoice>();
+        var choices = new List<McpSetupChoice>();
 
         foreach (var language in await GetPlatformLanguagesAsync())
         {
@@ -77,18 +78,18 @@ public class StoreBasicsSetupPart(
         return Task.FromResult<object>(section);
     }
 
-    public virtual Task<IList<StoreSetupFinding>> CheckAsync(StoreSetupContext context)
+    public virtual Task<IList<McpFinding>> CheckAsync(StoreSetupContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         var store = context.Store;
         var languages = store.Languages ?? [];
         var currencies = store.Currencies ?? [];
-        var findings = new List<StoreSetupFinding>();
+        var findings = new List<McpFinding>();
 
         if (languages.Count == 0 || !languages.ContainsIgnoreCase(store.DefaultLanguage))
         {
-            findings.Add(CreateFinding(store, "basics-no-language", StoreSetupFindingSeverity.Blocking,
+            findings.Add(CreateFinding(store, "basics-no-language", McpFindingSeverities.Critical,
                 "The store has no language, or its default language is not one of its languages",
                 "The storefront shows the catalog and the checkout in the store's languages.",
                 $"Languages: {Join(languages)}. Default: {store.DefaultLanguage ?? "none"}.",
@@ -97,7 +98,7 @@ public class StoreBasicsSetupPart(
 
         if (currencies.Count == 0 || !currencies.ContainsIgnoreCase(store.DefaultCurrency))
         {
-            findings.Add(CreateFinding(store, "basics-no-currency", StoreSetupFindingSeverity.Blocking,
+            findings.Add(CreateFinding(store, "basics-no-currency", McpFindingSeverities.Critical,
                 "The store has no currency, or its default currency is not one of its currencies",
                 "Prices, carts and orders are in the store's currencies.",
                 $"Currencies: {Join(currencies)}. Default: {store.DefaultCurrency ?? "none"}.",
@@ -106,7 +107,7 @@ public class StoreBasicsSetupPart(
 
         if (!string.IsNullOrEmpty(context.Currency) && !currencies.ContainsIgnoreCase(context.Currency))
         {
-            findings.Add(CreateFinding(store, "currency-not-in-store", StoreSetupFindingSeverity.Blocking,
+            findings.Add(CreateFinding(store, "currency-not-in-store", McpFindingSeverities.Critical,
                 $"{context.Currency} is not one of the store's currencies",
                 $"Customers cannot check out in {context.Currency} until the store has it.",
                 $"Currencies: {Join(currencies)}.",
@@ -115,7 +116,7 @@ public class StoreBasicsSetupPart(
 
         if (string.IsNullOrEmpty(store.Catalog))
         {
-            findings.Add(CreateFinding(store, "basics-no-catalog", StoreSetupFindingSeverity.Warning,
+            findings.Add(CreateFinding(store, "basics-no-catalog", McpFindingSeverities.Warning,
                 "No catalog is linked to the store",
                 "Without a catalog the store has nothing to sell.",
                 "Catalog: none.",
@@ -124,7 +125,7 @@ public class StoreBasicsSetupPart(
 
         if (string.IsNullOrEmpty(store.Url) && string.IsNullOrEmpty(store.SecureUrl))
         {
-            findings.Add(CreateFinding(store, "basics-no-storefront-url", StoreSetupFindingSeverity.Warning,
+            findings.Add(CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
                 "The store has no storefront URL",
                 "Links in the store's emails and the checkout handoff need the storefront's address.",
                 "URL: none. HTTPS URL: none.",
@@ -133,18 +134,18 @@ public class StoreBasicsSetupPart(
 
         if (string.IsNullOrEmpty(store.Email) && string.IsNullOrEmpty(store.AdminEmail))
         {
-            findings.Add(CreateFinding(store, "basics-no-email", StoreSetupFindingSeverity.Warning,
+            findings.Add(CreateFinding(store, "basics-no-email", McpFindingSeverities.Warning,
                 "The store has no email",
                 "The store's notifications need a sender, and the notifications to its staff a recipient.",
                 "Email: none. Administrator email: none.",
                 "Enter the store email and the administrator email."));
         }
 
-        return Task.FromResult<IList<StoreSetupFinding>>(findings);
+        return Task.FromResult<IList<McpFinding>>(findings);
     }
 
     // Plans on the copy of the store in the context, so the parts after it and the checks see the planned basics.
-    public virtual async Task<StoreSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
+    public virtual async Task<McpSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -168,7 +169,7 @@ public class StoreBasicsSetupPart(
         return plan;
     }
 
-    public virtual async Task ApplyAsync(StoreSetupContext context, StoreSetupPartPlan plan)
+    public virtual async Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -193,7 +194,7 @@ public class StoreBasicsSetupPart(
 
     // Sets the fields the section names and lists each change. A field that is left out changes nothing, an empty text
     // clears a field, and a list is the complete new list.
-    protected virtual void ApplySection(StoreSetupPartPlan plan, Store store, StoreBasicsSection section)
+    protected virtual void ApplySection(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
     {
         PlanText(plan, "name", store.Name, section.Name, x => store.Name = x);
         PlanText(plan, "description", store.Description, section.Description, x => store.Description = x);
@@ -215,7 +216,7 @@ public class StoreBasicsSetupPart(
 
     // The languages, currencies and country must be the platform's; each default must be one of its list. The links to a
     // catalog and fulfillment centers are not checked: their modules own them.
-    protected virtual async Task ValidateAsync(StoreSetupPartPlan plan, Store store, StoreBasicsSection section)
+    protected virtual async Task ValidateAsync(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
     {
         if (section.Languages != null || section.DefaultLanguage != null)
         {
@@ -259,7 +260,7 @@ public class StoreBasicsSetupPart(
     }
 
     // A new store must pass the checks StoreService runs when it saves a store, here before anything is saved.
-    protected virtual void AddValidationErrors(StoreSetupPartPlan plan, Store store)
+    protected virtual void AddValidationErrors(McpSetupPartPlan plan, Store store)
     {
         var errors = new StoreValidator().Validate(store).Errors
             .Select(x => x.PropertyName == nameof(Store.Id) ? "The store id may hold letters, digits, '_' and '-' only." : x.ErrorMessage)
@@ -282,9 +283,9 @@ public class StoreBasicsSetupPart(
             .ToList();
     }
 
-    protected virtual StoreSetupChoice CreateChoice(string field, string value, string title)
+    protected virtual McpSetupChoice CreateChoice(string field, string value, string title)
     {
-        var choice = AbstractTypeFactory<StoreSetupChoice>.TryCreateInstance();
+        var choice = AbstractTypeFactory<McpSetupChoice>.TryCreateInstance();
         choice.Field = $"{PartName}.{field}";
         choice.Value = value;
         choice.Title = title;
@@ -292,9 +293,9 @@ public class StoreBasicsSetupPart(
         return choice;
     }
 
-    protected virtual StoreSetupFinding CreateFinding(Store store, string id, StoreSetupFindingSeverity severity, string title, string why, string evidence, string fix)
+    protected virtual McpFinding CreateFinding(Store store, string id, string severity, string title, string why, string evidence, string fix)
     {
-        var finding = StoreSetupFinding.ForStore(store, PartName, id, severity);
+        var finding = StoreSetupFindings.ForStore(store, PartName, id, severity);
         finding.Title = title;
         finding.Why = why;
         finding.Evidence = evidence;
@@ -303,7 +304,7 @@ public class StoreBasicsSetupPart(
         return finding;
     }
 
-    private static void PlanText(StoreSetupPartPlan plan, string field, string current, string requested, Action<string> set)
+    private static void PlanText(McpSetupPartPlan plan, string field, string current, string requested, Action<string> set)
     {
         if (requested == null)
         {
@@ -322,7 +323,7 @@ public class StoreBasicsSetupPart(
         set(newValue);
     }
 
-    private static void PlanList(StoreSetupPartPlan plan, string field, ICollection<string> current, IList<string> requested, Action<IList<string>> set)
+    private static void PlanList(McpSetupPartPlan plan, string field, ICollection<string> current, IList<string> requested, Action<IList<string>> set)
     {
         if (requested == null)
         {
@@ -353,7 +354,7 @@ public class StoreBasicsSetupPart(
         set(values);
     }
 
-    private static void AddUnknownValueErrors(StoreSetupPartPlan plan, string kind, IList<string> requested, IList<string> known, string knownName)
+    private static void AddUnknownValueErrors(McpSetupPartPlan plan, string kind, IList<string> requested, IList<string> known, string knownName)
     {
         foreach (var value in (requested ?? []).Where(x => !string.IsNullOrWhiteSpace(x) && !known.ContainsIgnoreCase(x.Trim())))
         {
@@ -361,7 +362,7 @@ public class StoreBasicsSetupPart(
         }
     }
 
-    private static void AddDefaultError(StoreSetupPartPlan plan, string kind, string kinds, string defaultValue, ICollection<string> values)
+    private static void AddDefaultError(McpSetupPartPlan plan, string kind, string kinds, string defaultValue, ICollection<string> values)
     {
         if (!string.IsNullOrEmpty(defaultValue) && !(values ?? []).ContainsIgnoreCase(defaultValue))
         {

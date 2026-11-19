@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
@@ -52,7 +53,7 @@ public class StoreSetupServicePlanApplyTests
         var stores = new List<Store> { CreateStore() };
         var storeService = TestStoreService.Create(stores);
         var shipping = new TestApplyPart("shipping");
-        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", StoreSetupFindingSeverity.Blocking);
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", McpFindingSeverities.Critical);
         var service = new StoreSetupService([shipping, catalog], storeService.Object, NullLogger<StoreSetupService>.Instance);
 
         //Act
@@ -61,7 +62,7 @@ public class StoreSetupServicePlanApplyTests
         //Assert
         Assert.Empty(result.Errors);
         var part = Assert.Single(result.Parts);
-        Assert.Equal(StoreSetupPartStatus.WillChange, part.Status);
+        Assert.Equal(McpSetupPartStatus.WillChange, part.Status);
         Assert.Equal("catalog-no-products", Assert.Single(result.Findings).Id);
         Assert.Equal(0, shipping.ApplyCount);
         storeService.Verify(x => x.SaveChangesAsync(It.IsAny<IList<Store>>()), Times.Never);
@@ -97,7 +98,7 @@ public class StoreSetupServicePlanApplyTests
         var result = await service.ApplyAsync(CreateFullRequest());
 
         //Assert
-        Assert.Equal([StoreSetupPartStatus.Applied, StoreSetupPartStatus.Failed, StoreSetupPartStatus.NotApplied], result.Parts.Select(x => x.Status));
+        Assert.Equal([McpSetupPartStatus.Applied, McpSetupPartStatus.Failed, McpSetupPartStatus.NotApplied], result.Parts.Select(x => x.Status));
         Assert.Equal(0, tax.ApplyCount);
         Assert.DoesNotContain("sk_live_123", JsonSerializer.Serialize(result.Parts));
     }
@@ -117,7 +118,7 @@ public class StoreSetupServicePlanApplyTests
         var result = await service.ApplyAsync(CreateFullRequest());
 
         //Assert
-        Assert.Equal([StoreSetupPartStatus.NoChange, StoreSetupPartStatus.Applied, StoreSetupPartStatus.Applied], result.Parts.Select(x => x.Status));
+        Assert.Equal([McpSetupPartStatus.NoChange, McpSetupPartStatus.Applied, McpSetupPartStatus.Applied], result.Parts.Select(x => x.Status));
         Assert.Equal(1, payment.ApplyCount);
         Assert.Equal(["FixedRate"], shipping.Saved[StoreId]);
         Assert.Equal(1, tax.ApplyCount);

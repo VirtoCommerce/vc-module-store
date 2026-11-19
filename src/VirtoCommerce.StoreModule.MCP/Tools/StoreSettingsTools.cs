@@ -54,7 +54,7 @@ public class StoreSettingsTools(
         {
             store_id = store.Id,
             name = store.Name,
-            settings = McpPage<StoreSetupSetting>.FromList(settings, paging),
+            settings = McpPage<McpSetupSetting>.FromList(settings, paging),
             secrets = await GetSecretsNoteAsync(store.Name ?? store.Id),
             next_step = "apply_store_setup with the 'settings' section changes the settings whose is_changeable is true.",
         };
@@ -88,7 +88,7 @@ public class StoreSettingsTools(
                 value = x.Value,
                 other_value = otherValues?.GetValueOrDefault(x.Name) ?? x.DefaultValue,
             })
-            .Where(x => !StoreSetupValues.AreEqual(x.value, x.other_value));
+            .Where(x => !McpSetupValues.AreEqual(x.value, x.other_value));
 
         return new
         {
@@ -101,7 +101,7 @@ public class StoreSettingsTools(
 
     private async Task<string> GetSecretsNoteAsync(string storeName)
     {
-        var screen = StoreBackOfficeLinks.WithLink($"Stores > {storeName} > Settings", await links.GetStoresLinkAsync());
+        var screen = $"Stores > {storeName} > Settings".WithLink(await links.GetStoresLinkAsync());
 
         return $"Secrets are not listed. A person enters them in the back office: {screen}.";
     }

@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Testing;
-using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 using Xunit;
@@ -192,7 +191,7 @@ public class StoreActionToolsTests
         //Arrange
         var shipping = new TestApplyPart("shipping")
         {
-            Permissions = new StoreSetupPermissions { Read = "shipping:read", Update = "shipping:update", Create = "shipping:update", StoreScopeType = "SelectedStoreScope" },
+            Permissions = new McpSetupPermissions { Read = "shipping:read", Update = "shipping:update", Create = "shipping:update", ScopeType = "SelectedStoreScope" },
         };
         await using var harness = CreateHarness(shipping);
         var setup = new Dictionary<string, object> { ["shipping"] = new { methods = new[] { "FixedRate" } } };

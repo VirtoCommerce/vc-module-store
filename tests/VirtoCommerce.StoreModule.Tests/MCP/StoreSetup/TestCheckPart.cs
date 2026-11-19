@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 
@@ -13,16 +14,16 @@ public class TestCheckPart(string name) : IStoreSetupCheck
 
     public string Title => $"Test part {name}";
 
-    public StoreSetupPermissions Permissions => StoreSetupPermissions.ForStore();
+    public McpSetupPermissions Permissions => StoreSetupPermissions.ForStore();
 
-    public IList<StoreSetupFinding> Findings { get; init; } = [];
+    public IList<McpFinding> Findings { get; init; } = [];
 
     // Thrown by the check, as a part whose module or third party fails.
     public Exception Error { get; init; }
 
     public StoreSetupContext CheckedContext { get; private set; }
 
-    public Task<IList<StoreSetupFinding>> CheckAsync(StoreSetupContext context)
+    public Task<IList<McpFinding>> CheckAsync(StoreSetupContext context)
     {
         CheckedContext = context;
 
@@ -35,18 +36,18 @@ public class TestCheckPart(string name) : IStoreSetupCheck
     }
 
     // Adds a finding of this part.
-    public TestCheckPart WithFinding(string id, StoreSetupFindingSeverity severity)
+    public TestCheckPart WithFinding(string id, string severity)
     {
         Findings.Add(CreateFinding(id, Name, severity));
         return this;
     }
 
-    public static StoreSetupFinding CreateFinding(string id, string part, StoreSetupFindingSeverity severity)
+    public static McpFinding CreateFinding(string id, string part, string severity)
     {
-        return new StoreSetupFinding
+        return new McpFinding
         {
             Id = id,
-            Part = part,
+            Category = part,
             Severity = severity,
             Title = $"Finding {id}",
             Why = "It matters.",

@@ -1,55 +1,49 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
-using VirtoCommerce.StoreModule.MCP.Services;
 
 namespace VirtoCommerce.StoreModule.MCP.Models;
 
-// A store setup finding in the MCP module's shape, with whether it blocks going live and why it matters.
+// A part's finding as the tools return it: whether it blocks going live, and the tool and the back-office link in its fix.
 public class StoreFinding : McpFinding
 {
     public bool BlocksGoLive { get; set; }
 
-    public string Why { get; set; }
-
     // The findings as rows, most severe first.
-    public static IList<StoreFinding> CreateList(IEnumerable<StoreSetupFinding> findings, IEnumerable<IStoreSetupPart> parts, string backOfficeLink)
+    public static IList<StoreFinding> CreateList(IEnumerable<McpFinding> findings, IEnumerable<IStoreSetupPart> parts, string backOfficeLink)
     {
         var sectionParts = parts.OfType<IStoreSetupSection>().Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return findings
-            .Select(x => Create(x, sectionParts.Contains(x.Part), backOfficeLink))
+            .Select(x => Create(x, sectionParts.Contains(x.Category), backOfficeLink))
             .OrderBy(x => McpFindingSeverities.GetRank(x.Severity))
             .ToList();
     }
 
     // The fix names the tool when the part takes a section, and the back-office screen with its link when there is one.
-    public static StoreFinding Create(StoreSetupFinding finding, bool partTakesSection, string backOfficeLink)
+    public static StoreFinding Create(McpFinding finding, bool partTakesSection, string backOfficeLink)
     {
         return new StoreFinding
         {
             Id = finding.Id,
-            Severity = finding.Severity switch
-            {
-                StoreSetupFindingSeverity.Blocking => McpFindingSeverities.Critical,
-                StoreSetupFindingSeverity.Warning => McpFindingSeverities.Warning,
-                _ => McpFindingSeverities.Info,
-            },
+            Severity = finding.Severity,
             Title = finding.Title,
             Why = finding.Why,
             Evidence = finding.Evidence,
             Fix = GetFix(finding, partTakesSection, backOfficeLink),
-            Category = finding.Part,
-            BlocksGoLive = finding.Severity == StoreSetupFindingSeverity.Blocking,
+            Screen = finding.Screen,
+            Category = finding.Category,
+            BlocksGoLive = finding.Severity == McpFindingSeverities.Critical,
             ObjectType = finding.ObjectType,
             ObjectId = finding.ObjectId,
             ObjectName = finding.ObjectName,
         };
     }
 
-    private static string GetFix(StoreSetupFinding finding, bool partTakesSection, string backOfficeLink)
+    private static string GetFix(McpFinding finding, bool partTakesSection, string backOfficeLink)
     {
         var fix = new List<string>();
 
@@ -60,12 +54,12 @@ public class StoreFinding : McpFinding
 
         if (partTakesSection)
         {
-            fix.Add($"Tool: apply_store_setup with the '{finding.Part}' section.");
+            fix.Add($"Tool: apply_store_setup with the '{finding.Category}' section.");
         }
 
         if (!string.IsNullOrEmpty(finding.Screen))
         {
-            fix.Add($"Back office: {StoreBackOfficeLinks.WithLink(finding.Screen, backOfficeLink)}.");
+            fix.Add($"Back office: {finding.Screen.WithLink(backOfficeLink)}.");
         }
 
         return string.Join(" ", fix);

@@ -135,12 +135,14 @@ A part implements `IStoreSetupPart` and the duties it covers, any of them:
 |-----------|------|
 | `IStoreSetupChoices` | What can be chosen on the installation, such as method codes. A choice names the field it fills with its section, such as `basics.catalog_id`. |
 | `IStoreSetupState` | The store's current state for the part, in the shape of its section, without secrets. |
-| `IStoreSetupCheck` | What the store is missing: findings that block going live, warnings and notes. |
+| `IStoreSetupCheck` | What the store is missing: critical findings block going live, then warnings and notes. |
 | `IStoreSetupSection` | Applies the part's section of a setup: plans it without side effects, then applies it so that a repeat changes nothing. |
 
-A part names the existing permissions that guard it, and the permission scope that limits them to stores (`StoreSetupPermissions`); the tools check them for every part. A setting typed `SecureString`, or with the word Key, Secret, Password, Token or Credential(s) in its name, is a secret. A module adds its other secrets with `serviceCollection.AddStoreSetupSecrets("MyModule.SigningCode")`.
+The shapes a part exchanges come from `VirtoCommerce.MCP.Core`, which Store.Core references: `McpFinding`, `McpSetupChoice`, `McpSetupSetting`, `McpSetupPartPlan` and the others ([Setups that modules plug into](https://github.com/VirtoCommerce/vc-module-mcp/blob/dev/docs/toolset-helpers.md#setups-that-modules-plug-into)). A part's module does not need the MCP module installed: Store ships `VirtoCommerce.MCP.Core`.
 
-A part whose objects have settings, such as payment methods, follows Store's rules through `StoreSetupSettingsExtensions`: `DescribeAll` for its choices and `GetValues` for its state, both without secrets, and `PlanSettings` for a settings map in its section. `PlanSettings` refuses an unknown name, a secret and a wrong value, returns a setting to its default for a null, and changes nothing for the value already in effect. `StoreSetupFinding.ForStore` starts a finding about a store, with its back-office screen.
+A part names the existing permissions that guard it, and the permission scope that limits them to stores (`McpSetupPermissions`; `StoreSetupPermissions.ForStore()` gives Store's own); the tools check them for every part. Secrets follow the MCP module's rule (`McpSecretSettings`): a setting typed `SecureString`, or with the word Key, Secret, Password, Token or Credential(s) in its name, is a secret. A module adds its other secrets with `serviceCollection.AddMcpSecretSettings("MyModule.SigningCode")`.
+
+A part whose objects have settings, such as payment methods, follows Store's rules through `StoreSetupSettingsExtensions`: `DescribeAll` for its choices and `GetValues` for its state, both without secrets, and `PlanSettings` for a settings map in its section. `PlanSettings` refuses an unknown name, a secret and a wrong value, returns a setting to its default for a null, and changes nothing for the value already in effect. `StoreSetupFindings.ForStore` starts a finding about a store, with its back-office screen.
 
 ## Architecture
 

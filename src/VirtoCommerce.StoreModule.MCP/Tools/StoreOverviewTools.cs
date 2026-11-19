@@ -10,6 +10,7 @@ using ModelContextProtocol.Server;
 using VirtoCommerce.MCP.Core;
 using VirtoCommerce.MCP.Core.Attributes;
 using VirtoCommerce.MCP.Core.Extensions;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
@@ -51,7 +52,7 @@ public class StoreOverviewTools(
         foreach (var store in result.Results)
         {
             var findings = await setupService.CheckAsync(store);
-            var blocking = CountBlocking(findings);
+            var blocking = findings.CountBySeverity(McpFindingSeverities.Critical);
 
             stores.Add(new
             {
@@ -60,8 +61,8 @@ public class StoreOverviewTools(
                 state = StoreStateNames.ToName(store.StoreState),
                 ready_to_open = blocking == 0,
                 blocking,
-                warnings = findings.Count(x => x.Severity == StoreSetupFindingSeverity.Warning),
-                top_finding = findings.OrderBy(x => x.Severity).FirstOrDefault()?.Title,
+                warnings = findings.CountBySeverity(McpFindingSeverities.Warning),
+                top_finding = findings.OrderBySeverity().FirstOrDefault()?.Title,
             });
         }
 
@@ -136,7 +137,7 @@ public class StoreOverviewTools(
         }
 
         var findings = await setupService.CheckAsync(store);
-        var blocking = CountBlocking(findings);
+        var blocking = findings.CountBySeverity(McpFindingSeverities.Critical);
 
         return new
         {
@@ -150,8 +151,8 @@ public class StoreOverviewTools(
             {
                 ready_to_open = blocking == 0,
                 blocking,
-                warnings = findings.Count(x => x.Severity == StoreSetupFindingSeverity.Warning),
-                top_findings = findings.OrderBy(x => x.Severity).Take(TopFindingCount).Select(x => x.Title).ToList(),
+                warnings = findings.CountBySeverity(McpFindingSeverities.Warning),
+                top_findings = findings.OrderBySeverity().Take(TopFindingCount).Select(x => x.Title).ToList(),
             },
             next_step = "get_store_readiness_report for every finding with its fix; get_store_settings for every setting.",
         };
@@ -177,10 +178,6 @@ public class StoreOverviewTools(
         }
     }
 
-    private static int CountBlocking(IList<StoreSetupFinding> findings)
-    {
-        return findings.Count(x => x.Severity == StoreSetupFindingSeverity.Blocking);
-    }
 
     private async Task<int> CountAsync(ClaimsPrincipal user, StoreState state)
     {

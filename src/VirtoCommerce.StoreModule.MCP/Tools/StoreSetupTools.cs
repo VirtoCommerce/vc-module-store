@@ -129,12 +129,12 @@ public class StoreSetupTools(
         }
 
         // An approval for nothing is not submitted.
-        if (result.Parts.All(x => x.Status == StoreSetupPartStatus.NoChange))
+        if (result.Parts.All(x => x.Status == McpSetupPartStatus.NoChange))
         {
             throw new McpException($"Nothing to change: store '{storeId}' already has this setup.");
         }
 
-        if (result.Parts.Any(x => x.Status == StoreSetupPartStatus.Failed))
+        if (result.Parts.Any(x => x.Status == McpSetupPartStatus.Failed))
         {
             throw new McpException(GetPartialFailureMessage(result));
         }
@@ -191,7 +191,7 @@ public class StoreSetupTools(
         foreach (var part in setupService.GetParts().Where(x => sections.ContainsKey(x.Name)))
         {
             var permission = isNewStore ? part.Permissions?.Create : part.Permissions?.Update;
-            StoreAccess.EnsureAllowed(user, permission, part.Permissions?.StoreScopeType, storeId);
+            StoreAccess.EnsureAllowed(user, permission, part.Permissions?.ScopeType, storeId);
         }
     }
 
@@ -267,7 +267,7 @@ public class StoreSetupTools(
             preview.AddWarning("The store is open: customers see each part as soon as it is applied.");
         }
 
-        if (result.Parts.Count(x => x.Status is StoreSetupPartStatus.WillChange or StoreSetupPartStatus.Applied) > 1)
+        if (result.Parts.Count(x => x.Status is McpSetupPartStatus.WillChange or McpSetupPartStatus.Applied) > 1)
         {
             preview.AddWarning("Not a transaction: if a part fails, the parts before it stay applied; the answer says which, " +
                 "and the same call repeated finishes the setup.");
@@ -296,10 +296,10 @@ public class StoreSetupTools(
 
     private static string GetPartialFailureMessage(StoreSetupResult result)
     {
-        var applied = result.Parts.Where(x => x.Status == StoreSetupPartStatus.Applied).Select(x => x.Part).ToList();
+        var applied = result.Parts.Where(x => x.Status == McpSetupPartStatus.Applied).Select(x => x.Part).ToList();
         var notApplied = result.Parts
-            .Where(x => x.Status is StoreSetupPartStatus.Failed or StoreSetupPartStatus.NotApplied)
-            .Select(x => x.Status == StoreSetupPartStatus.Failed ? $"{x.Part} (failed: {x.Error})" : $"{x.Part} (not started)");
+            .Where(x => x.Status is McpSetupPartStatus.Failed or McpSetupPartStatus.NotApplied)
+            .Select(x => x.Status == McpSetupPartStatus.Failed ? $"{x.Part} (failed: {x.Error})" : $"{x.Part} (not started)");
 
         return $"Store '{result.StoreId}' is set up only in part. " +
             $"Applied: {(applied.Count == 0 ? "nothing" : string.Join(", ", applied))}. " +

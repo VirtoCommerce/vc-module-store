@@ -1,36 +1,17 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.MCP.Core.Services;
 
 namespace VirtoCommerce.StoreModule.MCP.Services;
 
-// Links into the back office for what the tools do not cover: the platform's public origin, as the MCP module resolves
-// it for the scope of the request, followed by the screen's route.
-public class StoreBackOfficeLinks(IHttpContextAccessor httpContextAccessor)
+// The links of Store's screens, for what the tools do not cover.
+public class StoreBackOfficeLinks(IMcpLinkResolver linkResolver)
 {
     // The route of the Stores screen. It takes no store id, so the link opens the list of stores.
     public const string StoresRoute = "/#!/workspace/store";
 
-    // A screen with its link in brackets, or the screen alone when there is no link.
-    public static string WithLink(string screen, string link)
+    // The link to the Stores screen; null outside an MCP request and when the scope has no public origin.
+    public virtual Task<string> GetStoresLinkAsync()
     {
-        return string.IsNullOrEmpty(link) ? screen : $"{screen} ({link})";
-    }
-
-    // The link to the Stores screen, or null outside an MCP request.
-    public virtual async Task<string> GetStoresLinkAsync()
-    {
-        var httpContext = httpContextAccessor.HttpContext;
-        var scope = httpContext?.GetMcpScope();
-
-        if (scope == null)
-        {
-            return null;
-        }
-
-        var origin = await httpContext.RequestServices.GetMcpScopeService<IMcpPublicOriginResolver>(scope).GetOriginAsync(httpContext, scope);
-
-        return string.IsNullOrEmpty(origin) ? null : $"{origin.TrimEnd('/')}{StoresRoute}";
+        return linkResolver.GetLinkAsync(StoresRoute);
     }
 }

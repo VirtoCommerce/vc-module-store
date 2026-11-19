@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
 namespace VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
@@ -12,34 +13,34 @@ public class TestSectionPart(string name) : IStoreSetupSection, IStoreSetupChoic
 
     public string Title => $"Test part {name}";
 
-    public StoreSetupPermissions Permissions => StoreSetupPermissions.ForStore();
+    public McpSetupPermissions Permissions => StoreSetupPermissions.ForStore();
 
     public Type SectionType => typeof(TestSection);
 
     public bool IsRequiredForNewStore => true;
 
-    public Task<IList<StoreSetupChoice>> GetChoicesAsync()
+    public Task<IList<McpSetupChoice>> GetChoicesAsync()
     {
-        IList<StoreSetupChoice> choices =
+        IList<McpSetupChoice> choices =
         [
-            new StoreSetupChoice
+            new McpSetupChoice
             {
                 Field = $"{name}.methods",
                 Value = "FixedRate",
                 Title = "Fixed rate",
-                Settings = [new StoreSetupSetting { Name = "FixedRate.Ground.Rate", Title = "Ground rate", ValueType = "Decimal" }],
+                Settings = [new McpSetupSetting { Name = "FixedRate.Ground.Rate", Title = "Ground rate", ValueType = "Decimal" }],
             },
         ];
 
         return Task.FromResult(choices);
     }
 
-    public Task<StoreSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
+    public Task<McpSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
     {
         throw new NotSupportedException();
     }
 
-    public Task ApplyAsync(StoreSetupContext context, StoreSetupPartPlan plan)
+    public Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan)
     {
         throw new NotSupportedException();
     }

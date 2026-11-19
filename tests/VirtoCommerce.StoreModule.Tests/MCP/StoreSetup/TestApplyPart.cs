@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
 namespace VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
@@ -14,7 +15,7 @@ public class TestApplyPart(string name) : IStoreSetupSection
 
     public string Title => $"Test part {name}";
 
-    public StoreSetupPermissions Permissions { get; init; } = StoreSetupPermissions.ForStore();
+    public McpSetupPermissions Permissions { get; init; } = StoreSetupPermissions.ForStore();
 
     public Type SectionType => typeof(TestSection);
 
@@ -30,10 +31,10 @@ public class TestApplyPart(string name) : IStoreSetupSection
 
     public int ApplyCount { get; private set; }
 
-    public Task<StoreSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
+    public Task<McpSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
     {
         var methods = ((TestSection)section).Methods ?? [];
-        var plan = new StoreSetupPartPlan();
+        var plan = new McpSetupPartPlan();
 
         if (PlanError != null)
         {
@@ -50,7 +51,7 @@ public class TestApplyPart(string name) : IStoreSetupSection
         return Task.FromResult(plan);
     }
 
-    public Task ApplyAsync(StoreSetupContext context, StoreSetupPartPlan plan)
+    public Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan)
     {
         ApplyCount++;
 

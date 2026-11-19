@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
@@ -31,8 +32,8 @@ public class StoreSetupServiceTests
     public async Task GetParts_KeepsTheLastPartOfAName_WhateverItsCase()
     {
         //Arrange
-        var original = new TestCheckPart("payment").WithFinding("payment-original", StoreSetupFindingSeverity.Warning);
-        var replacement = new TestCheckPart("Payment").WithFinding("payment-replacement", StoreSetupFindingSeverity.Warning);
+        var original = new TestCheckPart("payment").WithFinding("payment-original", McpFindingSeverities.Warning);
+        var replacement = new TestCheckPart("Payment").WithFinding("payment-replacement", McpFindingSeverities.Warning);
         var service = CreateService(original, replacement);
 
         //Act
@@ -48,8 +49,8 @@ public class StoreSetupServiceTests
     public async Task CheckAsync_CollectsTheFindingsOfEveryPartThatChecks()
     {
         //Arrange
-        var basics = new TestCheckPart("basics").WithFinding("basics-no-catalog", StoreSetupFindingSeverity.Warning);
-        var catalog = new TestCheckPart("catalog").WithFinding("catalog-empty", StoreSetupFindingSeverity.Blocking);
+        var basics = new TestCheckPart("basics").WithFinding("basics-no-catalog", McpFindingSeverities.Warning);
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-empty", McpFindingSeverities.Critical);
 
         //Act
         var findings = await CreateService(basics, catalog).CheckAsync(TestCheckPart.CreateStore(), "EUR", "DEU");
@@ -66,15 +67,15 @@ public class StoreSetupServiceTests
     {
         //Arrange
         var failing = new TestCheckPart("payment") { Error = new InvalidOperationException("Gateway: invalid key sk_live_123 at Stripe.Charge()") };
-        var working = new TestCheckPart("shipping").WithFinding("shipping-no-active-method", StoreSetupFindingSeverity.Blocking);
+        var working = new TestCheckPart("shipping").WithFinding("shipping-no-active-method", McpFindingSeverities.Critical);
 
         //Act
         var findings = await CreateService(failing, working).CheckAsync(TestCheckPart.CreateStore());
 
         //Assert
         var notChecked = Assert.Single(findings, x => x.Id == "payment-not-checked");
-        Assert.Equal(StoreSetupFindingSeverity.Blocking, notChecked.Severity);
-        Assert.Equal("payment", notChecked.Part);
+        Assert.Equal(McpFindingSeverities.Critical, notChecked.Severity);
+        Assert.Equal("payment", notChecked.Category);
         Assert.Contains(findings, x => x.Id == "shipping-no-active-method");
         Assert.DoesNotContain("sk_live_123", JsonSerializer.Serialize(findings));
         Assert.DoesNotContain("Stripe", JsonSerializer.Serialize(findings));

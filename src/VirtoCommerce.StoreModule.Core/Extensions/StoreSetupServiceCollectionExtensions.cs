@@ -14,11 +14,4 @@ public static class StoreSetupServiceCollectionExtensions
         services.AddTransient<IStoreSetupPart, TPart>();
         return services;
     }
-
-    // Adds settings that are secrets whatever their name and type, so a setup never lists, accepts or returns them.
-    public static IServiceCollection AddStoreSetupSecrets(this IServiceCollection services, params string[] settingNames)
-    {
-        services.Configure<StoreSetupSecretOptions>(options => options.SettingNames.UnionWith(settingNames));
-        return services;
-    }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
@@ -102,7 +103,7 @@ public class StoreSettingsSectionTests
         var translationService = new Mock<ITranslationService>();
         translationService.Setup(x => x.GetTranslationDataForLanguage("en")).Returns(new JObject());
 
-        var setupSettings = new StoreSetupSettings(registrar.Object, translationService.Object, Options.Create(new StoreSetupSecretOptions()));
+        var setupSettings = new StoreSetupSettings(registrar.Object, translationService.Object, Options.Create(new McpSecretSettingsOptions()));
 
         return new StoreSettingsSetupPart(setupSettings, registrar.Object, TestStoreService.Create(stores).Object);
     }

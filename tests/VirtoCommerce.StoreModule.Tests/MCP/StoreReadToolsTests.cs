@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Testing;
 using VirtoCommerce.Platform.Core.Settings;
-using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 using Xunit;
 using static VirtoCommerce.StoreModule.Tests.MCP.StoreToolsTestContext;
@@ -84,7 +84,7 @@ public class StoreReadToolsTests
     public async Task GetStore_ShowsAPartsState_OnlyWithThePartsReadPermissionForTheStore()
     {
         //Arrange
-        var shipping = new TestStatePart("shipping", new StoreSetupPermissions { Read = "shipping:read", StoreScopeType = "SelectedStoreScope" });
+        var shipping = new TestStatePart("shipping", new McpSetupPermissions { Read = "shipping:read", ScopeType = "SelectedStoreScope" });
         await using var harness = CreateHarness(shipping);
         var withShipping = McpTestUser.Create("a").WithPermissions("store:read").WithScopedPermission("shipping:read", "SelectedStoreScope", StoreA);
         var withoutShipping = McpTestUser.WithPermissions("b", "store:read");
@@ -105,7 +105,7 @@ public class StoreReadToolsTests
     public async Task GetStoreReadinessReport_ShowsTheFindingsOfEveryPart_AndWhichPartsWereChecked()
     {
         //Arrange
-        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", StoreSetupFindingSeverity.Blocking);
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", McpFindingSeverities.Critical);
         await using var harness = CreateHarness(catalog);
 
         //Act
@@ -160,6 +160,20 @@ public class StoreReadToolsTests
         Assert.DoesNotContain(MapsApiKeyValue, result.Text);
         Assert.DoesNotContain(MapsApiKey.Name, result.Text);
         Assert.Contains("back office", json.GetProperty("secrets").GetString());
+    }
+
+    [Fact]
+    public async Task GetStoreSettings_SendsSecretsToTheStoresScreen_WithItsLink()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA });
+
+        //Assert
+        Assert.Equal("Secrets are not listed. A person enters them in the back office: Stores > Store A > Settings (https://admin.example.com/#!/workspace/store).",
+            result.EnsureSucceeded().Json.GetProperty("secrets").GetString());
     }
 
     [Fact]
@@ -244,6 +258,52 @@ public class StoreReadToolsTests
         Assert.True(stores[0].GetProperty("ready_to_open").GetBoolean());
         Assert.Equal(1, stores[1].GetProperty("warnings").GetInt32());
         Assert.Equal("No catalog is linked to the store", stores[1].GetProperty("top_finding").GetString());
+    }
+
+    // A warning comes before an info, which the order of the severities' names would reverse.
+    [Fact]
+    public async Task GetStoreOverview_TopFindingIsTheMostSevere()
+    {
+        //Arrange
+        var notes = new TestCheckPart("notes").WithFinding("note-info", McpFindingSeverities.Info).WithFinding("note-warning", McpFindingSeverities.Warning);
+        await using var harness = CreateHarness(notes);
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_overview");
+
+        //Assert
+        var storeA = result.EnsureSucceeded().Json.GetProperty("stores").EnumerateArray().Single(x => x.GetProperty("store_id").GetString() == StoreA);
+        Assert.Equal("Finding note-warning", storeA.GetProperty("top_finding").GetString());
+    }
+
+    [Fact]
+    public async Task GetStore_ListsTheTopFindings_MostSevereFirst()
+    {
+        //Arrange
+        var notes = new TestCheckPart("notes").WithFinding("note-info", McpFindingSeverities.Info).WithFinding("note-warning", McpFindingSeverities.Warning);
+        await using var harness = CreateHarness(notes);
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store", new { store_id = StoreA });
+
+        //Assert
+        var topFindings = result.EnsureSucceeded().Json.GetProperty("readiness").GetProperty("top_findings");
+        Assert.Equal(["Finding note-warning", "Finding note-info"], topFindings.EnumerateArray().Select(x => x.GetString()));
+    }
+
+    [Fact]
+    public async Task GetStoreReadinessReport_SaysOnWhichScreenEachFindingIsFixed()
+    {
+        //Arrange
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", McpFindingSeverities.Critical);
+        await using var harness = CreateHarness(catalog);
+
+        //Act
+        var report = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA });
+
+        //Assert
+        var finding = Assert.Single(report.EnsureSucceeded().Json.GetProperty("findings").EnumerateArray());
+        Assert.Equal("Stores > Test", finding.GetProperty("screen").GetString());
     }
 
     private static string[] GetStoreIds(JsonElement items)

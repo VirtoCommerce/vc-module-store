@@ -1,3 +1,5 @@
+using VirtoCommerce.MCP.Core.Models;
+
 namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
 // A module's part of a store's setup. A part implements the duties it covers (IStoreSetupChoices, IStoreSetupState,
@@ -10,5 +12,7 @@ public interface IStoreSetupPart
 
     string Title { get; }
 
-    StoreSetupPermissions Permissions { get; }
+    // The permissions of the part's module. Their ScopeType, when there is one, limits them to stores, such as
+    // StoreSelectedScope or SelectedStoreScope.
+    McpSetupPermissions Permissions { get; }
 }

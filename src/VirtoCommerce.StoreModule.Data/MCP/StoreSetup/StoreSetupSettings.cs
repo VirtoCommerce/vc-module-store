@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
@@ -15,28 +16,23 @@ using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 
-public partial class StoreSetupSettings(
+public class StoreSetupSettings(
     ISettingsRegistrar settingsRegistrar,
     ITranslationService translationService,
-    IOptions<StoreSetupSecretOptions> secretOptions)
+    IOptions<McpSecretSettingsOptions> secretOptions)
     : IStoreSetupSettings
 {
     // Titles and descriptions come from the English localization files of the modules, as in the back office.
     private const string Language = "en";
 
-    // Compared with the whole words of a setting name: "ApiKey" has the word Key, "Keyword" does not.
-    private static readonly HashSet<string> _secretWords = new(StringComparer.OrdinalIgnoreCase) { "Key", "Secret", "Password", "Token", "Credential", "Credentials" };
-
     public virtual bool IsSecret(SettingDescriptor descriptor)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        return descriptor.ValueType == SettingValueType.SecureString
-            || secretOptions.Value.SettingNames.Contains(descriptor.Name)
-            || GetNameWords(descriptor.Name).Any(_secretWords.Contains);
+        return McpSecretSettings.IsSecret(descriptor.Name, descriptor.ValueType, secretOptions.Value);
     }
 
-    public virtual StoreSetupSetting Describe(SettingDescriptor descriptor, object value)
+    public virtual McpSetupSetting Describe(SettingDescriptor descriptor, object value)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
@@ -79,7 +75,7 @@ public partial class StoreSetupSettings(
         if (!descriptor.AllowedValues.IsNullOrEmpty())
         {
             // The allowed value itself is kept, with its spelling: modules compare these values as they declared them.
-            converted = descriptor.AllowedValues.FirstOrDefault(x => StoreSetupValues.AreEqual(x, converted));
+            converted = descriptor.AllowedValues.FirstOrDefault(x => McpSetupValues.AreEqual(x, converted));
 
             if (converted == null)
             {
@@ -92,7 +88,7 @@ public partial class StoreSetupSettings(
         return true;
     }
 
-    public virtual Task<IList<StoreSetupSetting>> GetStoreSettingsAsync(Store store)
+    public virtual Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
     {
         ArgumentNullException.ThrowIfNull(store);
 
@@ -102,7 +98,7 @@ public partial class StoreSetupSettings(
             .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
-        IList<StoreSetupSetting> settings = (settingsRegistrar.GetSettingsForType(nameof(Store)) ?? [])
+        IList<McpSetupSetting> settings = (settingsRegistrar.GetSettingsForType(nameof(Store)) ?? [])
             .Where(x => !x.IsHidden && !IsSecret(x))
             .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .Select(x => Describe(x, values.GetValueOrDefault(x.Name), translation))
@@ -113,15 +109,15 @@ public partial class StoreSetupSettings(
         return Task.FromResult(settings);
     }
 
-    protected virtual StoreSetupSetting Describe(SettingDescriptor descriptor, object value, JObject translation)
+    protected virtual McpSetupSetting Describe(SettingDescriptor descriptor, object value, JObject translation)
     {
         var isSecret = IsSecret(descriptor);
-        var texts = FindNode(translation?["settings"], descriptor.Name.Split('.'), 0);
+        var (title, description) = McpSettingTexts.Find(translation, descriptor.Name);
 
-        var setting = AbstractTypeFactory<StoreSetupSetting>.TryCreateInstance();
+        var setting = AbstractTypeFactory<McpSetupSetting>.TryCreateInstance();
         setting.Name = descriptor.Name;
-        setting.Title = GetText(texts, "title") ?? descriptor.DisplayName ?? descriptor.Name;
-        setting.Description = GetText(texts, "description");
+        setting.Title = title ?? descriptor.DisplayName ?? descriptor.Name;
+        setting.Description = description;
         setting.ModuleId = descriptor.ModuleId;
         setting.ValueType = descriptor.ValueType.ToString();
         setting.IsRequired = descriptor.IsRequired;
@@ -133,7 +129,7 @@ public partial class StoreSetupSettings(
             setting.DefaultValue = descriptor.DefaultValue;
             setting.Value = value ?? descriptor.DefaultValue;
             setting.AllowedValues = descriptor.AllowedValues?.ToList();
-            setting.IsChanged = !StoreSetupValues.AreEqual(setting.Value, descriptor.DefaultValue);
+            setting.IsChanged = !McpSetupValues.AreEqual(setting.Value, descriptor.DefaultValue);
         }
 
         return setting;
@@ -148,7 +144,7 @@ public partial class StoreSetupSettings(
     protected virtual bool TryConvertValue(SettingValueType valueType, object raw, out object value)
     {
         value = null;
-        var text = StoreSetupValues.ToInvariantString(raw);
+        var text = McpSetupValues.ToInvariantString(raw);
 
         switch (valueType)
         {
@@ -188,43 +184,4 @@ public partial class StoreSetupSettings(
         };
     }
 
-    private static string GetText(JToken texts, string key)
-    {
-        var text = texts?[key]?.ToString();
-
-        return string.IsNullOrWhiteSpace(text) ? null : text;
-    }
-
-    // The localization files nest a setting name by its dots ("Stores" > "TaxCalculationEnabled"), but a key may also
-    // hold several segments with their dots, so the longest key is tried first.
-    private static JToken FindNode(JToken node, string[] segments, int index)
-    {
-        if (node is not JObject obj)
-        {
-            return null;
-        }
-
-        if (index == segments.Length)
-        {
-            return obj;
-        }
-
-        for (var end = segments.Length; end > index; end--)
-        {
-            if (obj.TryGetValue(string.Join('.', segments, index, end - index), out var child) && FindNode(child, segments, end) is { } found)
-            {
-                return found;
-            }
-        }
-
-        return null;
-    }
-
-    private static IEnumerable<string> GetNameWords(string name)
-    {
-        return string.IsNullOrEmpty(name) ? [] : NameWordRegex().Matches(name).Select(x => x.Value);
-    }
-
-    [GeneratedRegex("[A-Z]+(?=[A-Z][a-z])|[A-Z]?[a-z0-9]+|[A-Z]+")]
-    private static partial Regex NameWordRegex();
 }

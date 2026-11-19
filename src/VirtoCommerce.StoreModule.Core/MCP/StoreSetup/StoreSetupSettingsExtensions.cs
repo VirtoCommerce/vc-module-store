@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
 
@@ -11,7 +12,7 @@ namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 public static class StoreSetupSettingsExtensions
 {
     // The settings an object takes, described for a choice, without secrets.
-    public static IList<StoreSetupSetting> DescribeAll(this IStoreSetupSettings setupSettings, IEnumerable<SettingDescriptor> descriptors)
+    public static IList<McpSetupSetting> DescribeAll(this IStoreSetupSettings setupSettings, IEnumerable<SettingDescriptor> descriptors)
     {
         ArgumentNullException.ThrowIfNull(setupSettings);
 
@@ -49,7 +50,7 @@ public static class StoreSetupSettingsExtensions
     // setting's name. Returns the changed settings with their new values.
     public static IDictionary<string, object> PlanSettings(
         this IStoreSetupSettings setupSettings,
-        StoreSetupPartPlan plan,
+        McpSetupPartPlan plan,
         IHasSettings owner,
         IList<SettingDescriptor> descriptors,
         IDictionary<string, object> values,
@@ -90,7 +91,7 @@ public static class StoreSetupSettingsExtensions
             var entry = owner.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
             var current = entry?.Value ?? descriptor.DefaultValue;
 
-            if (StoreSetupValues.AreEqual(current, value))
+            if (McpSetupValues.AreEqual(current, value))
             {
                 continue;
             }

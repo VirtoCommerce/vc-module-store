@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -50,10 +51,10 @@ public class StoreSetupSettingsExtensionsTests
     public void ForStore_StartsAFindingAboutTheStore_OnItsScreen(string tab, string expectedScreen)
     {
         //Act
-        var finding = StoreSetupFinding.ForStore(new Store { Id = "eu-store", Name = "EU store" }, "payment", "payment-no-active-method", StoreSetupFindingSeverity.Blocking, tab);
+        var finding = StoreSetupFindings.ForStore(new Store { Id = "eu-store", Name = "EU store" }, "payment", "payment-no-active-method", McpFindingSeverities.Critical, tab);
 
         //Assert
-        Assert.Equal(("payment-no-active-method", "payment", StoreSetupFindingSeverity.Blocking), (finding.Id, finding.Part, finding.Severity));
+        Assert.Equal(("payment-no-active-method", "payment", McpFindingSeverities.Critical), (finding.Id, finding.Category, finding.Severity));
         Assert.Equal(expectedScreen, finding.Screen);
         Assert.Equal((nameof(Store), "eu-store", "EU store"), (finding.ObjectType, finding.ObjectId, finding.ObjectName));
     }
@@ -75,9 +76,9 @@ public class StoreSetupSettingsExtensionsTests
             return descriptor.Name.EndsWith("Key", StringComparison.OrdinalIgnoreCase);
         }
 
-        public StoreSetupSetting Describe(SettingDescriptor descriptor, object value)
+        public McpSetupSetting Describe(SettingDescriptor descriptor, object value)
         {
-            return new StoreSetupSetting { Name = descriptor.Name, DefaultValue = descriptor.DefaultValue, Value = value ?? descriptor.DefaultValue };
+            return new McpSetupSetting { Name = descriptor.Name, DefaultValue = descriptor.DefaultValue, Value = value ?? descriptor.DefaultValue };
         }
 
         public bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error)
@@ -87,9 +88,9 @@ public class StoreSetupSettingsExtensionsTests
             return true;
         }
 
-        public Task<IList<StoreSetupSetting>> GetStoreSettingsAsync(Store store)
+        public Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
         {
-            return Task.FromResult<IList<StoreSetupSetting>>([]);
+            return Task.FromResult<IList<McpSetupSetting>>([]);
         }
     }
 }

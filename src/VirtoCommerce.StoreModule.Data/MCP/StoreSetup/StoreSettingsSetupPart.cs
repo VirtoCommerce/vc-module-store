@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
@@ -23,7 +24,7 @@ public class StoreSettingsSetupPart(
 
     public virtual string Title => "Store settings";
 
-    public virtual StoreSetupPermissions Permissions => StoreSetupPermissions.ForStore();
+    public virtual McpSetupPermissions Permissions => StoreSetupPermissions.ForStore();
 
     public virtual Type SectionType => typeof(StoreSettingsSection);
 
@@ -45,7 +46,7 @@ public class StoreSettingsSetupPart(
 
     // Sets the named settings and leaves the others as they are; null returns a setting to its default. An unknown
     // name, a secret and a setting a setup cannot change are refused.
-    public virtual Task<StoreSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
+    public virtual Task<McpSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -60,11 +61,11 @@ public class StoreSettingsSetupPart(
             plan.Values[name] = value;
         }
 
-        return Task.FromResult<StoreSetupPartPlan>(plan);
+        return Task.FromResult<McpSetupPartPlan>(plan);
     }
 
     // Saves the values with the store, read again from the database, so the cached store is refreshed with them.
-    public virtual async Task ApplyAsync(StoreSetupContext context, StoreSetupPartPlan plan)
+    public virtual async Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan)
     {
         ArgumentNullException.ThrowIfNull(context);
 

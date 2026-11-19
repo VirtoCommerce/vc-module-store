@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using VirtoCommerce.CoreModule.Core.Currency;
+using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.Core.Services;
@@ -28,14 +29,14 @@ public class StoreBasicsSetupPartTests
     }
 
     [Theory]
-    [InlineData("no-languages", "basics-no-language", StoreSetupFindingSeverity.Blocking)]
-    [InlineData("default-language-not-among-them", "basics-no-language", StoreSetupFindingSeverity.Blocking)]
-    [InlineData("no-currencies", "basics-no-currency", StoreSetupFindingSeverity.Blocking)]
-    [InlineData("default-currency-not-among-them", "basics-no-currency", StoreSetupFindingSeverity.Blocking)]
-    [InlineData("no-catalog", "basics-no-catalog", StoreSetupFindingSeverity.Warning)]
-    [InlineData("no-storefront-url", "basics-no-storefront-url", StoreSetupFindingSeverity.Warning)]
-    [InlineData("no-email", "basics-no-email", StoreSetupFindingSeverity.Warning)]
-    public async Task CheckAsync_ReportsWhatTheStoreIsMissing(string gap, string expectedId, StoreSetupFindingSeverity expectedSeverity)
+    [InlineData("no-languages", "basics-no-language", McpFindingSeverities.Critical)]
+    [InlineData("default-language-not-among-them", "basics-no-language", McpFindingSeverities.Critical)]
+    [InlineData("no-currencies", "basics-no-currency", McpFindingSeverities.Critical)]
+    [InlineData("default-currency-not-among-them", "basics-no-currency", McpFindingSeverities.Critical)]
+    [InlineData("no-catalog", "basics-no-catalog", McpFindingSeverities.Warning)]
+    [InlineData("no-storefront-url", "basics-no-storefront-url", McpFindingSeverities.Warning)]
+    [InlineData("no-email", "basics-no-email", McpFindingSeverities.Warning)]
+    public async Task CheckAsync_ReportsWhatTheStoreIsMissing(string gap, string expectedId, string expectedSeverity)
     {
         //Arrange
         var store = CreateCompleteStore();
@@ -76,7 +77,7 @@ public class StoreBasicsSetupPartTests
         var finding = Assert.Single(findings);
         Assert.Equal(expectedId, finding.Id);
         Assert.Equal(expectedSeverity, finding.Severity);
-        Assert.Equal("basics", finding.Part);
+        Assert.Equal("basics", finding.Category);
         Assert.Equal(store.Id, finding.ObjectId);
         Assert.False(string.IsNullOrEmpty(finding.Why));
         Assert.False(string.IsNullOrEmpty(finding.Fix));
@@ -93,7 +94,7 @@ public class StoreBasicsSetupPartTests
         var findings = await CreatePart().CheckAsync(new StoreSetupContext { Store = CreateCompleteStore(), Currency = currency });
 
         //Assert
-        Assert.Equal(blocked, findings.Any(x => x.Id == "currency-not-in-store" && x.Severity == StoreSetupFindingSeverity.Blocking));
+        Assert.Equal(blocked, findings.Any(x => x.Id == "currency-not-in-store" && x.Severity == McpFindingSeverities.Critical));
     }
 
     [Fact]
