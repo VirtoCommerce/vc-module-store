@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
+using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.MCP.Services;
 
@@ -19,9 +21,12 @@ public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSea
     // create is repeated soon after; past this many creates, a leftover is refused like any store that exists.
     private const int MaxCreateChangesToRead = 100;
 
-    // The failed create that left the store, or null when the last create that ran for it succeeded or none did.
-    public virtual async Task<McpPendingChange> FindFailedCreateAsync(string storeId)
+    // The failed create that left the store, or null when the last create that ran for it succeeded or none did. A store
+    // made after that create closed, such as one made by hand under the same id, is not its leftover.
+    public virtual async Task<McpPendingChange> FindFailedCreateAsync(Store store)
     {
+        ArgumentNullException.ThrowIfNull(store);
+
         var criteria = AbstractTypeFactory<McpPendingChangeSearchCriteria>.TryCreateInstance();
         criteria.ToolName = CreateToolName;
         criteria.Statuses = [McpPendingChangeStatus.Applied, McpPendingChangeStatus.Failed];
@@ -29,9 +34,11 @@ public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSea
         criteria.Take = MaxCreateChangesToRead;
 
         var result = await pendingChangeSearchService.SearchAsync(criteria);
-        var lastChange = result.Results.FirstOrDefault(x => GetStoreId(x).EqualsIgnoreCase(storeId));
+        var lastChange = result.Results.FirstOrDefault(x => GetStoreId(x).EqualsIgnoreCase(store.Id));
 
-        return lastChange?.Status == McpPendingChangeStatus.Failed ? lastChange : null;
+        return lastChange?.Status == McpPendingChangeStatus.Failed && store.CreatedDate <= (lastChange.ModifiedDate ?? lastChange.CreatedDate)
+            ? lastChange
+            : null;
     }
 
     // The store id in a change's arguments; null when they name none, or are not JSON, which is logged.

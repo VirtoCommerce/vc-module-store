@@ -224,7 +224,7 @@ public static class StoreToolsTestContext
     private static ICurrencyService CreateCurrencyService()
     {
         var currencyService = new Mock<ICurrencyService>();
-        currencyService.Setup(x => x.GetAllCurrenciesAsync()).ReturnsAsync([new Currency { Code = "USD", Name = "US dollar" }]);
+        currencyService.Setup(x => x.GetAllCurrenciesAsync()).ReturnsAsync([new Currency { Code = "USD", Name = "US dollar" }, new Currency { Code = "EUR", Name = "Euro" }]);
 
         return currencyService.Object;
     }

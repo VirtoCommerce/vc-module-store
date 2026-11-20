@@ -6,11 +6,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.MCP.Core;
 using VirtoCommerce.MCP.Core.Attributes;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
 using VirtoCommerce.StoreModule.MCP.Models;
@@ -23,7 +26,13 @@ namespace VirtoCommerce.StoreModule.MCP.Tools;
 [McpServerToolType]
 [McpScope(McpScopes.Admin)]
 [McpPermission(StorePermissions.Read)]
-public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupService, StoreBackOfficeLinks links, ILogger<StoreReadinessTools> logger)
+public class StoreReadinessTools(
+    StoreAccess access,
+    IStoreSetupService setupService,
+    StoreBackOfficeLinks links,
+    ICountriesService countriesService,
+    ICurrencyService currencyService,
+    ILogger<StoreReadinessTools> logger)
 {
     // The most choices listed per field of a part, such as the basics' languages and currencies; a part lists its most
     // likely choices first.
@@ -53,6 +62,7 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
         [Description("Country code, such as DEU, to also check that customers there can check out.")] string country = null)
     {
         var store = await access.GetReadableStoreAsync(context.User, store_id);
+        await EnsureKnownCodesAsync(currency, country);
         var findings = await setupService.CheckAsync(store, currency, country);
         var link = await links.GetStoresLinkAsync();
         // Going live is decided as open_store decides it, without a currency or a country; with them, the findings say
@@ -159,6 +169,26 @@ public class StoreReadinessTools(StoreAccess access, IStoreSetupService setupSer
                 title = part.Title,
                 unavailable = $"{part.Title} could not list its options; the platform log has the details. Its section cannot be sent until it can.",
             };
+        }
+    }
+
+    // A code the platform does not know is refused, as the basics refuse it, instead of being read as a market whose
+    // customers cannot check out, or as one that nothing stops.
+    protected virtual async Task EnsureKnownCodesAsync(string currency, string country)
+    {
+        if (!string.IsNullOrWhiteSpace(country) && !(await countriesService.GetCountriesAsync() ?? []).Any(x => x.Id.EqualsIgnoreCase(country.Trim())))
+        {
+            throw new McpException($"Country '{country}' is not one of the platform's countries. Use its ISO 3166-1 alpha-3 code, such as DEU.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(currency))
+        {
+            var currencies = (await currencyService.GetAllCurrenciesAsync() ?? []).Select(x => x.Code).ToList();
+
+            if (!currencies.ContainsIgnoreCase(currency.Trim()))
+            {
+                throw new McpException($"Currency '{currency}' is not one of the platform's currencies: {string.Join(", ", currencies)}.");
+            }
         }
     }
 

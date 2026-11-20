@@ -14,7 +14,9 @@ public class StoreFinding : McpFinding
     public bool BlocksGoLive { get; set; }
 
     // The findings as rows, most severe first, by the setup service's parts and its rule for going live.
-    public static IList<StoreFinding> CreateList(IEnumerable<McpFinding> findings, IStoreSetupService setupService, string backOfficeLink)
+    // inCreate: before a create the store does not exist, so the fix of a part that takes a section sends it in the same
+    // create call.
+    public static IList<StoreFinding> CreateList(IEnumerable<McpFinding> findings, IStoreSetupService setupService, string backOfficeLink, bool inCreate = false)
     {
         ArgumentNullException.ThrowIfNull(setupService);
 
@@ -22,12 +24,12 @@ public class StoreFinding : McpFinding
 
         return findings
             .OrderBySeverity()
-            .Select(x => Create(x, sectionParts.Contains(x.Category), setupService.BlocksGoLive(x), backOfficeLink))
+            .Select(x => Create(x, sectionParts.Contains(x.Category), setupService.BlocksGoLive(x), backOfficeLink, inCreate))
             .ToList();
     }
 
     // The fix names the tool when the part takes a section, and the back-office screen with its link when there is one.
-    public static StoreFinding Create(McpFinding finding, bool partTakesSection, bool blocksGoLive, string backOfficeLink)
+    public static StoreFinding Create(McpFinding finding, bool partTakesSection, bool blocksGoLive, string backOfficeLink, bool inCreate = false)
     {
         var row = AbstractTypeFactory<StoreFinding>.TryCreateInstance();
         row.Id = finding.Id;
@@ -35,7 +37,7 @@ public class StoreFinding : McpFinding
         row.Title = finding.Title;
         row.Why = finding.Why;
         row.Evidence = finding.Evidence;
-        row.Fix = GetFix(finding, partTakesSection, backOfficeLink);
+        row.Fix = GetFix(finding, partTakesSection, backOfficeLink, inCreate);
         row.Screen = finding.Screen;
         row.ManualOnly = finding.ManualOnly;
         row.Category = finding.Category;
@@ -47,7 +49,7 @@ public class StoreFinding : McpFinding
         return row;
     }
 
-    private static string GetFix(McpFinding finding, bool partTakesSection, string backOfficeLink)
+    private static string GetFix(McpFinding finding, bool partTakesSection, string backOfficeLink, bool inCreate)
     {
         var fix = new List<string>();
 
@@ -59,7 +61,9 @@ public class StoreFinding : McpFinding
         // A finding only a person can fix, such as an empty secret, names no tool.
         if (partTakesSection && !finding.ManualOnly)
         {
-            fix.Add($"Tool: apply_store_setup with the '{finding.Category}' section.");
+            fix.Add(inCreate
+                ? $"Send the '{finding.Category}' section in the same create_configured_store call."
+                : $"Tool: apply_store_setup with the '{finding.Category}' section.");
         }
 
         if (!string.IsNullOrEmpty(finding.Screen))

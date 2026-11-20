@@ -12,19 +12,24 @@ public class StoreBasicsSection
     [Description("Store description.")]
     public string Description { get; set; }
 
-    [Description("Default language code, one of languages, such as en-US.")]
+    [Description("Default language code, one of languages, such as en-US. Left out on a new store, or on a store without " +
+        "a default whose languages are sent: the first of languages.")]
     public string DefaultLanguage { get; set; }
 
-    [Description("Language codes of the store: the complete list.")]
+    [Description("Language codes of the store: the complete list. A new store needs at least one, as its catalog is " +
+        "created with the store's languages; a store needs a language and a currency to open.")]
     public IList<string> Languages { get; set; }
 
-    [Description("Default currency code, one of currencies, such as USD.")]
+    [Description("Default currency code, one of currencies, such as USD. Left out on a new store, or on a store without " +
+        "a default whose currencies are sent: the first of currencies.")]
     public string DefaultCurrency { get; set; }
 
-    [Description("Currency codes of the store: the complete list.")]
+    [Description("Currency codes of the store: the complete list. A store needs a currency and a language to open.")]
     public IList<string> Currencies { get; set; }
 
-    [Description("Storefront URL, used in links of emails and of the checkout handoff.")]
+    [Description("The address customers open the store at, such as https://shop.example.com: the storefront's, not this " +
+        "platform's. A storefront shows the store whose URL holds its host name; the port plays no part. Links in emails and " +
+        "the checkout handoff use it too. Ask the user for it.")]
     public string Url { get; set; }
 
     [Description("Storefront URL for secure pages, such as the checkout; usually https.")]

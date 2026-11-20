@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
@@ -70,14 +71,20 @@ public abstract class StoreSetupSettingsBase : IStoreSetupSettings
                 continue;
             }
 
+            var entry = owner.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
+            var current = entry?.Value ?? descriptor.DefaultValue;
+
+            // A null for a setting that has no value changes nothing, so a state read from get_store can be sent back.
+            if (current == null && (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined }))
+            {
+                continue;
+            }
+
             if (!TryConvert(descriptor, raw, out var value, out var error))
             {
                 plan.Errors.Add(error);
                 continue;
             }
-
-            var entry = owner.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
-            var current = entry?.Value ?? descriptor.DefaultValue;
 
             if (McpSetupValues.AreEqual(current, value))
             {

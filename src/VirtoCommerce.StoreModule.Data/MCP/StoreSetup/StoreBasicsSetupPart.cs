@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.Core.Model.Search;
 using VirtoCommerce.StoreModule.Core.Services;
 using VirtoCommerce.StoreModule.Data.Services.Validation;
 
@@ -21,10 +23,18 @@ public class StoreBasicsSetupPart(
     ISettingsManager settingsManager,
     ICurrencyService currencyService,
     ICountriesService countriesService,
-    IStoreService storeService)
+    IStoreService storeService,
+    IStoreSearchService storeSearchService,
+    IEnumerable<IMcpLinkResolver> linkResolvers)
     : IStoreSetupChoices, IStoreSetupState, IStoreSetupCheck, IStoreSetupSection
 {
     public const string PartName = "basics";
+
+    // Where a person adds what the tools cannot: a platform language, or a currency (the Core module's widget).
+    public const string LanguagesScreen = "Settings > Platform > General, setting Languages";
+    public const string CurrenciesScreen = "Modules > Installed > Commerce core module > Currencies";
+    public const string SettingsRoute = "/#!/workspace/settings";
+    public const string ModulesRoute = "/#!/workspace/modules";
 
     public virtual string Name => PartName;
 
@@ -78,7 +88,7 @@ public class StoreBasicsSetupPart(
         return Task.FromResult<object>(section);
     }
 
-    public virtual Task<IList<McpFinding>> CheckAsync(StoreSetupContext context)
+    public virtual async Task<IList<McpFinding>> CheckAsync(StoreSetupContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -114,14 +124,18 @@ public class StoreBasicsSetupPart(
                 $"Add {context.Currency} to the store's currencies."));
         }
 
-        if (string.IsNullOrEmpty(store.Url) && string.IsNullOrEmpty(store.SecureUrl))
+        // A storefront looks the store up by its URL; the secure URL plays no part in it.
+        if (string.IsNullOrEmpty(store.Url))
         {
             findings.Add(CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
                 "The store has no storefront URL",
-                "Links in the store's emails and the checkout handoff need the storefront's address.",
-                "URL: none. HTTPS URL: none.",
-                "Enter the storefront URL."));
+                "A storefront shows the store whose URL holds its host name, so a store without one shows on no address of " +
+                    "its own. Links in its emails and the checkout handoff need the address too.",
+                string.IsNullOrEmpty(store.SecureUrl) ? "URL: none." : $"URL: none. Secure URL: {store.SecureUrl}, which storefronts do not look up.",
+                "Ask the user for the address customers open the store at, and send it as basics.url."));
         }
+
+        findings.AddRange(await GetSharedHostFindingsAsync(store));
 
         if (string.IsNullOrEmpty(store.Email) && string.IsNullOrEmpty(store.AdminEmail))
         {
@@ -132,7 +146,7 @@ public class StoreBasicsSetupPart(
                 "Enter the store email and the administrator email."));
         }
 
-        return Task.FromResult<IList<McpFinding>>(findings);
+        return findings;
     }
 
     // Plans on the copy of the store in the context, so the parts after it and the checks see the planned basics.
@@ -151,6 +165,7 @@ public class StoreBasicsSetupPart(
 
         await PlanCodesAsync(plan, basics);
         ApplySection(plan, context.Store, basics);
+        PlanDefaults(plan, context.Store, basics);
 
         if (!context.IsNewStore && string.IsNullOrWhiteSpace(context.Store.Name))
         {
@@ -244,7 +259,8 @@ public class StoreBasicsSetupPart(
             var platformLanguages = await GetPlatformLanguagesAsync();
             section.Languages = ToPlatformSpelling(section.Languages, platformLanguages);
             section.DefaultLanguage = ToPlatformSpelling(section.DefaultLanguage, platformLanguages);
-            AddUnknownValueErrors(plan, "Language", section.Languages, platformLanguages, "the platform's languages");
+            await AddUnknownValueErrorsAsync(plan, "Language", section.Languages, platformLanguages, "the platform's languages",
+                LanguagesScreen, $"{SettingsRoute}?setting={Uri.EscapeDataString(PlatformConstants.Settings.General.Languages.Name)}");
         }
 
         if (section.Currencies != null || section.DefaultCurrency != null)
@@ -252,7 +268,8 @@ public class StoreBasicsSetupPart(
             var platformCurrencies = (await currencyService.GetAllCurrenciesAsync() ?? []).Select(x => x.Code).ToList();
             section.Currencies = ToPlatformSpelling(section.Currencies, platformCurrencies);
             section.DefaultCurrency = ToPlatformSpelling(section.DefaultCurrency, platformCurrencies);
-            AddUnknownValueErrors(plan, "Currency", section.Currencies, platformCurrencies, "the platform's currencies");
+            await AddUnknownValueErrorsAsync(plan, "Currency", section.Currencies, platformCurrencies, "the platform's currencies",
+                CurrenciesScreen, ModulesRoute);
         }
 
         if (!string.IsNullOrWhiteSpace(section.Country))
@@ -404,12 +421,93 @@ public class StoreBasicsSetupPart(
         set(values);
     }
 
-    protected virtual void AddUnknownValueErrors(McpSetupPartPlan plan, string kind, IList<string> requested, IList<string> known, string knownName)
+    // No tool adds a language or a currency to the platform: the refusal names the screen where a person does, with its
+    // link when the MCP module can build one.
+    protected virtual async Task AddUnknownValueErrorsAsync(McpSetupPartPlan plan, string kind, IList<string> requested, IList<string> known,
+        string knownName, string screen, string route)
     {
-        foreach (var value in (requested ?? []).Where(x => !string.IsNullOrWhiteSpace(x) && !known.ContainsIgnoreCase(x.Trim())))
+        var unknown = (requested ?? []).Where(x => !string.IsNullOrWhiteSpace(x) && !known.ContainsIgnoreCase(x.Trim())).ToList();
+
+        if (unknown.Count == 0)
         {
-            plan.Errors.Add($"{kind} '{value}' is not one of {knownName}: {Join(known)}.");
+            return;
         }
+
+        var link = await GetLinkAsync(route);
+        var where = string.IsNullOrEmpty(link) ? screen : $"{screen} ({link})";
+
+        foreach (var value in unknown)
+        {
+            plan.Errors.Add($"{kind} '{value}' is not one of {knownName}: {Join(known)}. A person adds it in the back office: {where}.");
+        }
+    }
+
+    // A default that is left out becomes the first of its list, as a row, on a store without a default whose list the
+    // request sends: a new store, whose lists come only from the request, or a store that lost its default. A store that
+    // has a default keeps it.
+    protected virtual void PlanDefaults(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
+    {
+        if (section.DefaultLanguage == null && string.IsNullOrEmpty(store.DefaultLanguage) && section.Languages != null)
+        {
+            PlanText(plan, "default_language", store.DefaultLanguage, store.Languages?.FirstOrDefault(), x => store.DefaultLanguage = x);
+        }
+
+        if (section.DefaultCurrency == null && string.IsNullOrEmpty(store.DefaultCurrency) && section.Currencies != null)
+        {
+            PlanText(plan, "default_currency", store.DefaultCurrency, store.Currencies?.FirstOrDefault(), x => store.DefaultCurrency = x);
+        }
+    }
+
+    // A storefront asks the platform for the store of its host name and gets one store: the first by name whose URL holds
+    // "://<host>", whatever the port, unless the platform's configuration maps the host to a store. Another store found
+    // at this store's host, or this store found at another store's host, competes for the same storefront.
+    protected virtual async Task<IList<McpFinding>> GetSharedHostFindingsAsync(Store store)
+    {
+        var host = GetHost(store.Url);
+
+        if (host == null)
+        {
+            return [];
+        }
+
+        var stores = await storeSearchService.SearchAllNoCloneAsync(AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance());
+        var others = stores.Where(x => !x.Id.EqualsIgnoreCase(store.Id)).ToList();
+        var hosts = new[] { host }
+            .Concat(others.Select(x => GetHost(x.Url)).Where(x => x != null && HoldsHost(store.Url, x)))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+        var findings = new List<McpFinding>();
+
+        foreach (var sharedHost in hosts)
+        {
+            var answering = others
+                .Where(x => HoldsHost(x.Url, sharedHost))
+                .Append(store)
+                .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Id, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (answering.Count < 2)
+            {
+                continue;
+            }
+
+            findings.Add(CreateFinding(store, "basics-host-shared", McpFindingSeverities.Warning,
+                $"Another store answers at {sharedHost}",
+                "A storefront shows one store for its host name: the first by name whose URL holds it, unless the platform's " +
+                    "configuration maps the host to a store, which this check cannot see.",
+                $"At {sharedHost}: {string.Join(", ", answering.Select(x => x.Name ?? x.Id))}. A storefront there shows {answering[0].Name ?? answering[0].Id}.",
+                "Give each store an address of its own in basics.url, or map the host to its store in the platform's configuration."));
+        }
+
+        return findings;
+    }
+
+    // The MCP module's link to a screen of the classic back office; null without the MCP module or outside its requests.
+    protected virtual async Task<string> GetLinkAsync(string route)
+    {
+        var linkResolver = linkResolvers?.LastOrDefault();
+
+        return linkResolver == null ? null : await linkResolver.GetLinkAsync(route);
     }
 
     protected virtual void AddDefaultError(McpSetupPartPlan plan, string kind, string kinds, string defaultValue, ICollection<string> values)
@@ -418,6 +516,16 @@ public class StoreBasicsSetupPart(
         {
             plan.Errors.Add($"The default {kind} '{defaultValue}' is not one of the store's {kinds}. Send the default and the list together.");
         }
+    }
+
+    private static string GetHost(string url)
+    {
+        return Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.Host) ? uri.Host : null;
+    }
+
+    private static bool HoldsHost(string url, string host)
+    {
+        return url?.Contains($"://{host}", StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private static string GetLanguageTitle(string code)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -162,6 +163,29 @@ public class StoreSetupSettingsTests
         Assert.Contains("secret", error);
         Assert.Contains("back office", error);
         Assert.DoesNotContain("AIza-maps-secret", error);
+    }
+
+    // A state read from get_store holds a setting without a value as null. Sent back, it changes nothing: a null for a
+    // setting that has no value is no change, not "no default to return to".
+    [Fact]
+    public void PlanSettings_AStateSentBack_ChangesNothing()
+    {
+        //Arrange
+        var measurementId = new SettingDescriptor { Name = "GoogleAnalytics4.MeasurementId", ModuleId = "VirtoCommerce.GoogleAnalytics4", ValueType = SettingValueType.ShortText };
+        var settings = CreateSettings();
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(_taxCalculation) { Value = true }] };
+        var descriptors = new List<SettingDescriptor> { _taxCalculation, measurementId };
+        var state = settings.GetValues(store, descriptors);
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = settings.PlanSettings(plan, store, descriptors, state, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Null(state[measurementId.Name]);
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
     }
 
     private static StoreSetupSettings CreateSettings()

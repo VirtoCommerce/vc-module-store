@@ -94,6 +94,24 @@ public class StoreActionToolsTests
         Assert.Contains(warnings, x => x.StartsWith("The store will not be ready to open:") && x.Contains("has no language"));
     }
 
+    // Before a create the store does not exist, so a finding of a part that takes a section is fixed in the same call.
+    [Fact]
+    public async Task CreateConfiguredStore_AFindingsFix_SendsItsSectionInTheSameCall()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+        var setup = new Dictionary<string, object> { ["basics"] = new { name = "EU store" }, ["catalog"] = new { name = "EU catalog" } };
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "create_configured_store", new { store_id = NewStoreId, setup, dryRun = true });
+
+        //Assert
+        var row = Assert.Single(result.EnsureSucceeded().Json.GetProperty("missing_after").EnumerateArray(), x => x.GetProperty("id").GetString() == "basics-no-language");
+        var fix = row.GetProperty("fix").GetString();
+        Assert.Contains("Send the 'basics' section in the same create_configured_store call.", fix);
+        Assert.DoesNotContain("apply_store_setup", fix);
+    }
+
     // The store's row needs a catalog: without the catalog section, the request is refused before any approval.
     [Fact]
     public async Task CreateConfiguredStore_WithoutTheCatalogSection_IsRefused()
@@ -588,6 +606,77 @@ public class StoreActionToolsTests
         Assert.Equal(McpToolCallOutcome.Failed, result.Outcome);
         Assert.StartsWith("The setup was refused, and nothing was changed. basics: A store needs a name", result.Error);
         Assert.EndsWith("Back office: Stores (https://admin.example.com/#!/workspace/store).", result.Error);
+    }
+
+    // An approved change runs as the approver, and the requester reads its answer: the findings are counted by part and
+    // none is named. A dry run, which runs as the requester, keeps the rows.
+    [Fact]
+    public async Task ApplyStoreSetup_Approved_CountsTheFindingsByPart_AndNamesNone()
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestCheckPart("audit").WithFinding("audit-gap", McpFindingSeverities.Critical));
+        var setup = new { basics = new { email = "new@example.com" } };
+
+        //Act
+        var dryRun = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup, dryRun = true });
+        var applied = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup }, approved: true);
+
+        //Assert
+        Assert.Contains(dryRun.EnsureSucceeded().Json.GetProperty("missing_after").EnumerateArray(), x => x.GetProperty("id").GetString() == "audit-gap");
+        var json = applied.EnsureSucceeded().Json;
+        Assert.False(json.TryGetProperty("missing_after", out _));
+        Assert.Contains("Test part audit: 1 finding, 1 blocking going live", json.GetProperty("missing_after_by_part").EnumerateArray().Select(x => x.GetString()));
+        Assert.Contains(GetWarnings(applied), x => x.StartsWith("The store is not ready to open: ") && x.EndsWith("get_store_readiness_report lists them."));
+        Assert.DoesNotContain("Finding audit-gap", json.GetRawText());
+    }
+
+    // A failed create that saved nothing, then a store made by hand under that id: that store is not the create's
+    // leftover.
+    [Fact]
+    public async Task CreateConfiguredStore_OnAStoreMadeAfterTheFailedCreate_IsRefused()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Single(x => x.Id == StoreA).CreatedDate = DateTime.UtcNow;
+        data.PendingChanges.Add(CreateChange("change-1", StoreA, McpPendingChangeStatus.Failed, minutesAgo: 5));
+        await using var harness = CreateHarness(data);
+        var setup = new Dictionary<string, object> { ["basics"] = new { name = "Store A", email = "new@example.com" } };
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "create_configured_store", new { store_id = StoreA, setup, dryRun = true });
+
+        //Assert
+        result.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Contains("already exists. Change its setup with apply_store_setup", result.Error);
+    }
+
+    // The approver sees an existing store under the name it has; the new name is a row.
+    [Fact]
+    public async Task ApplyStoreSetup_ARename_NamesTheStoreAsItIs_AndShowsTheNewNameAsARow()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup = new { basics = new { name = "Store A renamed" } }, dryRun = true });
+
+        //Assert
+        var json = result.EnsureSucceeded().Json;
+        Assert.Equal("Store A", json.GetProperty("object_name").GetString());
+        Assert.Contains(json.GetProperty("changes").EnumerateArray(), x => x.GetProperty("field").GetString() == "basics: name" && x.GetProperty("to").GetString() == "Store A renamed");
+    }
+
+    [Fact]
+    public async Task CreateConfiguredStore_SaysTheStoreIdCannotBeChangedLater()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var schema = harness.GetTool("create_configured_store").ProtocolTool.InputSchema;
+
+        //Assert
+        Assert.EndsWith("It cannot be changed later.", schema.GetProperty("properties").GetProperty("store_id").GetProperty("description").GetString());
     }
 
     private static Dictionary<string, object> CompleteSetup()

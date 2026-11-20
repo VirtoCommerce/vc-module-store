@@ -15,6 +15,10 @@ public class StoreSetupPreview : McpChangePreview
     // The findings of the parts the user may not read, counted per part with the permission that shows them.
     public IList<string> NotShown { get; set; } = [];
 
+    // An applied change: what the store misses, counted by part, instead of MissingAfter and NotShown. It runs as the
+    // approver, and its answer is kept for the requester, who may not read every part.
+    public IList<string> MissingAfterByPart { get; set; }
+
     public string BackOffice { get; set; }
 
     public string NextStep { get; set; }

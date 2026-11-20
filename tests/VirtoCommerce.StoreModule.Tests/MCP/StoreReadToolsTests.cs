@@ -696,6 +696,43 @@ public class StoreReadToolsTests
         Assert.Equal(["lists.id: 50 of 60 listed, the most likely first."], part.GetProperty("choices_cut").EnumerateArray().Select(x => x.GetString()));
     }
 
+    // A code the platform does not know is refused, as the basics refuse it, not read as a market.
+    [Theory]
+    [InlineData(null, "XXX", "Country 'XXX' is not one of the platform's countries. Use its ISO 3166-1 alpha-3 code, such as DEU.")]
+    [InlineData("GBP", null, "Currency 'GBP' is not one of the platform's currencies: USD, EUR.")]
+    public async Task GetStoreReadinessReport_RefusesACodeThePlatformDoesNotKnow(string currency, string country, string expected)
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency, country });
+
+        //Assert
+        result.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Equal(expected, result.Error);
+    }
+
+    // The options say what a new store needs, and what the storefront URL is.
+    [Fact]
+    public async Task GetStoreSetupOptions_SaysWhatANewStoreNeeds_AndWhatTheUrlIs()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_setup_options");
+
+        //Assert
+        var properties = GetOptionsPart(result, "basics").GetProperty("section_schema").GetProperty("properties");
+        Assert.Contains("A new store needs at least one, as its catalog is created with the store's languages", properties.GetProperty("languages").GetProperty("description").GetString());
+        Assert.Contains("Left out on a new store", properties.GetProperty("default_currency").GetProperty("description").GetString());
+        var url = properties.GetProperty("url").GetProperty("description").GetString();
+        Assert.Contains("the storefront's, not this platform's", url);
+        Assert.Contains("A storefront shows the store whose URL holds its host name; the port plays no part.", url);
+        Assert.EndsWith("Ask the user for it.", url);
+    }
+
     private static JsonElement GetOptionsPart(McpToolCallResult result, string name)
     {
         return result.EnsureSucceeded().Json.GetProperty("parts").EnumerateArray().Single(x => x.GetProperty("name").GetString() == name);
