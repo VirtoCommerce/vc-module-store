@@ -164,11 +164,11 @@ public class StoreOverviewTools(
 
     // A part's state needs the part's own read permission for the store. A part that fails is reported without its error,
     // which may hold a third party's trace.
-    private async Task<object> GetPartStateAsync(ClaimsPrincipal user, IStoreSetupState part, Store store)
+    protected virtual async Task<object> GetPartStateAsync(ClaimsPrincipal user, IStoreSetupState part, Store store)
     {
-        if (!StoreAccess.CanRead(user, part, store.Id))
+        if (!access.CanRead(user, part, store.Id))
         {
-            return $"Not shown: needs {part.Permissions?.Read}.";
+            return $"Not shown: {access.GetReadRequirement(part)}.";
         }
 
         try
@@ -182,7 +182,7 @@ public class StoreOverviewTools(
         }
     }
 
-    private async Task<int> CountAsync(ClaimsPrincipal user, StoreState state)
+    protected virtual async Task<int> CountAsync(ClaimsPrincipal user, StoreState state)
     {
         var criteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
         criteria.StoreStates = [state];

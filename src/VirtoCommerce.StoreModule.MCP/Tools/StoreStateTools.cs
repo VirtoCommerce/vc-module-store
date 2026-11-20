@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
@@ -41,21 +43,18 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
 
         // Checked again when the approved change runs, so a store that stopped being ready in the meantime stays closed.
         var findings = await setupService.CheckAsync(store);
-        // Every blocking finding keeps the store closed; one of a part the user may not read is named by its part only.
-        var blocking = access.GetBlockingNames(context.User, store.Id, findings);
 
-        if (blocking.Count > 0)
+        // Every blocking finding keeps the store closed.
+        if (findings.Any(setupService.BlocksGoLive))
         {
-            throw new McpException($"Store '{store.Id}' cannot open while these block it: {string.Join("; ", blocking)}. " +
-                "get_store_readiness_report says how to fix each.");
+            throw new McpException(GetBlockingMessage(context.User, store, findings, dryRun));
         }
 
         var preview = CreatePreview("open", store, StoreState.Open, dryRun);
-        var (shownWarnings, _) = access.SplitReadableFindings(context.User, store.Id, findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)));
 
-        foreach (var finding in shownWarnings)
+        foreach (var warning in GetWarnings(context.User, store, findings, dryRun))
         {
-            preview.AddWarning($"{finding.Title}.");
+            preview.AddWarning(warning);
         }
 
         preview.AddWarning("Customers can see the store and buy as soon as it opens.");
@@ -101,7 +100,43 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
         return preview;
     }
 
-    private static McpChangePreview CreatePreview(string action, Store store, StoreState state, bool dryRun)
+    // A dry run names the blocking findings as the caller may read them: one of a part the caller may not read by its part
+    // only. An approved change runs as its approver, and the requester reads its answer later (get_pending_change), so it
+    // names no finding: get_store_readiness_report lists them for each reader.
+    protected virtual string GetBlockingMessage(ClaimsPrincipal user, Store store, IList<McpFinding> findings, bool dryRun)
+    {
+        if (dryRun)
+        {
+            var blocking = access.GetBlockingNames(user, store.Id, findings);
+
+            return $"Store '{store.Id}' cannot open while these block it: {string.Join("; ", blocking)}. get_store_readiness_report says how to fix each.";
+        }
+
+        var count = findings.Count(setupService.BlocksGoLive);
+
+        return $"Store '{store.Id}' cannot open: {(count == 1 ? "1 finding blocks" : $"{count} findings block")} it. " +
+            "get_store_readiness_report lists them and says how to fix each.";
+    }
+
+    // The warnings a store opens with, named in a dry run as the caller may read them, and counted by part in an approved
+    // change, as GetBlockingMessage does.
+    protected virtual IList<string> GetWarnings(ClaimsPrincipal user, Store store, IList<McpFinding> findings, bool dryRun)
+    {
+        var warnings = findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)).ToList();
+
+        if (dryRun)
+        {
+            var (shown, _) = access.SplitReadableFindings(user, store.Id, warnings);
+
+            return shown.Select(x => $"{x.Title}.").ToList();
+        }
+
+        return warnings.Count == 0
+            ? []
+            : [$"It opens with warnings: {string.Join("; ", access.CountByPart(warnings))}. get_store_readiness_report lists them."];
+    }
+
+    protected virtual McpChangePreview CreatePreview(string action, Store store, StoreState state, bool dryRun)
     {
         var preview = AbstractTypeFactory<McpChangePreview>.TryCreateInstance();
         preview.Action = action;
@@ -114,7 +149,7 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
     }
 
     // The saved store again, so a change made since the preview is not overwritten with old data.
-    private async Task SetStateAsync(string storeId, StoreState state)
+    protected virtual async Task SetStateAsync(string storeId, StoreState state)
     {
         var store = await storeService.GetByIdAsync(storeId)
             ?? throw new McpException($"Store '{storeId}' was not found.");

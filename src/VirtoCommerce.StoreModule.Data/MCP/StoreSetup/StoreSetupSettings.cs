@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
@@ -14,14 +15,19 @@ using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 
-// What a setting means for a setup, from the platform's settings and the MCP module's rules: secrets (IMcpSecretSettings)
-// and titles and descriptions (IMcpSettingTexts). The rules every part follows come from StoreSetupSettingsBase.
+// What a setting means for a setup, from the platform's settings and the MCP module's rules: secrets (IMcpSecretSettings),
+// titles and descriptions (IMcpSettingTexts) and how values compare (IMcpSetupValues). The rules every part follows come
+// from StoreSetupSettingsBase.
 public class StoreSetupSettings(
     ISettingsRegistrar settingsRegistrar,
     IMcpSecretSettings secretSettings,
-    IMcpSettingTexts settingTexts)
-    : StoreSetupSettingsBase
+    IMcpSettingTexts settingTexts,
+    IMcpSetupValues setupValues)
+    : StoreSetupSettingsBase(setupValues)
 {
+    // The length of the column a short text is saved in.
+    public const int MaxShortTextLength = 512;
+
     public override bool IsSecret(SettingDescriptor descriptor)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
@@ -76,10 +82,17 @@ public class StoreSetupSettings(
             return false;
         }
 
+        // A longer text would be refused only when it is saved, after the approval.
+        if (descriptor.ValueType == SettingValueType.ShortText && converted is string { Length: > MaxShortTextLength })
+        {
+            error = $"Setting '{descriptor.Name}' takes at most {MaxShortTextLength} characters.";
+            return false;
+        }
+
         if (!descriptor.AllowedValues.IsNullOrEmpty())
         {
             // The allowed value itself is kept, with its spelling: modules compare these values as they declared them.
-            converted = descriptor.AllowedValues.FirstOrDefault(x => McpSetupValues.AreEqual(x, converted, StringComparison.OrdinalIgnoreCase));
+            converted = descriptor.AllowedValues.FirstOrDefault(x => SetupValues.AreEqual(x, converted, StringComparison.OrdinalIgnoreCase));
 
             if (converted == null)
             {
@@ -133,7 +146,7 @@ public class StoreSetupSettings(
             setting.DefaultValue = descriptor.DefaultValue;
             setting.Value = value ?? descriptor.DefaultValue;
             setting.AllowedValues = descriptor.AllowedValues?.ToList();
-            setting.IsChanged = !McpSetupValues.AreEqual(setting.Value, descriptor.DefaultValue);
+            setting.IsChanged = !SetupValues.AreEqual(setting.Value, descriptor.DefaultValue);
         }
 
         return setting;
@@ -148,7 +161,7 @@ public class StoreSetupSettings(
     protected virtual bool TryConvertValue(SettingValueType valueType, object raw, out object value)
     {
         value = null;
-        var text = McpSetupValues.ToInvariantString(raw);
+        var text = SetupValues.ToInvariantString(raw);
 
         switch (valueType)
         {
@@ -175,7 +188,8 @@ public class StoreSetupSettings(
         }
     }
 
-    private static string GetTypeText(SettingValueType valueType)
+    // What a refusal says a setting of the type takes.
+    protected virtual string GetTypeText(SettingValueType valueType)
     {
         return valueType switch
         {

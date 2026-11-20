@@ -26,7 +26,8 @@ public class StoreBasicsSetupPart(
     ICountriesService countriesService,
     IStoreService storeService,
     IStoreSearchService storeSearchService,
-    IEnumerable<IMcpLinkResolver> linkResolvers)
+    IEnumerable<IMcpLinkResolver> linkResolvers,
+    IStoreSetupFindings setupFindings)
     : IStoreSetupChoices, IStoreSetupState, IStoreSetupCheck, IStoreSetupSection
 {
     public const string PartName = "basics";
@@ -89,65 +90,83 @@ public class StoreBasicsSetupPart(
         return Task.FromResult<object>(section);
     }
 
+    // One step per check, in this order: languages, currencies, the market's currency, the storefront URL, a shared host
+    // and the email.
     public virtual async Task<IList<McpFinding>> CheckAsync(StoreSetupContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         var store = context.Store;
-        var languages = store.Languages ?? [];
-        var currencies = store.Currencies ?? [];
-        var findings = new List<McpFinding>();
+        var findings = new List<McpFinding> { CheckLanguages(store), CheckCurrencies(store), CheckMarketCurrency(context), CheckStorefrontUrl(store) };
+        findings.AddRange(await GetSharedHostFindingsAsync(store));
+        findings.Add(CheckEmail(store));
 
-        if (languages.Count == 0 || !languages.ContainsIgnoreCase(store.DefaultLanguage))
-        {
-            findings.Add(CreateFinding(store, "basics-no-language", McpFindingSeverities.Critical,
+        return findings.Where(x => x != null).ToList();
+    }
+
+    protected virtual McpFinding CheckLanguages(Store store)
+    {
+        var languages = store.Languages ?? [];
+
+        return languages.Count == 0 || !languages.ContainsIgnoreCase(store.DefaultLanguage)
+            ? CreateFinding(store, "basics-no-language", McpFindingSeverities.Critical,
                 "The store has no language, or its default language is not one of its languages",
                 "The storefront shows the catalog and the checkout in the store's languages.",
                 $"Languages: {Join(languages)}. Default: {store.DefaultLanguage ?? "none"}.",
-                "Add the store's languages and choose the default among them."));
-        }
+                "Add the store's languages and choose the default among them.")
+            : null;
+    }
 
-        if (currencies.Count == 0 || !currencies.ContainsIgnoreCase(store.DefaultCurrency))
-        {
-            findings.Add(CreateFinding(store, "basics-no-currency", McpFindingSeverities.Critical,
+    protected virtual McpFinding CheckCurrencies(Store store)
+    {
+        var currencies = store.Currencies ?? [];
+
+        return currencies.Count == 0 || !currencies.ContainsIgnoreCase(store.DefaultCurrency)
+            ? CreateFinding(store, "basics-no-currency", McpFindingSeverities.Critical,
                 "The store has no currency, or its default currency is not one of its currencies",
                 "Prices, carts and orders are in the store's currencies.",
                 $"Currencies: {Join(currencies)}. Default: {store.DefaultCurrency ?? "none"}.",
-                "Add the store's currencies and choose the default among them."));
-        }
+                "Add the store's currencies and choose the default among them.")
+            : null;
+    }
 
-        if (!string.IsNullOrEmpty(context.Currency) && !currencies.ContainsIgnoreCase(context.Currency))
-        {
-            findings.Add(CreateFinding(store, "currency-not-in-store", McpFindingSeverities.Critical,
+    // The currency of the market the report is asked for (StoreSetupContext.Currency), when there is one.
+    protected virtual McpFinding CheckMarketCurrency(StoreSetupContext context)
+    {
+        var store = context.Store;
+        var currencies = store.Currencies ?? [];
+
+        return !string.IsNullOrEmpty(context.Currency) && !currencies.ContainsIgnoreCase(context.Currency)
+            ? CreateFinding(store, "currency-not-in-store", McpFindingSeverities.Critical,
                 $"{context.Currency} is not one of the store's currencies",
                 $"Customers cannot check out in {context.Currency} until the store has it.",
                 $"Currencies: {Join(currencies)}.",
-                $"Add {context.Currency} to the store's currencies."));
-        }
+                $"Add {context.Currency} to the store's currencies.")
+            : null;
+    }
 
-        // A storefront looks the store up by its URL; the secure URL plays no part in it.
-        if (string.IsNullOrEmpty(store.Url))
-        {
-            findings.Add(CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
+    // A storefront looks the store up by its URL; the secure URL plays no part in it.
+    protected virtual McpFinding CheckStorefrontUrl(Store store)
+    {
+        return string.IsNullOrEmpty(store.Url)
+            ? CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
                 "The store has no storefront URL",
                 "A storefront shows the store whose URL holds its host name, so a store without one shows on no address of " +
                     "its own. Links in its emails and the checkout handoff need the address too.",
                 string.IsNullOrEmpty(store.SecureUrl) ? "URL: none." : $"URL: none. Secure URL: {store.SecureUrl}, which storefronts do not look up.",
-                "Ask the user for the address customers open the store at, and send it as basics.url."));
-        }
+                "Ask the user for the address customers open the store at, and send it as basics.url.")
+            : null;
+    }
 
-        findings.AddRange(await GetSharedHostFindingsAsync(store));
-
-        if (string.IsNullOrEmpty(store.Email) && string.IsNullOrEmpty(store.AdminEmail))
-        {
-            findings.Add(CreateFinding(store, "basics-no-email", McpFindingSeverities.Warning,
+    protected virtual McpFinding CheckEmail(Store store)
+    {
+        return string.IsNullOrEmpty(store.Email) && string.IsNullOrEmpty(store.AdminEmail)
+            ? CreateFinding(store, "basics-no-email", McpFindingSeverities.Warning,
                 "The store has no email",
                 "The store's notifications need a sender, and the notifications to its staff a recipient.",
                 "Email: none. Administrator email: none.",
-                "Enter the store email and the administrator email."));
-        }
-
-        return findings;
+                "Enter the store email and the administrator email.")
+            : null;
     }
 
     // Plans on the copy of the store in the context, so the parts after it and the checks see the planned basics.
@@ -183,6 +202,7 @@ public class StoreBasicsSetupPart(
     {
         var fields = new (string Field, string Value, int MaxLength)[]
         {
+            ("store_id", store.Id, 128),
             ("name", store.Name, 128),
             ("description", store.Description, 256),
             ("url", store.Url, 256),
@@ -198,6 +218,11 @@ public class StoreBasicsSetupPart(
         foreach (var (field, value, maxLength) in fields.Where(x => x.Value?.Length > x.MaxLength))
         {
             plan.Errors.Add($"{field} takes at most {maxLength} characters.");
+        }
+
+        if (store.AdditionalFulfillmentCenterIds?.Any(x => x?.Length > 128) == true)
+        {
+            plan.Errors.Add("Each of additional_fulfillment_center_ids takes at most 128 characters.");
         }
     }
 
@@ -239,9 +264,9 @@ public class StoreBasicsSetupPart(
         PlanText(plan, "name", store.Name, section.Name, x => store.Name = x);
         PlanText(plan, "description", store.Description, section.Description, x => store.Description = x);
         PlanText(plan, "default_language", store.DefaultLanguage, section.DefaultLanguage, x => store.DefaultLanguage = x);
-        PlanList(plan, "languages", store.Languages, section.Languages, x => store.Languages = x);
+        PlanList(plan, "languages", store.Languages, section.Languages, x => store.Languages = x, StringComparer.Ordinal);
         PlanText(plan, "default_currency", store.DefaultCurrency, section.DefaultCurrency, x => store.DefaultCurrency = x);
-        PlanList(plan, "currencies", store.Currencies, section.Currencies, x => store.Currencies = x);
+        PlanList(plan, "currencies", store.Currencies, section.Currencies, x => store.Currencies = x, StringComparer.Ordinal);
         PlanText(plan, "url", store.Url, section.Url, x => store.Url = x);
         PlanText(plan, "secure_url", store.SecureUrl, section.SecureUrl, x => store.SecureUrl = x);
         PlanText(plan, "email", store.Email, section.Email, x => store.Email = x);
@@ -250,7 +275,8 @@ public class StoreBasicsSetupPart(
         PlanText(plan, "country", store.Country, section.Country, x => store.Country = x);
         PlanText(plan, "region", store.Region, section.Region, x => store.Region = x);
         PlanText(plan, "main_fulfillment_center_id", store.MainFulfillmentCenterId, section.MainFulfillmentCenterId, x => store.MainFulfillmentCenterId = x);
-        PlanList(plan, "additional_fulfillment_center_ids", store.AdditionalFulfillmentCenterIds, section.AdditionalFulfillmentCenterIds, x => store.AdditionalFulfillmentCenterIds = x);
+        PlanList(plan, "additional_fulfillment_center_ids", store.AdditionalFulfillmentCenterIds, section.AdditionalFulfillmentCenterIds,
+            x => store.AdditionalFulfillmentCenterIds = x, StringComparer.OrdinalIgnoreCase);
     }
 
     // Before the section is applied: each language, currency and country code takes the platform's spelling, as pricing
@@ -355,7 +381,7 @@ public class StoreBasicsSetupPart(
 
     protected virtual McpFinding CreateFinding(Store store, string id, string severity, string title, string why, string evidence, string fix)
     {
-        var finding = StoreSetupFindings.ForStore(store, PartName, id, severity);
+        var finding = setupFindings.ForStore(store, PartName, id, severity);
         finding.Title = title;
         finding.Why = why;
         finding.Evidence = evidence;
@@ -394,7 +420,11 @@ public class StoreBasicsSetupPart(
         set(newValue);
     }
 
-    protected virtual void PlanList(McpSetupPartPlan plan, string field, ICollection<string> current, IList<string> requested, Action<IList<string>> set)
+    // comparer: whether a value in another case is a change. Codes take the platform's spelling (PlanCodesAsync) and are
+    // compared exactly, as the defaults are (PlanText), so "eur" saved by hand becomes "EUR"; ids ignore the case. A
+    // value in another spelling is not reported as removed.
+    protected virtual void PlanList(McpSetupPartPlan plan, string field, ICollection<string> current, IList<string> requested, Action<IList<string>> set,
+        StringComparer comparer)
     {
         if (requested == null)
         {
@@ -408,7 +438,7 @@ public class StoreBasicsSetupPart(
             .DistinctIgnoreCase()
             .ToList();
 
-        if (values.Count == currentValues.Count && values.TrueForAll(x => currentValues.ContainsIgnoreCase(x)))
+        if (values.Count == currentValues.Count && values.TrueForAll(x => currentValues.Contains(x, comparer)))
         {
             return;
         }
@@ -463,7 +493,8 @@ public class StoreBasicsSetupPart(
 
     // A storefront asks the platform for the store of its host name and gets one store: the first by name whose URL holds
     // "://<host>", whatever the port, unless the platform's configuration maps the host to a store. Another store found
-    // at this store's host, or this store found at another store's host, competes for the same storefront.
+    // at this store's host, or this store found at another store's host, competes for the same storefront. The finding
+    // names no other store, nor its address: a user may read some stores only.
     protected virtual async Task<IList<McpFinding>> GetSharedHostFindingsAsync(Store store)
     {
         var host = GetHost(store.Url);
@@ -475,34 +506,35 @@ public class StoreBasicsSetupPart(
 
         var stores = await storeSearchService.SearchAllNoCloneAsync(AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance());
         var others = stores.Where(x => !x.Id.EqualsIgnoreCase(store.Id)).ToList();
-        var hosts = new[] { host }
-            .Concat(others.Select(x => GetHost(x.Url)).Where(x => x != null && HoldsHost(store.Url, x)))
-            .Distinct(StringComparer.OrdinalIgnoreCase);
-        var findings = new List<McpFinding>();
+        var atOwnHost = others.Any(x => HoldsHost(x.Url, host));
+        var atOtherHost = others.Any(x => GetHost(x.Url) is { } otherHost && !otherHost.EqualsIgnoreCase(host) && HoldsHost(store.Url, otherHost));
 
-        foreach (var sharedHost in hosts)
+        if (!atOwnHost && !atOtherHost)
         {
-            var answering = others
-                .Where(x => HoldsHost(x.Url, sharedHost))
-                .Append(store)
-                .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(x => x.Id, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            if (answering.Count < 2)
-            {
-                continue;
-            }
-
-            findings.Add(CreateFinding(store, "basics-host-shared", McpFindingSeverities.Warning,
-                $"Another store answers at {sharedHost}",
-                "A storefront shows one store for its host name: the first by name whose URL holds it, unless the platform's " +
-                    "configuration maps the host to a store, which this check cannot see.",
-                $"At {sharedHost}: {string.Join(", ", answering.Select(x => x.Name ?? x.Id))}. A storefront there shows {answering[0].Name ?? answering[0].Id}.",
-                "Give each store an address of its own in basics.url, or map the host to its store in the platform's configuration."));
+            return [];
         }
 
-        return findings;
+        var evidence = new List<string>();
+
+        if (atOwnHost)
+        {
+            evidence.Add($"Another store's URL holds {host}.");
+        }
+
+        if (atOtherHost)
+        {
+            evidence.Add("This store's URL holds another store's host, so a storefront there can show this store.");
+        }
+
+        return
+        [
+            CreateFinding(store, "basics-host-shared", McpFindingSeverities.Warning,
+                "Another store uses this storefront address",
+                "A storefront shows one store for its host name: the first by name whose URL holds it, unless the platform's " +
+                    "configuration maps the host to a store, which this check cannot see.",
+                string.Join(" ", evidence),
+                "Give each store an address of its own in basics.url, or map the host to its store in the platform's configuration."),
+        ];
     }
 
     // The MCP module's link to a screen of the classic back office; null without the MCP module or outside its requests.
@@ -521,17 +553,19 @@ public class StoreBasicsSetupPart(
         }
     }
 
-    private static string GetHost(string url)
+    // The host a storefront finds the store by; null for a URL that is not absolute.
+    protected virtual string GetHost(string url)
     {
         return Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.Host) ? uri.Host : null;
     }
 
-    private static bool HoldsHost(string url, string host)
+    // The platform's rule for a storefront's host: the URL holds "://<host>".
+    protected virtual bool HoldsHost(string url, string host)
     {
         return url?.Contains($"://{host}", StringComparison.OrdinalIgnoreCase) == true;
     }
 
-    private static string GetLanguageTitle(string code)
+    protected virtual string GetLanguageTitle(string code)
     {
         try
         {

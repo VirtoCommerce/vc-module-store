@@ -10,6 +10,7 @@ public static class StoreMcpServiceCollectionExtensions
     {
         services.AddTransient<StoreAccess>();
         services.AddTransient<StoreBackOfficeLinks>();
+        services.AddTransient<StoreFindingRows>();
         services.AddTransient<StoreSetupLeftovers>();
 
         return services;

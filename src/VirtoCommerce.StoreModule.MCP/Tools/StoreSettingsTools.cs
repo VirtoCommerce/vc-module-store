@@ -29,7 +29,8 @@ public class StoreSettingsTools(
     IStoreSetupSettings setupSettings,
     ISettingsRegistrar settingsRegistrar,
     IMcpPageSizeResolver pageSizeResolver,
-    StoreBackOfficeLinks links)
+    StoreBackOfficeLinks links,
+    IMcpSetupValues setupValues)
 {
     [McpServerTool(Name = "get_store_settings", ReadOnly = true, Destructive = false, Idempotent = true)]
     [Description("The store-level settings of every installed module for one store, each with its title, description, " +
@@ -109,7 +110,7 @@ public class StoreSettingsTools(
                 value = x.Value,
                 other_value = otherValues?.GetValueOrDefault(x.Name) ?? x.DefaultValue,
             })
-            .Where(x => !McpSetupValues.AreEqual(x.value, x.other_value));
+            .Where(x => !setupValues.AreEqual(x.value, x.other_value));
 
         return new
         {
@@ -120,7 +121,7 @@ public class StoreSettingsTools(
         };
     }
 
-    private async Task<string> GetSecretsNoteAsync(string storeName)
+    protected virtual async Task<string> GetSecretsNoteAsync(string storeName)
     {
         var screen = $"Stores > {storeName} > Settings".WithLink(await links.GetStoresLinkAsync());
 
@@ -128,18 +129,18 @@ public class StoreSettingsTools(
     }
 
     // Whether the module registers store-level settings, secret and hidden ones included.
-    private bool HasStoreSettings(string moduleId)
+    protected virtual bool HasStoreSettings(string moduleId)
     {
         return (settingsRegistrar.GetSettingsForType(nameof(Store)) ?? []).Any(x => x.ModuleId.EqualsIgnoreCase(moduleId.Trim()));
     }
 
-    private static bool HasWord(McpSetupSetting setting, string word)
+    protected virtual bool HasWord(McpSetupSetting setting, string word)
     {
         return Contains(setting.Name, word) || Contains(setting.Title, word) || Contains(setting.Description, word);
     }
 
     private static bool Contains(string text, string word)
     {
-        return text?.Contains(word, StringComparison.OrdinalIgnoreCase) == true;
+        return text?.ContainsIgnoreCase(word) == true;
     }
 }

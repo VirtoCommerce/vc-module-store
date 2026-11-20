@@ -233,6 +233,87 @@ public class StoreActionToolsTests
         Assert.Contains("already exists", result.Error);
     }
 
+    // Two creates of one store approved out of order: the one submitted first ran last and failed, so the store is its
+    // leftover. The changes are ordered by when they ran, not by when they were submitted.
+    [Fact]
+    public async Task CreateConfiguredStore_TwoCreatesApprovedOutOfOrder_TheOneThatRanLastDecides()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.PendingChanges.Add(CreateChange("change-1", StoreA, McpPendingChangeStatus.Failed, minutesAgo: 10, finishedMinutesAgo: 2));
+        data.PendingChanges.Add(CreateChange("change-2", StoreA, McpPendingChangeStatus.Applied, minutesAgo: 5, finishedMinutesAgo: 4));
+        await using var harness = CreateHarness(data);
+        var setup = new Dictionary<string, object> { ["basics"] = new { email = "new@example.com" } };
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "create_configured_store", new { store_id = StoreA, setup, dryRun = true });
+
+        //Assert
+        Assert.Contains(GetWarnings(result.EnsureSucceeded()), x => x.Contains("failed change change-1"));
+    }
+
+    // A part's plan names the permissions it needs, and they replace the part's create permission: a new store that
+    // changes a catalog needs catalog:update, not catalog:create. Checked in the preview and again in the approved run.
+    [Theory]
+    [InlineData("catalog:update", McpToolCallOutcome.Succeeded)]
+    [InlineData("catalog:create", McpToolCallOutcome.Forbidden)]
+    public async Task CreateConfiguredStore_TakesThePermissionsAPartsPlanNames(string catalogPermission, McpToolCallOutcome expected)
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestPlannedPermissionsPart("catalog", "catalog:update"));
+        var user = McpTestUser.WithPermissions("creator", "store:create", "store:read", "store:update", catalogPermission);
+        var setup = new Dictionary<string, object> { ["basics"] = new { name = "New store" }, ["catalog"] = new { name = "EU catalog" } };
+
+        //Act
+        var preview = await CallAsync(harness, user, "create_configured_store", new { store_id = "new-store", setup, dryRun = true });
+        var approved = await CallAsync(harness, user, "create_configured_store", new { store_id = "new-store", setup }, approved: true);
+
+        //Assert
+        preview.EnsureOutcome(expected);
+        approved.EnsureOutcome(expected);
+
+        if (expected == McpToolCallOutcome.Forbidden)
+        {
+            Assert.Equal("Your catalog:update permission does not cover store 'new-store'.", approved.Error);
+        }
+    }
+
+    // The permissions a plan names are checked before its refusal is shown, as a refusal may name the part's data.
+    [Fact]
+    public async Task ApplyStoreSetup_ChecksThePermissionsAPlanNames_BeforeItsRefusal()
+    {
+        //Arrange
+        var catalog = new TestPlannedPermissionsPart("catalog", "catalog:read") { Error = "Catalog 'Private catalog' has no language of the store." };
+        await using var harness = CreateHarness(catalog);
+        var setup = new Dictionary<string, object> { ["catalog"] = new { name = "EU catalog" } };
+
+        //Act
+        var hidden = await CallAsync(harness, StoreManagerWithoutCatalogRead(), "apply_store_setup", new { store_id = StoreA, setup, dryRun = true });
+        var shown = await CallAsync(harness, StoreManagerWithCatalogRead(), "apply_store_setup", new { store_id = StoreA, setup, dryRun = true });
+
+        //Assert
+        hidden.EnsureOutcome(McpToolCallOutcome.Forbidden);
+        Assert.Equal($"Your catalog:read permission does not cover store '{StoreA}'.", hidden.Error);
+        shown.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Contains("Private catalog", shown.Error);
+    }
+
+    // Two sections of one part, in two cases of its name: neither would be the one applied.
+    [Fact]
+    public async Task ApplyStoreSetup_ASectionSentTwiceInTwoCases_IsRefused()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+        var setup = new Dictionary<string, object> { ["basics"] = new { name = "One name" }, ["Basics"] = new { name = "Another name" } };
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "apply_store_setup", new { store_id = StoreA, setup, dryRun = true });
+
+        //Assert
+        result.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Contains("The 'Basics' section is sent twice, in two cases of its name. Send it once.", result.Error);
+    }
+
     // Continuing a failed create changes the store it left, so it takes read and update access to that store, as any
     // other change does. Every user here may change the shipping part on every store, so only the store's own
     // permissions refuse the call.
@@ -449,8 +530,8 @@ public class StoreActionToolsTests
         Assert.Equal(StoreState.Closed, data.Stores.Single(x => x.Id == StoreA).StoreState);
     }
 
-    // A blocking finding keeps the store closed even when the user may not read its part; the refusal names the part, not
-    // the finding.
+    // A blocking finding keeps the store closed even when the user may not read its part; the preview's refusal names the
+    // part, not the finding.
     [Fact]
     public async Task OpenStore_BlockedByAFindingOfAPartTheUserMayNotRead_IsRefused_NamingOnlyThePart()
     {
@@ -461,8 +542,8 @@ public class StoreActionToolsTests
         var withCatalogRead = StoreManagerWithCatalogRead();
 
         //Act
-        var hidden = await CallAsync(harness, withoutCatalogRead, "open_store", new { store_id = StoreA }, approved: true);
-        var shown = await CallAsync(harness, withCatalogRead, "open_store", new { store_id = StoreA }, approved: true);
+        var hidden = await CallAsync(harness, withoutCatalogRead, "open_store", new { store_id = StoreA, dryRun = true });
+        var shown = await CallAsync(harness, withCatalogRead, "open_store", new { store_id = StoreA, dryRun = true });
 
         //Assert
         hidden.EnsureOutcome(McpToolCallOutcome.Failed);
@@ -472,6 +553,43 @@ public class StoreActionToolsTests
         shown.EnsureOutcome(McpToolCallOutcome.Failed);
         Assert.Contains("Finding catalog-no-products", shown.Error);
         Assert.Equal(StoreState.Closed, data.Stores.Single(x => x.Id == StoreA).StoreState);
+    }
+
+    // An approved change runs as its approver, and its requester reads the answer later (get_pending_change): the
+    // refusal counts what blocks the store and names no finding, even one the approver may read.
+    [Fact]
+    public async Task OpenStore_Approved_IsRefusedWithACount_NamingNoFinding()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        await using var harness = CreateHarness(data, CreateCatalogPart());
+
+        //Act
+        var result = await CallAsync(harness, StoreManagerWithCatalogRead(), "open_store", new { store_id = StoreA }, approved: true);
+
+        //Assert
+        result.EnsureOutcome(McpToolCallOutcome.Failed);
+        Assert.Equal($"Store '{StoreA}' cannot open: 1 finding blocks it. get_store_readiness_report lists them and says how to fix each.", result.Error);
+        Assert.Equal(StoreState.Closed, data.Stores.Single(x => x.Id == StoreA).StoreState);
+    }
+
+    // The same for its warnings: counted by part, for the approver may read a part its requester may not.
+    [Fact]
+    public async Task OpenStore_Approved_CountsItsWarningsByPart_NamingNone()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        var catalog = new TestCheckPart("catalog") { Permissions = new McpSetupPermissions { Read = "catalog:read" } }
+            .WithFinding("catalog-few-images", McpFindingSeverities.Warning);
+        await using var harness = CreateHarness(data, catalog);
+
+        //Act
+        var result = await CallAsync(harness, StoreManagerWithCatalogRead(), "open_store", new { store_id = StoreA }, approved: true);
+
+        //Assert
+        Assert.Contains("It opens with warnings: Test part catalog: 1 finding. get_store_readiness_report lists them.", GetWarnings(result.EnsureSucceeded()));
+        Assert.DoesNotContain("catalog-few-images", result.Text);
+        Assert.Equal(StoreState.Open, data.Stores.Single(x => x.Id == StoreA).StoreState);
     }
 
     // A warning of a part the user may not read is counted, never repeated among the warnings of a preview.
@@ -698,7 +816,8 @@ public class StoreActionToolsTests
         };
     }
 
-    private static McpPendingChange CreateChange(string id, string storeId, string status, int minutesAgo)
+    // finishedMinutesAgo: when an approved change ran and was last modified; by default when it was submitted.
+    private static McpPendingChange CreateChange(string id, string storeId, string status, int minutesAgo, int? finishedMinutesAgo = null)
     {
         return new McpPendingChange
         {
@@ -707,6 +826,7 @@ public class StoreActionToolsTests
             Status = status,
             Arguments = JsonSerializer.Serialize(new { store_id = storeId, setup = new { } }),
             CreatedDate = DateTime.UtcNow.AddMinutes(-minutesAgo),
+            ModifiedDate = DateTime.UtcNow.AddMinutes(-(finishedMinutesAgo ?? minutesAgo)),
         };
     }
 

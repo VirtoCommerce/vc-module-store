@@ -140,6 +140,20 @@ public class StoreReadToolsTests
         Assert.Equal("Store A", hidden.Json.GetProperty("parts").GetProperty("basics").GetProperty("name").GetString());
     }
 
+    // A part whose module names no read permission shows to no one, and says so.
+    [Fact]
+    public async Task GetStore_APartWhoseModuleNamesNoReadPermission_IsNotShown_AndSaysWhy()
+    {
+        //Arrange
+        await using var harness = CreateHarness(new TestStatePart("shipping", new McpSetupPermissions()));
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store", new { store_id = StoreA });
+
+        //Assert
+        Assert.Equal("Not shown: its module names no permission to read it.", result.EnsureSucceeded().Json.GetProperty("parts").GetProperty("shipping").GetString());
+    }
+
     // The part's read permission is limited to stores, and the user's grant names store B only.
     [Fact]
     public async Task GetStore_WithThePartsReadPermissionForAnotherStoreOnly_DoesNotShowThePart()
@@ -206,6 +220,21 @@ public class StoreReadToolsTests
 
         var withoutCurrency = (await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA })).EnsureSucceeded().Json;
         Assert.False(withoutCurrency.TryGetProperty("can_check_out", out _));
+    }
+
+    // The market's codes take the platform's spelling, as the basics' codes do.
+    [Fact]
+    public async Task GetStoreReadinessReport_TakesTheMarketsCodes_InThePlatformsSpelling()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var report = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency = " eur " });
+
+        //Assert
+        var finding = Assert.Single(report.EnsureSucceeded().Json.GetProperty("findings").EnumerateArray());
+        Assert.Equal("EUR is not one of the store's currencies", finding.GetProperty("title").GetString());
     }
 
     [Fact]
@@ -337,6 +366,24 @@ public class StoreReadToolsTests
         var methods = shipping.GetProperty("section_schema").GetProperty("properties").GetProperty("methods");
         Assert.Equal("Codes of the active methods: the complete list.", methods.GetProperty("description").GetString());
         Assert.Equal("shipping.methods", shipping.GetProperty("choices")[0].GetProperty("field").GetString());
+    }
+
+    // What a null does in a settings map: the settings section and the rules of every section say it in full.
+    [Fact]
+    public async Task GetStoreSetupOptions_SaysWhatANullDoesInASettingsMap()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var json = (await CallAsync(harness, StoreAdministrator(), "get_store_setup_options")).EnsureSucceeded().Json;
+
+        //Assert
+        const string nullRule = "null returns a setting to its default, or clears a setting that has allowed values but no default, and a setting " +
+            "with neither takes a value instead.";
+        var settings = json.GetProperty("parts").EnumerateArray().Single(x => x.GetProperty("name").GetString() == "settings");
+        Assert.Contains(nullRule, settings.GetProperty("section_schema").GetProperty("properties").GetProperty("values").GetProperty("description").GetString());
+        Assert.Contains(json.GetProperty("rules").EnumerateArray(), x => x.GetString().EndsWith(nullRule));
     }
 
     [Fact]

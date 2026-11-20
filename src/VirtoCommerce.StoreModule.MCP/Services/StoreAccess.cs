@@ -36,20 +36,22 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
         return grant.IsGlobal ? null : grant.GetScopeValues(StoreScopeType);
     }
 
-    // Searches only the stores the user may read.
+    // Searches only the stores the user may read: ids the criteria name already are narrowed to those.
     public virtual async Task<StoreSearchResult> SearchReadableStoresAsync(ClaimsPrincipal user, StoreSearchCriteria criteria)
     {
         var storeIds = GetReadableStoreIds(user);
 
         if (storeIds != null)
         {
+            var readableIds = criteria.ObjectIds.IsNullOrEmpty() ? storeIds : criteria.ObjectIds.Where(storeIds.ContainsIgnoreCase).ToList();
+
             // An empty id list would not filter the search at all.
-            if (storeIds.Count == 0)
+            if (readableIds.Count == 0)
             {
                 return AbstractTypeFactory<StoreSearchResult>.TryCreateInstance();
             }
 
-            criteria.ObjectIds = storeIds;
+            criteria.ObjectIds = readableIds;
         }
 
         return await storeSearchService.SearchAsync(criteria);
@@ -78,19 +80,28 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
     }
 
     // Whether the user may read a part's state on the store: the part's own read permission, limited by its scope type.
-    public static bool CanRead(ClaimsPrincipal user, IStoreSetupPart part, string storeId)
+    public virtual bool CanRead(ClaimsPrincipal user, IStoreSetupPart part, string storeId)
     {
         return IsAllowed(user, part.Permissions?.Read, part.Permissions?.ScopeType, storeId);
     }
 
     // Whether the user may read the part for some store, as the setup options name no store: a global grant, or, for a
     // part limited to stores, a grant for any of them.
-    public static bool CanReadForSomeStore(ClaimsPrincipal user, IStoreSetupPart part)
+    public virtual bool CanReadForSomeStore(ClaimsPrincipal user, IStoreSetupPart part)
     {
         var scopeType = part.Permissions?.ScopeType;
         var grant = user.GetMcpPermissionGrant(part.Permissions?.Read);
 
         return grant != null && (grant.IsGlobal || (!string.IsNullOrEmpty(scopeType) && grant.GetScopeValues(scopeType).Count > 0));
+    }
+
+    // What a user needs to see a part's state, choices and findings: "needs tax:read". A part whose module names no read
+    // permission shows to no one.
+    public virtual string GetReadRequirement(IStoreSetupPart part)
+    {
+        var permission = part.Permissions?.Read;
+
+        return string.IsNullOrEmpty(permission) ? "its module names no permission to read it" : $"needs {permission}";
     }
 
     // The findings the user may read on the store: a finding belongs to the part named by its category and shows when the
@@ -137,7 +148,7 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
         return shown.Select(x => x.Title).Concat(notShown).ToList();
     }
 
-    // "Tax providers: 2 findings, 1 blocking going live", a line per part with findings: an applied change names no
+    // "Tax provider: 2 findings, 1 blocking going live", a line per part with findings: an applied change names no
     // finding, as its requester reads its answer later and may not read every part.
     public virtual IList<string> CountByPart<T>(IEnumerable<T> findings)
         where T : McpFinding
@@ -150,13 +161,29 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
             .ToList();
     }
 
-    // "Tax: 2 findings not shown, 1 blocking going live (needs tax:read)".
-    protected virtual string GetNotShownNote(IStoreSetupPart part, IList<McpFinding> findings)
+    public virtual void EnsureAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)
     {
-        return $"{GetCountText(part.Title, findings, " not shown")} (needs {part.Permissions?.Read})";
+        if (!IsAllowed(user, permission, scopeType, storeId))
+        {
+            throw new McpForbiddenException($"Your {permission} permission does not cover store '{storeId}'.");
+        }
     }
 
-    // "Tax: 2 findings<suffix>, 1 blocking going live"
+    // A permission whose module cannot limit it to stores (no scope type) counts only when it is granted globally.
+    public virtual bool IsAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)
+    {
+        var grant = user.GetMcpPermissionGrant(permission);
+
+        return grant != null && (string.IsNullOrEmpty(scopeType) ? grant.IsGlobal : grant.Allows(scopeType, storeId));
+    }
+
+    // "Tax provider: 2 findings not shown, 1 blocking going live (needs tax:read)".
+    protected virtual string GetNotShownNote(IStoreSetupPart part, IList<McpFinding> findings)
+    {
+        return $"{GetCountText(part.Title, findings, " not shown")} ({GetReadRequirement(part)})";
+    }
+
+    // "Tax provider: 2 findings<suffix>, 1 blocking going live"
     protected virtual string GetCountText(string title, IList<McpFinding> findings, string suffix)
     {
         var count = findings.Count == 1 ? "1 finding" : $"{findings.Count} findings";
@@ -166,24 +193,8 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
         return $"{title}: {count}{suffix}{blockingText}";
     }
 
-    private static IStoreSetupPart FindPart(IEnumerable<IStoreSetupPart> parts, string name)
+    protected virtual IStoreSetupPart FindPart(IEnumerable<IStoreSetupPart> parts, string name)
     {
         return parts.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
-    }
-
-    public static void EnsureAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)
-    {
-        if (!IsAllowed(user, permission, scopeType, storeId))
-        {
-            throw new McpForbiddenException($"Your {permission} permission does not cover store '{storeId}'.");
-        }
-    }
-
-    // A permission whose module cannot limit it to stores (no scope type) counts only when it is granted globally.
-    public static bool IsAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)
-    {
-        var grant = user.GetMcpPermissionGrant(permission);
-
-        return grant != null && (string.IsNullOrEmpty(scopeType) ? grant.IsGlobal : grant.Allows(scopeType, storeId));
     }
 }

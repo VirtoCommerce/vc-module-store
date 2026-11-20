@@ -14,6 +14,7 @@ namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 public class StoreSetupService(
     IEnumerable<IStoreSetupPart> parts,
     IStoreService storeService,
+    IStoreSetupFindings setupFindings,
     ILogger<StoreSetupService> logger)
     : IStoreSetupService
 {
@@ -129,8 +130,7 @@ public class StoreSetupService(
         result.Store = context.Store;
 
         var allParts = GetParts();
-        // Keyed by part name whatever its case, whichever dictionary the caller passed.
-        var sections = new Dictionary<string, object>(request.Sections ?? new Dictionary<string, object>(), StringComparer.OrdinalIgnoreCase);
+        var sections = GetSections(result, request);
         AddRequestErrors(result, allParts, sections, request.IsNewStore);
 
         foreach (var part in allParts.OfType<IStoreSetupSection>())
@@ -150,6 +150,23 @@ public class StoreSetupService(
         }
 
         return (result, context);
+    }
+
+    // The request's sections keyed by part name whatever its case, whichever dictionary the caller passed. A name sent
+    // twice, in two cases, is refused: neither of its sections would be the one applied.
+    protected virtual IDictionary<string, object> GetSections(StoreSetupResult result, StoreSetupRequest request)
+    {
+        var sections = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (name, section) in request.Sections ?? new Dictionary<string, object>())
+        {
+            if (!sections.TryAdd(name, section))
+            {
+                result.Errors.Add($"The '{name}' section is sent twice, in two cases of its name. Send it once.");
+            }
+        }
+
+        return sections;
     }
 
     protected virtual void AddRequestErrors(StoreSetupResult result, IList<IStoreSetupPart> allParts, IDictionary<string, object> sections, bool isNewStore)
@@ -205,6 +222,7 @@ public class StoreSetupService(
         context.Plans[part.Name] = plan;
         partResult.Changes = plan.Changes;
         partResult.Warnings = plan.Warnings;
+        partResult.RequiredPermissions = plan.RequiredPermissions;
         partResult.Status = plan.Changes.Count > 0 ? McpSetupPartStatus.WillChange : McpSetupPartStatus.NoChange;
 
         foreach (var error in plan.Errors)
@@ -257,7 +275,13 @@ public class StoreSetupService(
         {
             try
             {
-                findings.AddRange(await check.CheckAsync(context) ?? []);
+                // A finding belongs to the part that found it, whatever category it names: the part's read permission
+                // decides who sees it.
+                foreach (var finding in await check.CheckAsync(context) ?? [])
+                {
+                    finding.Category = check.Name;
+                    findings.Add(finding);
+                }
             }
             catch (Exception ex)
             {
@@ -290,7 +314,7 @@ public class StoreSetupService(
 
     protected virtual McpFinding CreateNotCheckedFinding(IStoreSetupPart part, Store store)
     {
-        var finding = StoreSetupFindings.ForStore(store, part.Name, $"{part.Name}-not-checked", McpFindingSeverities.Critical);
+        var finding = setupFindings.ForStore(store, part.Name, $"{part.Name}-not-checked", McpFindingSeverities.Critical);
         finding.Title = $"{part.Title} could not be checked";
         finding.Why = "A store goes live only when every part of its setup is checked.";
         finding.Evidence = "The check failed; the platform log has the details.";
@@ -299,7 +323,7 @@ public class StoreSetupService(
         return finding;
     }
 
-    private static int GetStorePartIndex(string name)
+    protected virtual int GetStorePartIndex(string name)
     {
         var index = Array.FindIndex(_storePartNames, x => x.EqualsIgnoreCase(name));
 

@@ -45,6 +45,21 @@ public class StoreSetupServiceTests
         Assert.Equal(["payment-replacement"], findings.Select(x => x.Id));
     }
 
+    // A finding belongs to the part that found it, so a category that names no part, or another one, cannot show it to a
+    // user without the part's read permission.
+    [Fact]
+    public async Task CheckAsync_SetsEachFindingsCategory_ToThePartThatFoundIt()
+    {
+        //Arrange
+        var catalog = new TestCheckPart("catalog") { Findings = [TestCheckPart.CreateFinding("catalog-empty", "elsewhere", McpFindingSeverities.Warning)] };
+
+        //Act
+        var findings = await CreateService(catalog).CheckAsync(TestCheckPart.CreateStore());
+
+        //Assert
+        Assert.Equal("catalog", Assert.Single(findings).Category);
+    }
+
     [Fact]
     public async Task CheckAsync_CollectsTheFindingsOfEveryPartThatChecks()
     {
@@ -126,6 +141,6 @@ public class StoreSetupServiceTests
 
     private static StoreSetupService CreateService(params IStoreSetupPart[] parts)
     {
-        return new StoreSetupService(parts, Mock.Of<IStoreService>(), NullLogger<StoreSetupService>.Instance);
+        return new StoreSetupService(parts, Mock.Of<IStoreService>(), new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
     }
 }

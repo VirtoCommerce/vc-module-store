@@ -107,6 +107,7 @@ namespace VirtoCommerce.StoreModule.Web
             // A store's setup: Store's own parts here; other modules add theirs with AddStoreSetupPart.
             serviceCollection.AddTransient<IStoreSetupService, StoreSetupService>();
             serviceCollection.AddTransient<IStoreSetupSettings, StoreSetupSettings>();
+            serviceCollection.AddTransient<IStoreSetupFindings, StoreSetupFindings>();
             // The MCP module's setting rules, which StoreSetupSettings uses with the MCP module installed or not.
             serviceCollection.AddMcpSettingRules();
             serviceCollection.AddStoreSetupPart<StoreBasicsSetupPart>();

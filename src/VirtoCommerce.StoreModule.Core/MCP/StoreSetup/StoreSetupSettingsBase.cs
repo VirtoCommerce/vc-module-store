@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.Model;
@@ -12,8 +13,11 @@ namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
 // The rules every part follows for an object that has settings, built on what a setting means (IsSecret, Describe,
 // TryConvert). StoreSetupSettings derives it, and so do the test doubles of the parts' tests, which then run these rules.
-public abstract class StoreSetupSettingsBase : IStoreSetupSettings
+// setupValues compares a value from a request with a stored one or a default (IMcpSetupValues).
+public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : IStoreSetupSettings
 {
+    protected IMcpSetupValues SetupValues { get; } = setupValues;
+
     public abstract bool IsSecret(SettingDescriptor descriptor);
 
     public abstract McpSetupSetting Describe(SettingDescriptor descriptor, object value);
@@ -86,7 +90,7 @@ public abstract class StoreSetupSettingsBase : IStoreSetupSettings
                 continue;
             }
 
-            if (McpSetupValues.AreEqual(current, value))
+            if (SetupValues.AreEqual(current, value))
             {
                 continue;
             }
@@ -122,7 +126,7 @@ public abstract class StoreSetupSettingsBase : IStoreSetupSettings
 
         target.Settings = target.Settings?.ToList() ?? [];
 
-        foreach (var plannedEntry in (planned.Settings ?? []).Where(x => names.Contains(x.Name)))
+        foreach (var plannedEntry in (planned.Settings ?? []).Where(x => names.ContainsIgnoreCase(x.Name)))
         {
             var entry = target.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(plannedEntry.Name));
 

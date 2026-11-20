@@ -54,7 +54,7 @@ public class StoreSetupServicePlanApplyTests
         var storeService = TestStoreService.Create(stores);
         var shipping = new TestApplyPart("shipping");
         var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", McpFindingSeverities.Critical);
-        var service = new StoreSetupService([shipping, catalog], storeService.Object, NullLogger<StoreSetupService>.Instance);
+        var service = new StoreSetupService([shipping, catalog], storeService.Object, new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
 
         //Act
         var result = await service.PlanAsync(CreateRequest(("shipping", new TestSection { Methods = ["FixedRate"] })));
@@ -140,7 +140,7 @@ public class StoreSetupServicePlanApplyTests
         //Arrange
         var stores = new List<Store> { CreateStore() };
         var storeService = TestStoreService.Create(stores);
-        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, NullLogger<StoreSetupService>.Instance);
+        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
         var section = new StoreBasicsSection { Name = new string('n', 129), Description = new string('d', 257), Region = new string('r', 129) };
 
         //Act
@@ -162,7 +162,7 @@ public class StoreSetupServicePlanApplyTests
         store.Currencies = ["EUR"];
         var stores = new List<Store> { store };
         var storeService = TestStoreService.Create(stores);
-        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, NullLogger<StoreSetupService>.Instance);
+        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
 
         //Act
         var result = await service.ApplyAsync(CreateRequest(("basics", new StoreBasicsSection { Currencies = ["USD", "EUR"] })));
@@ -171,6 +171,106 @@ public class StoreSetupServicePlanApplyTests
         Assert.Empty(result.Errors);
         Assert.Contains(Assert.Single(result.Parts).Changes, x => x.Field == "default_currency" && Equals(x.To, "USD"));
         Assert.Equal("USD", Assert.Single(stores).DefaultCurrency);
+    }
+
+    // A part whose plan fails is named without the exception's text, which may hold a third party's trace or a secret.
+    [Fact]
+    public async Task PlanAsync_APartWhosePlanFails_IsRefused_WithoutTheExceptionsText()
+    {
+        //Arrange
+        var service = CreateService([CreateStore()], new TestFailingPlanPart("payment"));
+
+        //Act
+        var result = await service.PlanAsync(CreateRequest(("payment", new TestSection())));
+
+        //Assert
+        Assert.Equal(["payment: Test part payment could not be planned. Review the store in the back office, or try again later."], result.Errors);
+        Assert.DoesNotContain(result.Errors, x => x.Contains(TestFailingPlanPart.ExceptionMessage));
+    }
+
+    [Fact]
+    public async Task PlanAsync_ANullSection_IsRefused()
+    {
+        //Arrange
+        var service = CreateService([CreateStore()], new TestApplyPart("shipping"));
+
+        //Act
+        var result = await service.PlanAsync(CreateRequest(("shipping", null)));
+
+        //Assert
+        Assert.Equal(["shipping: the section is empty or does not match its schema. get_store_setup_options shows it."], result.Errors);
+    }
+
+    // A caller's own dictionary may tell names by their case: neither of two sections of one part would be the one applied.
+    [Fact]
+    public async Task PlanAsync_ASectionSentTwiceInTwoCases_IsRefused()
+    {
+        //Arrange
+        var service = CreateService([CreateStore()], new TestApplyPart("shipping"));
+        var request = new StoreSetupRequest
+        {
+            StoreId = StoreId,
+            Sections = new Dictionary<string, object>(StringComparer.Ordinal) { ["shipping"] = new TestSection(), ["Shipping"] = new TestSection() },
+        };
+
+        //Act
+        var result = await service.PlanAsync(request);
+
+        //Assert
+        Assert.Contains("The 'Shipping' section is sent twice, in two cases of its name. Send it once.", result.Errors);
+    }
+
+    // The tools check the permissions a part's plan names, so the result carries them.
+    [Fact]
+    public async Task PlanAsync_CarriesThePermissionsAPartsPlanNames()
+    {
+        //Arrange
+        var service = CreateService([CreateStore()], new TestPlannedPermissionsPart("catalog", "catalog:read", "catalog:update"), new TestApplyPart("shipping"));
+
+        //Act
+        var result = await service.PlanAsync(CreateRequest(("catalog", new TestCatalogSection { Name = "EU catalog" }), ("shipping", new TestSection { Methods = ["FixedRate"] })));
+
+        //Assert
+        Assert.Equal(["catalog:read", "catalog:update"], result.Parts.Single(x => x.Part == "catalog").RequiredPermissions);
+        Assert.Null(result.Parts.Single(x => x.Part == "shipping").RequiredPermissions);
+    }
+
+    // The service reads the cached store: the parts plan on a copy of it, so a plan leaves the cached store as it is.
+    [Fact]
+    public async Task PlanAsync_LeavesTheCachedStoreAsItIs()
+    {
+        //Arrange
+        var store = CreateStore();
+        var stores = new List<Store> { store };
+        var storeService = TestStoreService.Create(stores);
+        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
+
+        //Act
+        var result = await service.PlanAsync(CreateRequest(("basics", new StoreBasicsSection { Name = "Renamed", Currencies = ["USD"] })));
+
+        //Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal("Renamed", result.Store.Name);
+        Assert.Same(store, Assert.Single(stores));
+        Assert.Equal("EU store", store.Name);
+        Assert.Null(store.Currencies);
+    }
+
+    // The store table refuses a longer id and longer links to fulfillment centers, so the plan refuses them first.
+    [Fact]
+    public async Task PlanAsync_ANewStoreWithAnIdOrALinkLongerThanItsColumn_IsRefused()
+    {
+        //Arrange
+        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart()], TestStoreService.Create([]).Object, new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
+        var request = new StoreSetupRequest { StoreId = new string('s', 129), IsNewStore = true };
+        request.Sections["basics"] = new StoreBasicsSection { Name = "New store", AdditionalFulfillmentCenterIds = ["fc-1", new string('f', 129)] };
+
+        //Act
+        var result = await service.PlanAsync(request);
+
+        //Assert
+        Assert.Contains("basics: store_id takes at most 128 characters.", result.Errors);
+        Assert.Contains("basics: Each of additional_fulfillment_center_ids takes at most 128 characters.", result.Errors);
     }
 
     private static StoreSetupRequest CreateRequest(params (string Name, object Section)[] sections)
@@ -192,6 +292,6 @@ public class StoreSetupServicePlanApplyTests
 
     private static StoreSetupService CreateService(List<Store> stores, params IStoreSetupPart[] parts)
     {
-        return new StoreSetupService(parts, TestStoreService.Create(stores).Object, NullLogger<StoreSetupService>.Instance);
+        return new StoreSetupService(parts, TestStoreService.Create(stores).Object, new StoreSetupFindings(), NullLogger<StoreSetupService>.Instance);
     }
 }

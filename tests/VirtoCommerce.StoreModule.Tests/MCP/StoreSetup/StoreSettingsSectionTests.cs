@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
@@ -78,6 +79,30 @@ public class StoreSettingsSectionTests
         Assert.Equal("Long", saved.Settings.Single(x => x.Name == _seoLinks.Name).Value);
     }
 
+    // The part applies with the settings rules' CopySettings, as the parts of other modules do, so a solution's override of
+    // it applies to the store's own settings too.
+    [Fact]
+    public async Task ApplyAsync_CopiesThePlannedSettings_WithTheSettingsRules()
+    {
+        //Arrange
+        var stores = new List<Store> { CreateStore() };
+        var registrar = CreateRegistrar();
+        var setupSettings = new RecordingSetupSettings(registrar, new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())),
+            new McpSettingTexts(CreateTranslationService()), new McpSetupValues());
+        var part = new StoreSettingsSetupPart(setupSettings, registrar, TestStoreService.Create(stores).Object);
+        var context = new StoreSetupContext { Store = CreateStore() };
+        var section = new StoreSettingsSection();
+        section.Values[_taxCalculation.Name] = Json("false");
+        var plan = await part.PlanAsync(context, section);
+
+        //Act
+        await part.ApplyAsync(context, plan);
+
+        //Assert
+        Assert.Equal([_taxCalculation.Name], setupSettings.CopiedNames);
+        Assert.Equal(false, Assert.Single(stores).Settings.Single(x => x.Name == _taxCalculation.Name).Value);
+    }
+
     // The platform's save skips a null, so a reset saves the default itself, and the store then has the default.
     [Fact]
     public async Task ApplyAsync_ANullSavesTheDefault_WhichTheSaveKeeps()
@@ -119,14 +144,26 @@ public class StoreSettingsSectionTests
 
     private static StoreSettingsSetupPart CreatePart(List<Store> stores)
     {
+        var registrar = CreateRegistrar();
+        var setupSettings = new StoreSetupSettings(registrar, new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())),
+            new McpSettingTexts(CreateTranslationService()), new McpSetupValues());
+
+        return new StoreSettingsSetupPart(setupSettings, registrar, TestStoreService.Create(stores).Object);
+    }
+
+    private static ISettingsRegistrar CreateRegistrar()
+    {
         var registrar = new Mock<ISettingsRegistrar>();
         registrar.Setup(x => x.GetSettingsForType(nameof(Store))).Returns([_taxCalculation, _seoLinks, _mapsApiKey]);
 
+        return registrar.Object;
+    }
+
+    private static ITranslationService CreateTranslationService()
+    {
         var translationService = new Mock<ITranslationService>();
         translationService.Setup(x => x.GetTranslationDataForLanguage("en")).Returns(new JObject());
 
-        var setupSettings = new StoreSetupSettings(registrar.Object, new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())), new McpSettingTexts(translationService.Object));
-
-        return new StoreSettingsSetupPart(setupSettings, registrar.Object, TestStoreService.Create(stores).Object);
+        return translationService.Object;
     }
 }

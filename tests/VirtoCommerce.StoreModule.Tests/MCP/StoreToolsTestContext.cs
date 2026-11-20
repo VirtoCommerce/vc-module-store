@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -175,7 +176,7 @@ public static class StoreToolsTestContext
         ];
     }
 
-    // The MCP module's pending changes, the newest first, filtered as its search filters them.
+    // The MCP module's pending changes, filtered and ordered as its search filters and orders them.
     private static IMcpPendingChangeSearchService CreatePendingChangeSearchService(List<McpPendingChange> changes)
     {
         var searchService = new Mock<IMcpPendingChangeSearchService>();
@@ -183,10 +184,17 @@ public static class StoreToolsTestContext
             .Setup(x => x.SearchAsync(It.IsAny<McpPendingChangeSearchCriteria>(), It.IsAny<bool>()))
             .ReturnsAsync((McpPendingChangeSearchCriteria criteria, bool _) =>
             {
-                var found = changes
+                var sortInfo = criteria.SortInfos.FirstOrDefault();
+                Func<McpPendingChange, DateTime?> key = sortInfo?.SortColumn switch
+                {
+                    null or nameof(McpPendingChange.CreatedDate) => x => x.CreatedDate,
+                    nameof(McpPendingChange.ModifiedDate) => x => x.ModifiedDate,
+                    _ => throw new NotSupportedException($"The test search does not sort by {sortInfo.SortColumn}."),
+                };
+                var filtered = changes
                     .Where(x => criteria.ToolName == null || x.ToolName == criteria.ToolName)
-                    .Where(x => criteria.Statuses == null || criteria.Statuses.Contains(x.Status))
-                    .OrderByDescending(x => x.CreatedDate)
+                    .Where(x => criteria.Statuses == null || criteria.Statuses.Contains(x.Status));
+                var found = (sortInfo == null || sortInfo.SortDirection == SortDirection.Descending ? filtered.OrderByDescending(key) : filtered.OrderBy(key))
                     .ToList();
 
                 return new McpPendingChangeSearchResult { TotalCount = found.Count, Results = found.Take(criteria.Take).ToList() };

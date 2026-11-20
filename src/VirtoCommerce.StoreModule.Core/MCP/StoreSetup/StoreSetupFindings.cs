@@ -5,19 +5,16 @@ using VirtoCommerce.StoreModule.Core.Model;
 
 namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
-public static class StoreSetupFindings
+// Store's way of writing the findings of a store's setup (IStoreSetupFindings).
+public class StoreSetupFindings : IStoreSetupFindings
 {
-    // A finding about a store, on the store's screen in the back office or on one of its tabs, such as "Payment methods";
-    // the part is its category. The caller fills in what is missing, why it matters, the figures and the fix.
-    public static McpFinding ForStore(Store store, string part, string id, string severity, string tab = null)
+    public virtual McpFinding ForStore(Store store, string part, string id, string severity, string tab = null)
     {
-        var storeName = store.Name ?? store.Id;
-
         var finding = AbstractTypeFactory<McpFinding>.TryCreateInstance();
         finding.Id = id;
         finding.Category = part;
         finding.Severity = severity;
-        finding.Screen = string.IsNullOrEmpty(tab) ? $"Stores > {storeName}" : $"Stores > {storeName} > {tab}";
+        finding.Screen = GetScreen(store, tab);
         finding.ObjectType = nameof(Store);
         finding.ObjectId = store.Id;
         finding.ObjectName = store.Name;
@@ -25,9 +22,7 @@ public static class StoreSetupFindings
         return finding;
     }
 
-    // The evidence of empty required settings (IStoreSetupSettings.GetEmptyRequiredSettings), with secrets counted, never
-    // named: "Empty: Merchant name. 1 secret setting is empty."
-    public static string GetEmptySettingsEvidence(IList<string> names, int secretCount)
+    public virtual string GetEmptySettingsEvidence(IList<string> names, int secretCount)
     {
         var parts = new List<string>();
 
@@ -42,5 +37,13 @@ public static class StoreSetupFindings
         }
 
         return string.Join(" ", parts);
+    }
+
+    // "Stores > EU store", or one of its tabs: "Stores > EU store > Payment methods".
+    protected virtual string GetScreen(Store store, string tab)
+    {
+        var storeName = store.Name ?? store.Id;
+
+        return string.IsNullOrEmpty(tab) ? $"Stores > {storeName}" : $"Stores > {storeName} > {tab}";
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.MCP.Core.Settings;
 using VirtoCommerce.Platform.Core.Localizations;
 using VirtoCommerce.Platform.Core.Settings;
@@ -188,6 +189,24 @@ public class StoreSetupSettingsTests
         Assert.Empty(changed);
     }
 
+    // A short text is saved in a column of 512 characters: a longer one is refused before the approval.
+    [Fact]
+    public void TryConvert_AShortTextLongerThanItsColumn_IsRefused()
+    {
+        //Arrange
+        var descriptor = new SettingDescriptor { Name = "Stores.Banner", ValueType = SettingValueType.ShortText, DefaultValue = "" };
+        var setupSettings = CreateSettings();
+
+        //Act
+        var longest = setupSettings.TryConvert(descriptor, new string('x', 512), out _, out _);
+        var tooLong = setupSettings.TryConvert(descriptor, new string('x', 513), out _, out var error);
+
+        //Assert
+        Assert.True(longest);
+        Assert.False(tooLong);
+        Assert.Equal("Setting 'Stores.Banner' takes at most 512 characters.", error);
+    }
+
     private static StoreSetupSettings CreateSettings()
     {
         var registrar = new Mock<ISettingsRegistrar>();
@@ -210,6 +229,6 @@ public class StoreSetupSettingsTests
         var secretOptions = new McpSecretSettingsOptions();
         secretOptions.SettingNames.Add(KnownSecretName);
 
-        return new StoreSetupSettings(registrar.Object, new McpSecretSettings(Options.Create(secretOptions)), new McpSettingTexts(translationService.Object));
+        return new StoreSetupSettings(registrar.Object, new McpSecretSettings(Options.Create(secretOptions)), new McpSettingTexts(translationService.Object), new McpSetupValues());
     }
 }

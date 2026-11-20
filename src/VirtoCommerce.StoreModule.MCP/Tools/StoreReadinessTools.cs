@@ -16,7 +16,6 @@ using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
-using VirtoCommerce.StoreModule.MCP.Models;
 using VirtoCommerce.StoreModule.MCP.Services;
 using StorePermissions = VirtoCommerce.StoreModule.Core.ModuleConstants.Security.Permissions;
 
@@ -30,6 +29,7 @@ public class StoreReadinessTools(
     StoreAccess access,
     IStoreSetupService setupService,
     StoreBackOfficeLinks links,
+    StoreFindingRows findingRows,
     ICountriesService countriesService,
     ICurrencyService currencyService,
     ILogger<StoreReadinessTools> logger)
@@ -45,7 +45,7 @@ public class StoreReadinessTools(
         "An empty text clears a field.",
         "A list is the complete new list: what it does not name is removed.",
         "A settings map sets the named settings and leaves the others as they are; null returns a setting to its default, " +
-            "and a setting without a default takes a value instead.",
+            "or clears a setting that has allowed values but no default, and a setting with neither takes a value instead.",
         "Secrets, such as payment keys, are never sent here: a person enters them in the back office.",
     ];
 
@@ -62,15 +62,15 @@ public class StoreReadinessTools(
         [Description("Country code, such as DEU, to also check that customers there can check out.")] string country = null)
     {
         var store = await access.GetReadableStoreAsync(context.User, store_id);
-        await EnsureKnownCodesAsync(currency, country);
+        (currency, country) = await GetKnownCodesAsync(currency, country);
         var findings = await setupService.CheckAsync(store, currency, country);
         var link = await links.GetStoresLinkAsync();
         // Going live is decided as open_store decides it, without a currency or a country; with them, the findings say
         // what keeps their customers from checking out, and can_check_out sums it up.
-        var forMarket = !string.IsNullOrWhiteSpace(currency) || !string.IsNullOrWhiteSpace(country);
+        var forMarket = currency != null || country != null;
         var readyToOpen = !(forMarket ? await setupService.CheckAsync(store) : findings).Any(setupService.BlocksGoLive);
         // A part's findings show with its state: the others are counted, and still decide readiness.
-        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, StoreFinding.CreateList(findings, setupService, link));
+        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, findingRows.CreateList(findings, link));
 
         return new
         {
@@ -125,7 +125,7 @@ public class StoreReadinessTools(
         {
             var section = part as IStoreSetupSection;
             var withChoices = part as IStoreSetupChoices;
-            var choicesHidden = withChoices != null && !StoreAccess.CanReadForSomeStore(user, part);
+            var choicesHidden = withChoices != null && !access.CanReadForSomeStore(user, part);
             var choices = withChoices != null && !choicesHidden ? await withChoices.GetChoicesAsync() ?? [] : [];
 
             if (section == null && choices.Count == 0 && !choicesHidden)
@@ -155,7 +155,7 @@ public class StoreReadinessTools(
                     .Where(x => x.Count() > MaxChoicesPerField)
                     .Select(x => $"{x.Key}: {MaxChoicesPerField} of {x.Count()} listed, the most likely first.")
                     .ToList() is { Count: > 0 } cut ? cut : null,
-                choices_not_shown = choicesHidden ? $"needs {part.Permissions?.Read}" : null,
+                choices_not_shown = choicesHidden ? access.GetReadRequirement(part) : null,
             };
         }
         catch (Exception ex)
@@ -172,27 +172,32 @@ public class StoreReadinessTools(
         }
     }
 
-    // A code the platform does not know is refused, as the basics refuse it, instead of being read as a market whose
-    // customers cannot check out, or as one that nothing stops.
-    protected virtual async Task EnsureKnownCodesAsync(string currency, string country)
+    // The market's codes in the platform's spelling ("eur" is EUR), or null when none is sent. A code the platform does
+    // not know is refused, as the basics refuse it, instead of being read as a market whose customers cannot check out,
+    // or as one that nothing stops.
+    protected virtual async Task<(string Currency, string Country)> GetKnownCodesAsync(string currency, string country)
     {
-        if (!string.IsNullOrWhiteSpace(country) && !(await countriesService.GetCountriesAsync() ?? []).Any(x => x.Id.EqualsIgnoreCase(country.Trim())))
+        string knownCountry = null;
+        string knownCurrency = null;
+
+        if (!string.IsNullOrWhiteSpace(country))
         {
-            throw new McpException($"Country '{country}' is not one of the platform's countries. Use its ISO 3166-1 alpha-3 code, such as DEU.");
+            knownCountry = (await countriesService.GetCountriesAsync() ?? []).Select(x => x.Id).FirstOrDefault(x => x.EqualsIgnoreCase(country.Trim()))
+                ?? throw new McpException($"Country '{country}' is not one of the platform's countries. Use its ISO 3166-1 alpha-3 code, such as DEU.");
         }
 
         if (!string.IsNullOrWhiteSpace(currency))
         {
             var currencies = (await currencyService.GetAllCurrenciesAsync() ?? []).Select(x => x.Code).ToList();
 
-            if (!currencies.ContainsIgnoreCase(currency.Trim()))
-            {
-                throw new McpException($"Currency '{currency}' is not one of the platform's currencies: {string.Join(", ", currencies)}.");
-            }
+            knownCurrency = currencies.FirstOrDefault(x => x.EqualsIgnoreCase(currency.Trim()))
+                ?? throw new McpException($"Currency '{currency}' is not one of the platform's currencies: {string.Join(", ", currencies)}.");
         }
+
+        return (knownCurrency, knownCountry);
     }
 
-    private static string GetNextStep(Store store, bool readyToOpen)
+    protected virtual string GetNextStep(Store store, bool readyToOpen)
     {
         if (!readyToOpen)
         {

@@ -10,8 +10,8 @@ using VirtoCommerce.StoreModule.Core.Services;
 
 namespace VirtoCommerce.StoreModule.Tests.MCP.StoreSetup;
 
-// IStoreService over stores held in memory: it returns copies, as StoreService does, and saves copies as the platform
-// saves a store. The store table refuses a store without a name or a catalog and texts longer than their columns, and the
+// IStoreService over stores held in memory: it returns copies, as StoreService does, or the held stores themselves when
+// asked for no copy, as StoreService returns its cached ones, and saves copies as the platform saves a store. The store table refuses a store without a name or a catalog and texts longer than their columns, and the
 // settings save skips a null for a setting without allowed values, which keeps the value it had.
 public static class TestStoreService
 {
@@ -21,7 +21,10 @@ public static class TestStoreService
 
         storeService
             .Setup(x => x.GetAsync(It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .ReturnsAsync((IList<string> ids, string _, bool _) => stores.Where(x => ids.Any(id => id.EqualsIgnoreCase(x.Id))).Select(x => x.CloneTyped()).ToList());
+            .ReturnsAsync((IList<string> ids, string _, bool clone) => stores
+                .Where(x => ids.Any(id => id.EqualsIgnoreCase(x.Id)))
+                .Select(x => clone ? x.CloneTyped() : x)
+                .ToList());
 
         storeService
             .Setup(x => x.SaveChangesAsync(It.IsAny<IList<Store>>()))
@@ -47,6 +50,7 @@ public static class TestStoreService
     {
         var columns = new (string Name, string Value, int MaxLength, bool Required)[]
         {
+            (nameof(Store.Id), store.Id, 128, true),
             (nameof(Store.Name), store.Name, 128, true),
             (nameof(Store.Catalog), store.Catalog, 128, true),
             (nameof(Store.Description), store.Description, 256, false),
@@ -63,6 +67,11 @@ public static class TestStoreService
         foreach (var (name, value, maxLength, required) in columns.Where(x => (x.Required && string.IsNullOrEmpty(x.Value)) || x.Value?.Length > x.MaxLength))
         {
             throw new InvalidOperationException($"The store table refuses the store's {name}: '{value}'.");
+        }
+
+        if (store.AdditionalFulfillmentCenterIds?.Any(x => x?.Length > 128) == true)
+        {
+            throw new InvalidOperationException("The store's fulfillment center table refuses an id longer than 128 characters.");
         }
     }
 

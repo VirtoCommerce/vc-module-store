@@ -45,41 +45,29 @@ public class StoreSettingsSetupPart(
     }
 
     // Sets the named settings and leaves the others as they are; null returns a setting to its default. An unknown
-    // name, a secret and a setting a setup cannot change are refused.
+    // name, a secret and a setting a setup cannot change are refused. The planned store carries the new values, so the
+    // checks of other parts see them.
     public virtual Task<McpSetupPartPlan> PlanAsync(StoreSetupContext context, object section)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var plan = AbstractTypeFactory<StoreSettingsSetupPlan>.TryCreateInstance();
-
-        // The planned store carries the new values, so the checks of other parts see them.
-        var changed = setupSettings.PlanSettings(plan, context.Store, GetDescriptors(), ((StoreSettingsSection)section).Values,
+        var plan = AbstractTypeFactory<McpSetupPartPlan>.TryCreateInstance();
+        setupSettings.PlanSettings(plan, context.Store, GetDescriptors(), ((StoreSettingsSection)section).Values,
             fieldPrefix: string.Empty, ownerTitle: "The store", listedBy: "get_store_settings");
 
-        foreach (var (name, value) in changed)
-        {
-            plan.Values[name] = value;
-        }
-
-        return Task.FromResult<McpSetupPartPlan>(plan);
+        return Task.FromResult(plan);
     }
 
-    // Saves the values with the store, read again from the database, so the cached store is refreshed with them.
+    // Saves the planned values with the store, read again from the database, so the cached store is refreshed with them
+    // and a change made since the plan stays (IStoreSetupSettings.CopySettings).
     public virtual async Task ApplyAsync(StoreSetupContext context, McpSetupPartPlan plan)
     {
         ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(plan);
 
         var store = await storeService.GetByIdAsync(context.Store.Id)
             ?? throw new InvalidOperationException($"Store '{context.Store.Id}' was not found.");
-        store.Settings = store.Settings?.ToList() ?? [];
-        var descriptors = GetDescriptors();
-
-        foreach (var (name, value) in ((StoreSettingsSetupPlan)plan).Values)
-        {
-            var entry = store.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name))
-                ?? AddEntry(store, descriptors.First(x => x.Name.EqualsIgnoreCase(name)));
-            entry.Value = value;
-        }
+        setupSettings.CopySettings(context.Store, store, plan.GetChangedFields(string.Empty));
 
         await storeService.SaveChangesAsync([store]);
     }
@@ -87,17 +75,5 @@ public class StoreSettingsSetupPart(
     protected virtual IList<SettingDescriptor> GetDescriptors()
     {
         return settingsRegistrar.GetSettingsForType(nameof(Store))?.ToList() ?? [];
-    }
-
-    private static ObjectSettingEntry AddEntry(Store store, SettingDescriptor descriptor)
-    {
-        var entry = new ObjectSettingEntry(descriptor)
-        {
-            ObjectType = nameof(Store),
-            ObjectId = store.Id,
-        };
-        store.Settings.Add(entry);
-
-        return entry;
     }
 }

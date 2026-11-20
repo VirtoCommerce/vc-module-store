@@ -33,6 +33,7 @@ public class StoreSetupTools(
     StoreAccess access,
     StoreSetupLeftovers leftovers,
     StoreBackOfficeLinks links,
+    StoreFindingRows findingRows,
     IStoreService storeService,
     IStoreSearchService storeSearchService,
     IStoreSetupService setupService)
@@ -87,7 +88,6 @@ public class StoreSetupTools(
             warnings.Add($"Continues the setup of the closed store '{existingStore.Id}' that the failed change {failedChange.Id} left.");
         }
 
-        EnsurePartPermissions(user, sections, store_id, isNewStore);
         warnings.AddRange(await GetSameNameWarningsAsync(sections, store_id));
 
         return await RunAsync(user, "create", store_id, existingStore?.Name, isNewStore, sections, dryRun, warnings);
@@ -109,7 +109,6 @@ public class StoreSetupTools(
     {
         var store = await access.GetUpdatableStoreAsync(context.User, store_id);
         var sections = await ReadSectionsAsync(setup);
-        EnsurePartPermissions(context.User, sections, store.Id, isNewStore: false);
         // A rename gets the warning a new store's name gets.
         var warnings = await GetSameNameWarningsAsync(sections, store.Id, store.Name);
 
@@ -117,14 +116,23 @@ public class StoreSetupTools(
     }
 
     // storeName is the name of a store that exists, as saved: a rename shows as a row, not as the store's name.
-    private async Task<StoreSetupPreview> RunAsync(ClaimsPrincipal user, string action, string storeId, string storeName, bool isNewStore, IDictionary<string, object> sections, bool dryRun, IList<string> warnings)
+    // The plan comes first, in an approved change too: the permissions it needs are checked before it is shown, refused or
+    // applied. An approved change is then planned again and applied.
+    protected virtual async Task<StoreSetupPreview> RunAsync(ClaimsPrincipal user, string action, string storeId, string storeName, bool isNewStore,
+        IDictionary<string, object> sections, bool dryRun, IList<string> warnings)
     {
         var request = AbstractTypeFactory<StoreSetupRequest>.TryCreateInstance();
         request.StoreId = storeId;
         request.IsNewStore = isNewStore;
         request.Sections = sections;
 
-        var result = dryRun ? await setupService.PlanAsync(request) : await setupService.ApplyAsync(request);
+        var result = await setupService.PlanAsync(request);
+        EnsurePartPermissions(user, result, storeId, isNewStore);
+
+        if (result.Errors.Count == 0 && !dryRun)
+        {
+            result = await setupService.ApplyAsync(request);
+        }
 
         if (result.Errors.Count > 0)
         {
@@ -146,8 +154,8 @@ public class StoreSetupTools(
     }
 
     // Each section in the type of its part. A name no part takes stays in, without a section, so the setup service
-    // names it in its refusal with every other error of the request.
-    private async Task<IDictionary<string, object>> ReadSectionsAsync(Dictionary<string, JsonElement> setup)
+    // names it in its refusal with every other error of the request. A name sent twice, in two cases, is refused.
+    protected virtual async Task<IDictionary<string, object>> ReadSectionsAsync(Dictionary<string, JsonElement> setup)
     {
         if (setup == null || setup.Count == 0)
         {
@@ -161,6 +169,12 @@ public class StoreSetupTools(
         foreach (var (name, json) in setup)
         {
             var part = sectionParts.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
+
+            if (sections.ContainsKey(part?.Name ?? name))
+            {
+                errors.Add($"The '{name}' section is sent twice, in two cases of its name. Send it once.");
+                continue;
+            }
 
             if (part == null)
             {
@@ -187,19 +201,27 @@ public class StoreSetupTools(
         return sections;
     }
 
-    // A part checks its own module's permission: to create, the part's Create permission; to change, its Update one.
-    // The sections are keyed by part name, whatever its case (ReadSectionsAsync).
-    private void EnsurePartPermissions(ClaimsPrincipal user, IDictionary<string, object> sections, string storeId, bool isNewStore)
+    // Each planned part checks its own module's permissions, limited by the part's scope type: the ones its plan names
+    // (RequiredPermissions), such as the catalog part's catalog:read, catalog:update and catalog:create; otherwise, to
+    // create, the part's Create permission, and to change, its Update one. The requester's dry run is repeated at
+    // approval, and the approved run checks them again for the approver.
+    protected virtual void EnsurePartPermissions(ClaimsPrincipal user, StoreSetupResult result, string storeId, bool isNewStore)
     {
-        foreach (var part in setupService.GetParts().Where(x => sections.ContainsKey(x.Name)))
+        var parts = setupService.GetParts();
+
+        foreach (var partResult in result.Parts)
         {
-            var permission = isNewStore ? part.Permissions?.Create : part.Permissions?.Update;
-            StoreAccess.EnsureAllowed(user, permission, part.Permissions?.ScopeType, storeId);
+            var permissions = parts.FirstOrDefault(x => x.Name.EqualsIgnoreCase(partResult.Part))?.Permissions;
+
+            foreach (var permission in partResult.RequiredPermissions ?? [isNewStore ? permissions?.Create : permissions?.Update])
+            {
+                access.EnsureAllowed(user, permission, permissions?.ScopeType, storeId);
+            }
         }
     }
 
     // A warning when another store has the name the basics section sends. An unchanged name gets none.
-    private async Task<IList<string>> GetSameNameWarningsAsync(IDictionary<string, object> sections, string storeId, string currentName = null)
+    protected virtual async Task<IList<string>> GetSameNameWarningsAsync(IDictionary<string, object> sections, string storeId, string currentName = null)
     {
         var name = sections.Values.OfType<StoreBasicsSection>().FirstOrDefault()?.Name?.Trim();
 
@@ -216,11 +238,12 @@ public class StoreSetupTools(
             : [];
     }
 
-    private async Task<StoreSetupPreview> CreatePreviewAsync(ClaimsPrincipal user, string action, StoreSetupResult result, string storeName, bool dryRun, IList<string> warnings)
+    protected virtual async Task<StoreSetupPreview> CreatePreviewAsync(ClaimsPrincipal user, string action, StoreSetupResult result, string storeName, bool dryRun,
+        IList<string> warnings)
     {
         var link = await links.GetStoresLinkAsync();
         // Before a create the store does not exist, so a missing section belongs in the same create call.
-        var findings = StoreFinding.CreateList(result.Findings, setupService, link, inCreate: action == "create");
+        var findings = findingRows.CreateList(result.Findings, link, inCreate: action == "create");
 
         var preview = AbstractTypeFactory<StoreSetupPreview>.TryCreateInstance();
         preview.Action = action;
@@ -302,14 +325,14 @@ public class StoreSetupTools(
 
     // A refusal names every error, then the Stores screen, where a person can also finish the setup: a part's error, such
     // as a catalog the store cannot change through a setup, names its screen without a link.
-    private async Task<McpException> CreateRefusalAsync(IEnumerable<string> errors)
+    protected virtual async Task<McpException> CreateRefusalAsync(IEnumerable<string> errors)
     {
         var link = await links.GetStoresLinkAsync();
 
         return new McpException($"The setup was refused, and nothing was changed. {string.Join(" ", errors)} Back office: {"Stores".WithLink(link)}.");
     }
 
-    private static StoreSetupPartRow CreatePartRow(McpSetupPartResult partResult)
+    protected virtual StoreSetupPartRow CreatePartRow(McpSetupPartResult partResult)
     {
         var row = AbstractTypeFactory<StoreSetupPartRow>.TryCreateInstance();
         row.Part = partResult.Part;
@@ -319,7 +342,7 @@ public class StoreSetupTools(
         return row;
     }
 
-    private static string GetNextStep(string action, bool dryRun, IList<StoreFinding> findings)
+    protected virtual string GetNextStep(string action, bool dryRun, IList<StoreFinding> findings)
     {
         if (dryRun)
         {
@@ -337,7 +360,7 @@ public class StoreSetupTools(
             : "Applied. get_store_readiness_report shows what the store still misses.";
     }
 
-    private static string GetPartialFailureMessage(StoreSetupResult result)
+    protected virtual string GetPartialFailureMessage(StoreSetupResult result)
     {
         var applied = result.Parts.Where(x => x.Status == McpSetupPartStatus.Applied).Select(x => x.Part).ToList();
         var notApplied = result.Parts

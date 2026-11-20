@@ -234,26 +234,47 @@ public class StoreBasicsSetupPartTests
         Assert.Equal("URL: none. Secure URL: https://eu.example.com, which storefronts do not look up.", finding.Evidence);
     }
 
-    // Matched as a storefront's lookup does, both ways: a URL that holds "://<host>", whatever the port. The store shown
-    // there is the first by name.
+    // Matched as a storefront's lookup does, both ways: a URL that holds "://<host>", whatever the port. The finding names
+    // no other store, nor its address: a user may read some stores only.
     [Theory]
-    [InlineData("https://shop.com", "https://shop.com.au", "shop.com")]
-    [InlineData("https://shop.com.au", "https://shop.com", "shop.com")]
-    [InlineData("http://localhost:3000", "http://localhost:3001/", "localhost")]
-    public async Task CheckAsync_AnotherStoreAtTheSameHost_IsAWarning_NamingTheStoreShown(string url, string otherUrl, string host)
+    [InlineData("https://shop.com", "https://shop.com.au", "Another store's URL holds shop.com.")]
+    [InlineData("https://shop.com.au", "https://shop.com", "This store's URL holds another store's host, so a storefront there can show this store.")]
+    [InlineData("http://localhost:3000", "http://localhost:3001/", "Another store's URL holds localhost.")]
+    public async Task CheckAsync_AnotherStoreAtTheSameHost_IsAWarning_NamingNoOtherStore(string url, string otherUrl, string evidence)
     {
         //Arrange
         var store = CreateCompleteStore();
         store.Url = url;
-        var other = new Store { Id = "a-store", Name = "A store", Url = otherUrl };
+        var other = new Store { Id = "zeta-shop", Name = "Zeta shop", Url = otherUrl };
 
         //Act
         var findings = await CreatePart(stores: [store, other]).CheckAsync(new StoreSetupContext { Store = store });
 
         //Assert
         var finding = Assert.Single(findings, x => x.Id == "basics-host-shared");
-        Assert.Equal((McpFindingSeverities.Warning, $"Another store answers at {host}"), (finding.Severity, finding.Title));
-        Assert.Equal($"At {host}: A store, EU store. A storefront there shows A store.", finding.Evidence);
+        Assert.Equal((McpFindingSeverities.Warning, "Another store uses this storefront address"), (finding.Severity, finding.Title));
+        Assert.Equal(evidence, finding.Evidence);
+        var text = string.Join(" ", finding.Title, finding.Why, finding.Evidence, finding.Fix, finding.Screen);
+        Assert.All(new[] { other.Id, other.Name, otherUrl }, value => Assert.DoesNotContain(value, text));
+    }
+
+    // Other stores at this store's host and at a host this store's URL holds: one warning, with both.
+    [Fact]
+    public async Task CheckAsync_SharedHostsBothWays_AreOneWarning()
+    {
+        //Arrange
+        var store = CreateCompleteStore();
+        store.Url = "https://shop.com";
+        var atThisHost = new Store { Id = "au-store", Name = "AU store", Url = "https://shop.com.au" };
+        var atAHostThisHolds = new Store { Id = "co-store", Name = "CO store", Url = "https://shop.co" };
+
+        //Act
+        var findings = await CreatePart(stores: [store, atThisHost, atAHostThisHolds]).CheckAsync(new StoreSetupContext { Store = store });
+
+        //Assert
+        var finding = Assert.Single(findings, x => x.Id == "basics-host-shared");
+        Assert.Equal("Another store's URL holds shop.com. This store's URL holds another store's host, so a storefront there can show this store.",
+            finding.Evidence);
     }
 
     [Fact]
@@ -268,6 +289,25 @@ public class StoreBasicsSetupPartTests
 
         //Assert
         Assert.DoesNotContain(findings, x => x.Id == "basics-host-shared");
+    }
+
+    // Codes take the platform's spelling and are compared exactly, as the defaults are: "eur" saved by hand becomes "EUR",
+    // which is no removal.
+    [Fact]
+    public async Task PlanAsync_ACodeSavedInAnotherSpelling_TakesThePlatformsSpelling()
+    {
+        //Arrange
+        var store = CreateCompleteStore();
+        store.Currencies = ["eur"];
+
+        //Act
+        var plan = await CreatePart().PlanAsync(new StoreSetupContext { Store = store }, new StoreBasicsSection { Currencies = ["EUR"] });
+
+        //Assert
+        var change = Assert.Single(plan.Changes, x => x.Field == "currencies");
+        Assert.Equal(["EUR"], (IList<string>)change.To);
+        Assert.Equal(["EUR"], store.Currencies);
+        Assert.DoesNotContain(plan.Warnings, x => x.StartsWith("Removes from"));
     }
 
     // No tool adds a language to the platform: the refusal names the screen that does, with its link.
@@ -316,6 +356,7 @@ public class StoreBasicsSetupPartTests
             StoreToolsTestContext.CreateCountriesService(),
             storeService ?? Mock.Of<IStoreService>(),
             new InMemoryStoreSearchService(stores ?? []),
-            linkResolver == null ? [] : [linkResolver]);
+            linkResolver == null ? [] : [linkResolver],
+            new StoreSetupFindings());
     }
 }

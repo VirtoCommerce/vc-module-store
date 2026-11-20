@@ -21,8 +21,10 @@ public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSea
     // create is repeated soon after; past this many creates, a leftover is refused like any store that exists.
     private const int MaxCreateChangesToRead = 100;
 
-    // The failed create that left the store, or null when the last create that ran for it succeeded or none did. A store
-    // made after that create closed, such as one made by hand under the same id, is not its leftover.
+    // The failed create that left the store, or null when the last create that ran for it succeeded or none did. Changes
+    // are ordered by when they finished (an applied or failed change is last modified then), as two creates approved out
+    // of order finish out of order. A store made after that create closed, such as one made by hand under the same id, is
+    // not its leftover.
     public virtual async Task<McpPendingChange> FindFailedCreateAsync(Store store)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -30,7 +32,7 @@ public class StoreSetupLeftovers(IMcpPendingChangeSearchService pendingChangeSea
         var criteria = AbstractTypeFactory<McpPendingChangeSearchCriteria>.TryCreateInstance();
         criteria.ToolName = CreateToolName;
         criteria.Statuses = [McpPendingChangeStatus.Applied, McpPendingChangeStatus.Failed];
-        criteria.Sort = $"{nameof(McpPendingChange.CreatedDate)}:desc";
+        criteria.Sort = $"{nameof(McpPendingChange.ModifiedDate)}:desc";
         criteria.Take = MaxCreateChangesToRead;
 
         var result = await pendingChangeSearchService.SearchAsync(criteria);
