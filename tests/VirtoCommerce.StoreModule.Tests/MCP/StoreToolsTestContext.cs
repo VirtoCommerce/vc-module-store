@@ -106,6 +106,18 @@ public static class StoreToolsTestContext
         return McpTestUser.WithPermissions("store-admin", RolePermissions);
     }
 
+    // A user who reads and changes stores without the catalog part's read permission
+    public static ClaimsPrincipal StoreManagerWithoutCatalogRead()
+    {
+        return McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
+    }
+
+    // A user who reads and changes stores, and reads the catalog part too
+    public static ClaimsPrincipal StoreManagerWithCatalogRead()
+    {
+        return McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+    }
+
     // A store administrator of store A only: store:read and store:update are limited to it.
     public static ClaimsPrincipal StoreAAdministrator()
     {
@@ -123,7 +135,7 @@ public static class StoreToolsTestContext
             .WithFinding("catalog-no-products", McpFindingSeverities.Critical);
     }
 
-    // Store A is closed and ready to open; store B is open and has no catalog.
+    // Store A is closed and ready to open; store B is open. Each sells from a catalog of its own.
     public static List<Store> CreateStores()
     {
         return

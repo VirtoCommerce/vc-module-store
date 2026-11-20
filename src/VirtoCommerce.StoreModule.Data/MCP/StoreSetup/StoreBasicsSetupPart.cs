@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using VirtoCommerce.CoreModule.Core.Currency;
+using VirtoCommerce.MCP.Core.Extensions;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
 using VirtoCommerce.Platform.Core;
@@ -158,18 +159,13 @@ public class StoreBasicsSetupPart(
         var plan = AbstractTypeFactory<StoreBasicsSetupPlan>.TryCreateInstance();
         plan.Section = basics;
 
-        if (context.IsNewStore && string.IsNullOrWhiteSpace(basics.Name))
-        {
-            plan.Errors.Add("A new store needs a name.");
-        }
-
         await PlanCodesAsync(plan, basics);
-        ApplySection(plan, context.Store, basics);
-        PlanDefaults(plan, context.Store, basics);
+        PlanFields(plan, context.Store, basics);
 
-        if (!context.IsNewStore && string.IsNullOrWhiteSpace(context.Store.Name))
+        // A new store starts without a name, and a store's name cannot be cleared.
+        if (string.IsNullOrWhiteSpace(context.Store.Name))
         {
-            plan.Errors.Add("A store needs a name: it cannot be cleared.");
+            plan.Errors.Add(context.IsNewStore ? "A new store needs a name." : "A store needs a name: it cannot be cleared.");
         }
 
         if (context.IsNewStore)
@@ -219,13 +215,21 @@ public class StoreBasicsSetupPart(
         }
         else
         {
-            // The saved store again, with the section applied to it: what is applied already changes nothing.
+            // The saved store again, with the fields set on it as the plan set them: what is applied already changes nothing.
             store = await storeService.GetByIdAsync(context.Store.Id)
                 ?? throw new InvalidOperationException($"Store '{context.Store.Id}' was not found.");
-            ApplySection(AbstractTypeFactory<StoreBasicsSetupPlan>.TryCreateInstance(), store, ((StoreBasicsSetupPlan)plan).Section);
+            PlanFields(AbstractTypeFactory<StoreBasicsSetupPlan>.TryCreateInstance(), store, ((StoreBasicsSetupPlan)plan).Section);
         }
 
         await storeService.SaveChangesAsync([store]);
+    }
+
+    // The fields a plan shows and an apply saves: the section's, then the defaults that a left-out default takes from its
+    // list.
+    protected virtual void PlanFields(McpSetupPartPlan plan, Store store, StoreBasicsSection section)
+    {
+        ApplySection(plan, store, section);
+        PlanDefaults(plan, store, section);
     }
 
     // Sets the fields the section names and lists each change. A field that is left out changes nothing, an empty text
@@ -433,8 +437,7 @@ public class StoreBasicsSetupPart(
             return;
         }
 
-        var link = await GetLinkAsync(route);
-        var where = string.IsNullOrEmpty(link) ? screen : $"{screen} ({link})";
+        var where = screen.WithLink(await GetLinkAsync(route));
 
         foreach (var value in unknown)
         {

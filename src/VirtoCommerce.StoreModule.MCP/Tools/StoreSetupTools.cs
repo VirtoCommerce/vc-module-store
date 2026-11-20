@@ -208,10 +208,8 @@ public class StoreSetupTools(
             return [];
         }
 
-        // Every store the keyword finds: the one with the name may come after many whose names only hold it.
-        var criteria = AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance();
-        criteria.Keyword = name;
-        var stores = await storeSearchService.SearchAllNoCloneAsync(criteria);
+        // Every store, from the cached search that the basics' host check reads too; the name is compared here.
+        var stores = await storeSearchService.SearchAllNoCloneAsync(AbstractTypeFactory<StoreSearchCriteria>.TryCreateInstance());
 
         return stores.Any(x => !x.Id.EqualsIgnoreCase(storeId) && x.Name.EqualsIgnoreCase(name))
             ? [$"Another store is already named '{name}'."]
@@ -223,8 +221,6 @@ public class StoreSetupTools(
         var link = await links.GetStoresLinkAsync();
         // Before a create the store does not exist, so a missing section belongs in the same create call.
         var findings = StoreFinding.CreateList(result.Findings, setupService, link, inCreate: action == "create");
-        // A part's findings show with its state; the others are counted, and still decide whether the store is ready.
-        var (shown, notShown) = access.SplitReadableFindings(user, result.StoreId, findings);
 
         var preview = AbstractTypeFactory<StoreSetupPreview>.TryCreateInstance();
         preview.Action = action;
@@ -233,8 +229,6 @@ public class StoreSetupTools(
         preview.ObjectName = storeName ?? result.Store?.Name;
         preview.DryRun = dryRun;
         preview.Parts = result.Parts.Select(CreatePartRow).ToList();
-        preview.MissingAfter = shown;
-        preview.NotShown = notShown;
         preview.BackOffice = link;
         preview.NextStep = GetNextStep(action, dryRun, findings);
 
@@ -253,11 +247,15 @@ public class StoreSetupTools(
 
         if (dryRun)
         {
-            var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(user, result.StoreId, findings.Where(x => x.BlocksGoLive));
+            // A part's findings show with its state; the others are counted, and still decide whether the store is ready.
+            var (shown, notShown) = access.SplitReadableFindings(user, result.StoreId, findings);
+            preview.MissingAfter = shown;
+            preview.NotShown = notShown;
 
-            if (shownBlocking.Count + notShownBlocking.Count > 0)
+            var blocking = access.GetBlockingNames(user, result.StoreId, findings);
+
+            if (blocking.Count > 0)
             {
-                var blocking = shownBlocking.Select(x => x.Title).Concat(notShownBlocking);
                 preview.AddWarning($"The store will not be ready to open: {string.Join("; ", blocking)}.");
             }
 
@@ -272,7 +270,7 @@ public class StoreSetupTools(
             // it names no finding: they are counted by part, and get_store_readiness_report lists them for each reader.
             preview.MissingAfter = null;
             preview.NotShown = null;
-            preview.MissingAfterByPart = CountByPart(findings);
+            preview.MissingAfterByPart = access.CountByPart(findings);
 
             var blockingCount = findings.Count(x => x.BlocksGoLive);
 
@@ -309,24 +307,6 @@ public class StoreSetupTools(
         var link = await links.GetStoresLinkAsync();
 
         return new McpException($"The setup was refused, and nothing was changed. {string.Join(" ", errors)} Back office: {"Stores".WithLink(link)}.");
-    }
-
-    // "Tax providers: 2 findings, 1 blocking going live", one line per part with findings.
-    private IList<string> CountByPart(IList<StoreFinding> findings)
-    {
-        var parts = setupService.GetParts();
-
-        return findings
-            .GroupBy(x => x.Category, StringComparer.OrdinalIgnoreCase)
-            .Select(x =>
-            {
-                var title = parts.FirstOrDefault(part => part.Name.EqualsIgnoreCase(x.Key))?.Title ?? x.Key;
-                var count = x.Count() == 1 ? "1 finding" : $"{x.Count()} findings";
-                var blocking = x.Count(finding => finding.BlocksGoLive);
-
-                return blocking > 0 ? $"{title}: {count}, {blocking} blocking going live" : $"{title}: {count}";
-            })
-            .ToList();
     }
 
     private static StoreSetupPartRow CreatePartRow(McpSetupPartResult partResult)

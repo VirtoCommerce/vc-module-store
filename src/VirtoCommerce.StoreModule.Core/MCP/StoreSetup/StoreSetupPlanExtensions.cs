@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.MCP.Core.Models;
+using VirtoCommerce.Platform.Core.Common;
 
 namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 
@@ -15,7 +16,7 @@ public static class StoreSetupPlanExtensions
         ArgumentNullException.ThrowIfNull(fieldPrefix);
 
         return plan.Changes
-            .Where(x => x.Field.StartsWith(fieldPrefix, StringComparison.OrdinalIgnoreCase))
+            .Where(x => x.Field.StartsWithIgnoreCase(fieldPrefix))
             .Select(x => x.Field[fieldPrefix.Length..])
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }

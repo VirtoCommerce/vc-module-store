@@ -152,6 +152,27 @@ public class StoreSetupServicePlanApplyTests
         storeService.Verify(x => x.SaveChangesAsync(It.IsAny<IList<Store>>()), Times.Never);
     }
 
+    // A store without a default currency takes the first of the currencies the request sends, as its plan shows, and the
+    // apply saves it too.
+    [Fact]
+    public async Task ApplyAsync_AStoreWithoutADefault_SavesTheFirstOfTheListItIsSent()
+    {
+        //Arrange
+        var store = CreateStore();
+        store.Currencies = ["EUR"];
+        var stores = new List<Store> { store };
+        var storeService = TestStoreService.Create(stores);
+        var service = new StoreSetupService([StoreBasicsSetupPartTests.CreatePart(storeService.Object)], storeService.Object, NullLogger<StoreSetupService>.Instance);
+
+        //Act
+        var result = await service.ApplyAsync(CreateRequest(("basics", new StoreBasicsSection { Currencies = ["USD", "EUR"] })));
+
+        //Assert
+        Assert.Empty(result.Errors);
+        Assert.Contains(Assert.Single(result.Parts).Changes, x => x.Field == "default_currency" && Equals(x.To, "USD"));
+        Assert.Equal("USD", Assert.Single(stores).DefaultCurrency);
+    }
+
     private static StoreSetupRequest CreateRequest(params (string Name, object Section)[] sections)
     {
         var request = new StoreSetupRequest { StoreId = StoreId };

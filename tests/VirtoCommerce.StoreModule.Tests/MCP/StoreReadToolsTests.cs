@@ -432,8 +432,8 @@ public class StoreReadToolsTests
     {
         //Arrange
         await using var harness = CreateHarness(CreateCatalogPart());
-        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
-        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+        var withoutCatalogRead = StoreManagerWithoutCatalogRead();
+        var withCatalogRead = StoreManagerWithCatalogRead();
 
         //Act
         var hidden = await CallAsync(harness, withoutCatalogRead, "get_store_readiness_report", new { store_id = StoreA });
@@ -453,15 +453,15 @@ public class StoreReadToolsTests
         Assert.Contains("Evidence of catalog-no-products", shown.Text);
     }
 
-    // On store B, the warning the user may read is the top finding, although the hidden finding is more severe.
+    // On store A, the warning the user may read is the top finding, although the hidden finding is more severe.
     [Fact]
     public async Task GetStoreOverview_FindingOfAPartTheUserMayNotRead_IsCountedNotShown_AndStillBlocks()
     {
         //Arrange
         var notes = new TestCheckPart("notes").WithFinding("note-warning", McpFindingSeverities.Warning);
         await using var harness = CreateHarness(CreateCatalogPart(), notes);
-        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
-        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+        var withoutCatalogRead = StoreManagerWithoutCatalogRead();
+        var withCatalogRead = StoreManagerWithCatalogRead();
 
         //Act
         var hidden = await CallAsync(harness, withoutCatalogRead, "get_store_overview");
@@ -469,7 +469,6 @@ public class StoreReadToolsTests
 
         //Assert
         var hiddenStoreA = hidden.EnsureSucceeded().Json.GetProperty("stores").EnumerateArray().Single(x => x.GetProperty("store_id").GetString() == StoreA);
-        // The warning the user may read is the top finding, although the hidden one is more severe.
         Assert.Equal("Finding note-warning", hiddenStoreA.GetProperty("top_finding").GetString());
         Assert.Equal((1, false), (hiddenStoreA.GetProperty("blocking").GetInt32(), hiddenStoreA.GetProperty("ready_to_open").GetBoolean()));
         Assert.Equal([CatalogNotShown], hiddenStoreA.GetProperty("not_shown").EnumerateArray().Select(x => x.GetString()));
@@ -487,8 +486,8 @@ public class StoreReadToolsTests
     {
         //Arrange
         await using var harness = CreateHarness(CreateCatalogPart());
-        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
-        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+        var withoutCatalogRead = StoreManagerWithoutCatalogRead();
+        var withCatalogRead = StoreManagerWithCatalogRead();
 
         //Act
         var hidden = await CallAsync(harness, withoutCatalogRead, "get_store", new { store_id = StoreA });

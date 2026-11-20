@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -98,15 +99,17 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
     public virtual (IList<T> Shown, IList<string> NotShown) SplitReadableFindings<T>(ClaimsPrincipal user, string storeId, IEnumerable<T> findings)
         where T : McpFinding
     {
-        var partList = setupService.GetParts();
+        var parts = setupService.GetParts();
+        // All the findings of a part show, or none do, so each part is decided once.
+        var readableParts = parts.Where(x => CanRead(user, x, storeId)).ToHashSet();
         var shown = new List<T>();
         var hidden = new List<(IStoreSetupPart Part, T Finding)>();
 
         foreach (var finding in findings)
         {
-            var part = partList.FirstOrDefault(x => x.Name.EqualsIgnoreCase(finding.Category));
+            var part = FindPart(parts, finding.Category);
 
-            if (part == null || CanRead(user, part, storeId))
+            if (part == null || readableParts.Contains(part))
             {
                 shown.Add(finding);
             }
@@ -124,14 +127,48 @@ public class StoreAccess(IStoreService storeService, IStoreSearchService storeSe
         return (shown, notShown);
     }
 
+    // The findings that block going live, as the user may read them: the titles of the shown ones, and a note per part
+    // for the others.
+    public virtual IList<string> GetBlockingNames<T>(ClaimsPrincipal user, string storeId, IEnumerable<T> findings)
+        where T : McpFinding
+    {
+        var (shown, notShown) = SplitReadableFindings(user, storeId, findings.Where(x => setupService.BlocksGoLive(x)));
+
+        return shown.Select(x => x.Title).Concat(notShown).ToList();
+    }
+
+    // "Tax providers: 2 findings, 1 blocking going live", a line per part with findings: an applied change names no
+    // finding, as its requester reads its answer later and may not read every part.
+    public virtual IList<string> CountByPart<T>(IEnumerable<T> findings)
+        where T : McpFinding
+    {
+        var parts = setupService.GetParts();
+
+        return findings
+            .GroupBy(x => x.Category, StringComparer.OrdinalIgnoreCase)
+            .Select(x => GetCountText(FindPart(parts, x.Key)?.Title ?? x.Key, x.ToList<McpFinding>(), string.Empty))
+            .ToList();
+    }
+
     // "Tax: 2 findings not shown, 1 blocking going live (needs tax:read)".
     protected virtual string GetNotShownNote(IStoreSetupPart part, IList<McpFinding> findings)
+    {
+        return $"{GetCountText(part.Title, findings, " not shown")} (needs {part.Permissions?.Read})";
+    }
+
+    // "Tax: 2 findings<suffix>, 1 blocking going live"
+    protected virtual string GetCountText(string title, IList<McpFinding> findings, string suffix)
     {
         var count = findings.Count == 1 ? "1 finding" : $"{findings.Count} findings";
         var blocking = findings.Count(setupService.BlocksGoLive);
         var blockingText = blocking > 0 ? $", {blocking} blocking going live" : string.Empty;
 
-        return $"{part.Title}: {count} not shown{blockingText} (needs {part.Permissions?.Read})";
+        return $"{title}: {count}{suffix}{blockingText}";
+    }
+
+    private static IStoreSetupPart FindPart(IEnumerable<IStoreSetupPart> parts, string name)
+    {
+        return parts.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
     }
 
     public static void EnsureAllowed(ClaimsPrincipal user, string permission, string scopeType, string storeId)

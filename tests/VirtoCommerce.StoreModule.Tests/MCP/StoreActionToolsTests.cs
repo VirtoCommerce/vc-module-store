@@ -391,8 +391,8 @@ public class StoreActionToolsTests
     {
         //Arrange
         await using var harness = CreateHarness(CreateCatalogPart());
-        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
-        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+        var withoutCatalogRead = StoreManagerWithoutCatalogRead();
+        var withCatalogRead = StoreManagerWithCatalogRead();
         var setup = new Dictionary<string, object> { ["basics"] = new { name = "Store A renamed" } };
 
         //Act
@@ -457,8 +457,8 @@ public class StoreActionToolsTests
         //Arrange
         var data = new StoreToolsTestData();
         await using var harness = CreateHarness(data, CreateCatalogPart());
-        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
-        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+        var withoutCatalogRead = StoreManagerWithoutCatalogRead();
+        var withCatalogRead = StoreManagerWithCatalogRead();
 
         //Act
         var hidden = await CallAsync(harness, withoutCatalogRead, "open_store", new { store_id = StoreA }, approved: true);
@@ -482,8 +482,8 @@ public class StoreActionToolsTests
         var catalog = new TestCheckPart("catalog") { Permissions = new McpSetupPermissions { Read = "catalog:read" } }
             .WithFinding("catalog-few-images", McpFindingSeverities.Warning);
         await using var harness = CreateHarness(catalog);
-        var withoutCatalogRead = McpTestUser.WithPermissions("store-manager", "store:read", "store:update");
-        var withCatalogRead = McpTestUser.WithPermissions("catalog-manager", "store:read", "store:update", "catalog:read");
+        var withoutCatalogRead = StoreManagerWithoutCatalogRead();
+        var withCatalogRead = StoreManagerWithCatalogRead();
         var setup = new Dictionary<string, object> { ["basics"] = new { name = "Store A renamed" } };
 
         //Act

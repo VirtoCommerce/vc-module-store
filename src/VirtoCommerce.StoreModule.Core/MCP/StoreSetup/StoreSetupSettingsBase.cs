@@ -72,7 +72,7 @@ public abstract class StoreSetupSettingsBase : IStoreSetupSettings
             }
 
             var entry = owner.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
-            var current = entry?.Value ?? descriptor.DefaultValue;
+            var current = GetValue(owner, descriptor);
 
             // A null for a setting that has no value changes nothing, so a state read from get_store can be sent back.
             if (current == null && (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined }))

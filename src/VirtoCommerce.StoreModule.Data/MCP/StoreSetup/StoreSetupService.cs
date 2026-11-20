@@ -108,7 +108,8 @@ public class StoreSetupService(
         var result = AbstractTypeFactory<StoreSetupResult>.TryCreateInstance();
         result.StoreId = request.StoreId;
 
-        var store = await storeService.GetByIdAsync(request.StoreId);
+        // The cached store: the parts get a copy of it (CopyStore).
+        var store = await storeService.GetNoCloneAsync(request.StoreId);
 
         if (request.IsNewStore && store != null)
         {

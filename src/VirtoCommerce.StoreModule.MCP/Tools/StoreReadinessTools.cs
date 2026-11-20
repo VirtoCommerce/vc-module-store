@@ -125,10 +125,10 @@ public class StoreReadinessTools(
         {
             var section = part as IStoreSetupSection;
             var withChoices = part as IStoreSetupChoices;
-            var choicesShown = withChoices != null && StoreAccess.CanReadForSomeStore(user, part);
-            var choices = choicesShown ? await withChoices.GetChoicesAsync() ?? [] : [];
+            var choicesHidden = withChoices != null && !StoreAccess.CanReadForSomeStore(user, part);
+            var choices = withChoices != null && !choicesHidden ? await withChoices.GetChoicesAsync() ?? [] : [];
 
-            if (section == null && choices.Count == 0 && (withChoices == null || choicesShown))
+            if (section == null && choices.Count == 0 && !choicesHidden)
             {
                 return null;
             }
@@ -155,7 +155,7 @@ public class StoreReadinessTools(
                     .Where(x => x.Count() > MaxChoicesPerField)
                     .Select(x => $"{x.Key}: {MaxChoicesPerField} of {x.Count()} listed, the most likely first.")
                     .ToList() is { Count: > 0 } cut ? cut : null,
-                choices_not_shown = withChoices != null && !choicesShown ? $"needs {part.Permissions?.Read}" : null,
+                choices_not_shown = choicesHidden ? $"needs {part.Permissions?.Read}" : null,
             };
         }
         catch (Exception ex)

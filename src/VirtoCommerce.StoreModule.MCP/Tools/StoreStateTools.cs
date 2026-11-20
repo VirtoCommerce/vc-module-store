@@ -42,11 +42,10 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
         // Checked again when the approved change runs, so a store that stopped being ready in the meantime stays closed.
         var findings = await setupService.CheckAsync(store);
         // Every blocking finding keeps the store closed; one of a part the user may not read is named by its part only.
-        var (shownBlocking, notShownBlocking) = access.SplitReadableFindings(context.User, store.Id, findings.Where(setupService.BlocksGoLive));
+        var blocking = access.GetBlockingNames(context.User, store.Id, findings);
 
-        if (shownBlocking.Count + notShownBlocking.Count > 0)
+        if (blocking.Count > 0)
         {
-            var blocking = shownBlocking.Select(x => x.Title).Concat(notShownBlocking);
             throw new McpException($"Store '{store.Id}' cannot open while these block it: {string.Join("; ", blocking)}. " +
                 "get_store_readiness_report says how to fix each.");
         }
