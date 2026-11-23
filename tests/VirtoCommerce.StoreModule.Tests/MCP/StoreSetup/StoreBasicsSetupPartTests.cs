@@ -277,6 +277,60 @@ public class StoreBasicsSetupPartTests
             finding.Evidence);
     }
 
+    // The platform's own address opens the back office, whose start page is its sign-in, not a storefront. Every name under
+    // localhost leads to this computer, so with the back office's port such a name leads to the platform too.
+    [Theory]
+    [InlineData("http://jxk-printers.localhost:16031", "http://localhost:16031", true)]
+    [InlineData("http://localhost:16031/", "http://localhost:16031", true)]
+    [InlineData("https://admin.example.com", "https://admin.example.com", true)]
+    [InlineData("http://jxk-printers.localhost:26031", "http://localhost:16031", false)]
+    [InlineData("https://shop.example.com", "https://admin.example.com", false)]
+    public async Task CheckAsync_AUrlThatLeadsToThePlatform_IsAWarning(string url, string platform, bool expected)
+    {
+        //Arrange
+        var store = CreateCompleteStore();
+        store.Url = url;
+
+        //Act
+        var findings = await CreatePart(linkResolver: CreateLinkResolver(platform)).CheckAsync(new StoreSetupContext { Store = store });
+
+        //Assert
+        Assert.Equal(expected, findings.Any(x => x.Id == "basics-url-is-the-platform"));
+    }
+
+    [Fact]
+    public async Task CheckAsync_AUrlThatLeadsToThePlatform_SaysWhereItLeads_AndAsksForTheStorefrontsAddress()
+    {
+        //Arrange
+        var store = CreateCompleteStore();
+        store.Url = "http://jxk-printers.localhost:16031";
+
+        //Act
+        var findings = await CreatePart(linkResolver: CreateLinkResolver("http://localhost:16031")).CheckAsync(new StoreSetupContext { Store = store });
+
+        //Assert
+        var finding = Assert.Single(findings, x => x.Id == "basics-url-is-the-platform");
+        Assert.Equal(McpFindingSeverities.Warning, finding.Severity);
+        Assert.Equal("URL: http://jxk-printers.localhost:16031. The back office: http://localhost:16031/.", finding.Evidence);
+        Assert.Equal("Ask the user for the address of the storefront that shows the store, and send it as basics.url.", finding.Fix);
+        Assert.False(finding.ManualOnly);
+    }
+
+    // Without the MCP module's link to the back office, the platform's address is not known, and the check says nothing.
+    [Fact]
+    public async Task CheckAsync_WithoutALinkToTheBackOffice_DoesNotCompareTheUrlWithThePlatform()
+    {
+        //Arrange
+        var store = CreateCompleteStore();
+        store.Url = "http://localhost:16031";
+
+        //Act
+        var findings = await CreatePart().CheckAsync(new StoreSetupContext { Store = store });
+
+        //Assert
+        Assert.DoesNotContain(findings, x => x.Id == "basics-url-is-the-platform");
+    }
+
     [Fact]
     public async Task CheckAsync_StoresAtDistinctHosts_HaveNoWarning()
     {
@@ -340,6 +394,15 @@ public class StoreBasicsSetupPartTests
             Url = "https://eu.example.com",
             Email = "shop@example.com",
         };
+    }
+
+    // The MCP module's links, with the back office at the site root of the given origin.
+    private static IMcpLinkResolver CreateLinkResolver(string origin)
+    {
+        var linkResolver = new Mock<IMcpLinkResolver>();
+        linkResolver.Setup(x => x.GetLinkAsync(It.IsAny<string>())).ReturnsAsync((string route) => $"{origin}{route}");
+
+        return linkResolver.Object;
     }
 
     // The platform's languages and countries as the tool tests have them, and two currencies.

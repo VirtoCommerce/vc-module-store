@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using VirtoCommerce.CoreModule.Core.Currency;
 using VirtoCommerce.MCP.Core.Extensions;
@@ -93,8 +94,8 @@ public class StoreBasicsSetupPart(
         return Task.FromResult<object>(section);
     }
 
-    // One step per check, in this order: languages, currencies, the market's currency, the storefront URL, a shared host
-    // and the email.
+    // One step per check, in this order: languages, currencies, the market's currency, the storefront URL, a shared host,
+    // a URL that leads to the platform itself, and the email.
     public virtual async Task<IList<McpFinding>> CheckAsync(StoreSetupContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -102,6 +103,7 @@ public class StoreBasicsSetupPart(
         var store = context.Store;
         var findings = new List<McpFinding> { CheckLanguages(store), CheckCurrencies(store), CheckMarketCurrency(context), CheckStorefrontUrl(store) };
         findings.AddRange(await GetSharedHostFindingsAsync(store));
+        findings.Add(await CheckPlatformUrlAsync(store));
         findings.Add(CheckEmail(store));
 
         return findings.Where(x => x != null).ToList();
@@ -545,6 +547,39 @@ public class StoreBasicsSetupPart(
         ];
     }
 
+    // A URL that leads to the platform itself opens the back office, whose start page is its sign-in, not a storefront. The
+    // platform's address is the back office's link, so without the MCP module's links the check says nothing.
+    protected virtual async Task<McpFinding> CheckPlatformUrlAsync(Store store)
+    {
+        if (string.IsNullOrEmpty(store.Url))
+        {
+            return null;
+        }
+
+        var platformUrl = await GetLinkAsync("/");
+
+        return platformUrl != null && LeadsToPlatform(store.Url, platformUrl)
+            ? CreateFinding(store, "basics-url-is-the-platform", McpFindingSeverities.Warning,
+                "The store's URL is the platform's address, not a storefront's",
+                "The address opens the back office, whose start page is its sign-in, so customers who open it never see the store.",
+                $"URL: {store.Url}. The back office: {platformUrl}.",
+                "Ask the user for the address of the storefront that shows the store, and send it as basics.url.")
+            : null;
+    }
+
+    // Whether the URL leads to the platform: the host and the port of the platform's address. Every name under localhost,
+    // and a loopback address, leads to this computer, so with the platform's port such a URL leads to the platform too.
+    protected virtual bool LeadsToPlatform(string url, string platformUrl)
+    {
+        if (!Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var target) || !Uri.TryCreate(platformUrl, UriKind.Absolute, out var platform) ||
+            target.Port != platform.Port)
+        {
+            return false;
+        }
+
+        return target.Host.EqualsIgnoreCase(platform.Host) || (IsThisComputer(target.Host) && IsThisComputer(platform.Host));
+    }
+
     // The MCP module's link to a screen of the classic back office; null without the MCP module or outside its requests.
     protected virtual async Task<string> GetLinkAsync(string route)
     {
@@ -583,6 +618,12 @@ public class StoreBasicsSetupPart(
         {
             return code;
         }
+    }
+
+    private static bool IsThisComputer(string host)
+    {
+        return host.EqualsIgnoreCase("localhost") || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase) ||
+            (IPAddress.TryParse(host.Trim('[', ']'), out var address) && IPAddress.IsLoopback(address));
     }
 
     private static string Join(ICollection<string> values)
