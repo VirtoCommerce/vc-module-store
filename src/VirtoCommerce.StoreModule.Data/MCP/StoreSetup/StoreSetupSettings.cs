@@ -61,19 +61,9 @@ public class StoreSetupSettings(
             return false;
         }
 
-        // A null returns the setting to its default, which is saved itself: the platform's settings save skips a null for
-        // a setting without allowed values. So such a setting without a default has nothing to return to: saving its null
-        // would change nothing.
         if (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined })
         {
-            if (descriptor.DefaultValue == null && descriptor.AllowedValues.IsNullOrEmpty())
-            {
-                error = $"Setting '{descriptor.Name}' has no default to return to. Send a value; an empty text clears a text setting.";
-                return false;
-            }
-
-            value = descriptor.DefaultValue;
-            return true;
+            return TryGetDefault(descriptor, out value, out error);
         }
 
         if (!TryConvertValue(descriptor.ValueType, raw, out var converted))
@@ -82,43 +72,20 @@ public class StoreSetupSettings(
             return false;
         }
 
-        // A longer text would be refused only when it is saved, after the approval.
-        if (descriptor.ValueType == SettingValueType.ShortText && converted is string { Length: > MaxShortTextLength })
+        // The length rule reads the text as sent, and the empty text rule the value to save, after the allowed values.
+        error = GetTextLengthError(descriptor, converted);
+
+        if (error != null)
         {
-            error = $"Setting '{descriptor.Name}' takes at most {MaxShortTextLength} characters.";
             return false;
         }
 
-        if (!descriptor.AllowedValues.IsNullOrEmpty())
+        if (!TryMatchAllowedValue(descriptor, converted, out var allowedValue, out error))
         {
-            // The allowed value itself is kept, with its spelling: modules compare these values as they declared them.
-            converted = descriptor.AllowedValues.FirstOrDefault(x => SetupValues.AreEqual(x, converted, StringComparison.OrdinalIgnoreCase));
-
-            if (converted == null)
-            {
-                error = $"Setting '{descriptor.Name}' takes one of: {string.Join(", ", descriptor.AllowedValues)}.";
-                return false;
-            }
+            return false;
         }
 
-        // The platform saves an empty text, or one of spaces only, as none, and a setting saved as none shows its default:
-        // an empty text never replaces a default text, and every later setup would plan the same change again. Without a
-        // default text, an empty text clears the setting, and a text of spaces only is planned as the empty text it is
-        // saved as, so a later setup finds nothing to change.
-        if (converted is string text && string.IsNullOrWhiteSpace(text))
-        {
-            if (SetupValues.ToInvariantString(descriptor.DefaultValue) is { Length: > 0 } defaultText)
-            {
-                error = $"Setting '{descriptor.Name}' cannot be empty: the platform keeps no empty text, so it would show its default '{defaultText}'. " +
-                    "Send null to return it to its default, or another text.";
-                return false;
-            }
-
-            converted = string.Empty;
-        }
-
-        value = converted;
-        return true;
+        return TryConvertEmptyText(descriptor, allowedValue, out value, out error);
     }
 
     public override Task<IList<McpSetupSetting>> GetStoreSettingsAsync(Store store)
@@ -174,6 +141,24 @@ public class StoreSetupSettings(
         return !descriptor.IsHidden && !descriptor.IsDictionary && !descriptor.IsLocalizable;
     }
 
+    // A null returns the setting to its default, which is saved itself: the platform's settings save skips a null for a
+    // setting without allowed values. So such a setting without a default has nothing to return to: saving its null would
+    // change nothing.
+    protected virtual bool TryGetDefault(SettingDescriptor descriptor, out object value, out string error)
+    {
+        value = null;
+        error = null;
+
+        if (descriptor.DefaultValue == null && descriptor.AllowedValues.IsNullOrEmpty())
+        {
+            error = $"Setting '{descriptor.Name}' has no default to return to. Send a value; an empty text clears a text setting.";
+            return false;
+        }
+
+        value = descriptor.DefaultValue;
+        return true;
+    }
+
     protected virtual bool TryConvertValue(SettingValueType valueType, object raw, out object value)
     {
         value = null;
@@ -202,6 +187,65 @@ public class StoreSetupSettings(
             default:
                 return false;
         }
+    }
+
+    // A short text longer than its column would be refused only when it is saved, after the approval.
+    protected virtual string GetTextLengthError(SettingDescriptor descriptor, object value)
+    {
+        if (descriptor.ValueType == SettingValueType.ShortText && value is string { Length: > MaxShortTextLength })
+        {
+            return $"Setting '{descriptor.Name}' takes at most {MaxShortTextLength} characters.";
+        }
+
+        return null;
+    }
+
+    // The allowed value itself is kept, with its spelling: modules compare these values as they declared them.
+    protected virtual bool TryMatchAllowedValue(SettingDescriptor descriptor, object value, out object allowedValue, out string error)
+    {
+        allowedValue = value;
+        error = null;
+
+        if (descriptor.AllowedValues.IsNullOrEmpty())
+        {
+            return true;
+        }
+
+        allowedValue = descriptor.AllowedValues.FirstOrDefault(x => SetupValues.AreEqual(x, value, StringComparison.OrdinalIgnoreCase));
+
+        if (allowedValue == null)
+        {
+            error = $"Setting '{descriptor.Name}' takes one of: {string.Join(", ", descriptor.AllowedValues)}.";
+            return false;
+        }
+
+        return true;
+    }
+
+    // The platform saves an empty text, or one of spaces only, as none, and a setting saved as none shows its default: an
+    // empty text never replaces a default text, and every later setup would plan the same change again. Without a default
+    // text, an empty text clears the setting, and a text of spaces only is planned as the empty text it is saved as, so a
+    // later setup finds nothing to change.
+    protected virtual bool TryConvertEmptyText(SettingDescriptor descriptor, object value, out object converted, out string error)
+    {
+        converted = null;
+        error = null;
+
+        if (value is string text && string.IsNullOrWhiteSpace(text))
+        {
+            if (SetupValues.ToInvariantString(descriptor.DefaultValue) is { Length: > 0 } defaultText)
+            {
+                error = $"Setting '{descriptor.Name}' cannot be empty: the platform keeps no empty text, so it would show its default '{defaultText}'. " +
+                    "Send null to return it to its default, or another text.";
+                return false;
+            }
+
+            converted = string.Empty;
+            return true;
+        }
+
+        converted = value;
+        return true;
     }
 
     // What a refusal says a setting of the type takes.

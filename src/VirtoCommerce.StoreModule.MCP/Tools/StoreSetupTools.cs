@@ -255,6 +255,37 @@ public class StoreSetupTools(
         preview.BackOffice = link;
         preview.NextStep = GetNextStep(action, dryRun, findings);
 
+        AddChanges(preview, result);
+
+        foreach (var warning in warnings)
+        {
+            preview.AddWarning(warning);
+        }
+
+        AddFindings(preview, user, result.StoreId, findings, dryRun);
+
+        foreach (var warning in result.Parts.SelectMany(x => x.Warnings))
+        {
+            preview.AddWarning(warning);
+        }
+
+        if (result.Store?.StoreState == StoreState.Open)
+        {
+            preview.AddWarning("The store is open: customers see each part as soon as it is applied.");
+        }
+
+        if (result.Parts.Count(x => x.Status is McpSetupPartStatus.WillChange or McpSetupPartStatus.Applied) > 1)
+        {
+            preview.AddWarning("Not a transaction: if a part fails, the parts before it stay applied; the answer says which, " +
+                "and the same call repeated finishes the setup.");
+        }
+
+        return preview;
+    }
+
+    // Each change is named by its part ("<part>: <field>"), so the approver sees which part makes it.
+    protected virtual void AddChanges(StoreSetupPreview preview, StoreSetupResult result)
+    {
         foreach (var part in result.Parts)
         {
             foreach (var change in part.Changes)
@@ -262,20 +293,19 @@ public class StoreSetupTools(
                 preview.AddChange($"{part.Part}: {change.Field}", change.From, change.To);
             }
         }
+    }
 
-        foreach (var warning in warnings)
-        {
-            preview.AddWarning(warning);
-        }
-
+    // What the store would miss after the change, so the user knows whether it will be ready to open.
+    protected virtual void AddFindings(StoreSetupPreview preview, ClaimsPrincipal user, string storeId, IList<StoreFinding> findings, bool dryRun)
+    {
         if (dryRun)
         {
             // A part's findings show with its state; the others are counted, and still decide whether the store is ready.
-            var (shown, notShown) = access.SplitReadableFindings(user, result.StoreId, findings);
+            var (shown, notShown) = access.SplitReadableFindings(user, storeId, findings);
             preview.MissingAfter = shown;
             preview.NotShown = notShown;
 
-            var blocking = access.GetBlockingNames(user, result.StoreId, findings);
+            var blocking = access.GetBlockingNames(user, storeId, findings);
 
             if (blocking.Count > 0)
             {
@@ -303,24 +333,6 @@ public class StoreSetupTools(
                     "going live. get_store_readiness_report lists them.");
             }
         }
-
-        foreach (var warning in result.Parts.SelectMany(x => x.Warnings))
-        {
-            preview.AddWarning(warning);
-        }
-
-        if (result.Store?.StoreState == StoreState.Open)
-        {
-            preview.AddWarning("The store is open: customers see each part as soon as it is applied.");
-        }
-
-        if (result.Parts.Count(x => x.Status is McpSetupPartStatus.WillChange or McpSetupPartStatus.Applied) > 1)
-        {
-            preview.AddWarning("Not a transaction: if a part fails, the parts before it stay applied; the answer says which, " +
-                "and the same call repeated finishes the setup.");
-        }
-
-        return preview;
     }
 
     // A refusal names every error, then the Stores screen, where a person can also finish the setup: a part's error, such

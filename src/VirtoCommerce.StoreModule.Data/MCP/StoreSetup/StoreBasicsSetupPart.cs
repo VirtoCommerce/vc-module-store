@@ -38,6 +38,9 @@ public class StoreBasicsSetupPart(
     public const string SettingsRoute = "/#!/workspace/settings";
     public const string ModulesRoute = "/#!/workspace/modules";
 
+    // The length of the column a fulfillment center id is saved in.
+    public const int MaxFulfillmentCenterIdLength = 128;
+
     public virtual string Name => PartName;
 
     public virtual string Title => "Store basics";
@@ -148,14 +151,19 @@ public class StoreBasicsSetupPart(
     // A storefront looks the store up by its URL; the secure URL plays no part in it.
     protected virtual McpFinding CheckStorefrontUrl(Store store)
     {
-        return string.IsNullOrEmpty(store.Url)
-            ? CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
-                "The store has no storefront URL",
-                "A storefront shows the store whose URL holds its host name, so a store without one shows on no address of " +
-                    "its own. Links in its emails and the checkout handoff need the address too.",
-                string.IsNullOrEmpty(store.SecureUrl) ? "URL: none." : $"URL: none. Secure URL: {store.SecureUrl}, which storefronts do not look up.",
-                "Ask the user for the address customers open the store at, and send it as basics.url.")
-            : null;
+        if (!string.IsNullOrEmpty(store.Url))
+        {
+            return null;
+        }
+
+        var evidence = string.IsNullOrEmpty(store.SecureUrl) ? "URL: none." : $"URL: none. Secure URL: {store.SecureUrl}, which storefronts do not look up.";
+
+        return CreateFinding(store, "basics-no-storefront-url", McpFindingSeverities.Warning,
+            "The store has no storefront URL",
+            "A storefront shows the store whose URL holds its host name, so a store without one shows on no address of " +
+                "its own. Links in its emails and the checkout handoff need the address too.",
+            evidence,
+            "Ask the user for the address customers open the store at, and send it as basics.url.");
     }
 
     protected virtual McpFinding CheckEmail(Store store)
@@ -212,17 +220,17 @@ public class StoreBasicsSetupPart(
             ("time_zone", store.TimeZone, 128),
             ("country", store.Country, 128),
             ("region", store.Region, 128),
-            ("main_fulfillment_center_id", store.MainFulfillmentCenterId, 128),
+            ("main_fulfillment_center_id", store.MainFulfillmentCenterId, MaxFulfillmentCenterIdLength),
         };
 
-        foreach (var (field, value, maxLength) in fields.Where(x => x.Value?.Length > x.MaxLength))
+        foreach (var (field, _, maxLength) in fields.Where(x => x.Value?.Length > x.MaxLength))
         {
             plan.Errors.Add($"{field} takes at most {maxLength} characters.");
         }
 
-        if (store.AdditionalFulfillmentCenterIds?.Any(x => x?.Length > 128) == true)
+        if (store.AdditionalFulfillmentCenterIds?.Any(x => x?.Length > MaxFulfillmentCenterIdLength) == true)
         {
-            plan.Errors.Add("Each of additional_fulfillment_center_ids takes at most 128 characters.");
+            plan.Errors.Add($"Each of additional_fulfillment_center_ids takes at most {MaxFulfillmentCenterIdLength} characters.");
         }
     }
 
