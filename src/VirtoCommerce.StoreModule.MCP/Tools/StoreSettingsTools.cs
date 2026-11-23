@@ -20,7 +20,8 @@ using StorePermissions = VirtoCommerce.StoreModule.Core.ModuleConstants.Security
 
 namespace VirtoCommerce.StoreModule.MCP.Tools;
 
-// The store-level settings of every installed module, with what each one means. Secrets are never listed.
+// The store-level settings of every installed module, with what each one means. Secrets are never listed, nor are the
+// settings the platform's configuration sets.
 [McpServerToolType]
 [McpScope(McpScopes.Admin)]
 [McpPermission(StorePermissions.Read)]
@@ -36,7 +37,8 @@ public class StoreSettingsTools(
     [Description("The store-level settings of every installed module for one store, each with its title, description, " +
         "module, type, default, current value, allowed values and whether a setup can change it. Filter by module, by " +
         "words in the name, title or description, or to the settings changed from their defaults. Secrets are not listed: " +
-        "a person enters them in the back office. Returns one page: when has_more is true, call again with next_skip.")]
+        "a person enters them in the back office. Settings the platform's configuration sets are not listed either. " +
+        "Returns one page: when has_more is true, call again with next_skip.")]
     public async Task<object> GetStoreSettings(
         RequestContext<CallToolRequestParams> context,
         [Description("Store id, as list_stores returns it.")] string store_id,
@@ -55,7 +57,7 @@ public class StoreSettingsTools(
             settings = settings.Where(x => x.ModuleId.EqualsIgnoreCase(module_id.Trim())).ToList();
 
             // A wrong module id would otherwise read as a module without store settings. A module whose store settings are
-            // all secrets or hidden gets an empty page, with the note on secrets.
+            // all secrets, hidden or set by the platform's configuration gets an empty page, with the note on secrets.
             if (settings.Count == 0 && !HasStoreSettings(module_id))
             {
                 throw new McpException($"Module '{module_id}' has no store settings here. Module ids look like VirtoCommerce.Store; " +
@@ -81,7 +83,8 @@ public class StoreSettingsTools(
     [McpServerTool(Name = "compare_store_settings", ReadOnly = true, Destructive = false, Idempotent = true)]
     [Description("The store-level settings whose values differ between two stores, or between a store and the defaults " +
         "when other_store_id is omitted. Use it to give a new store the settings of a store that works, or to see what " +
-        "was changed in a store. Secrets are not compared. Returns one page: when has_more is true, call again with next_skip.")]
+        "was changed in a store. Secrets are not compared. Settings the platform's configuration sets are not compared " +
+        "either. Returns one page: when has_more is true, call again with next_skip.")]
     public async Task<object> CompareStoreSettings(
         RequestContext<CallToolRequestParams> context,
         [Description("Store id, as list_stores returns it.")] string store_id,
@@ -101,7 +104,10 @@ public class StoreSettingsTools(
                 .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
+        // A setting the platform's configuration sets for either store is not listed for that store, so it is not compared:
+        // comparing with the default instead would show a difference that is not there, or hide one that is.
         var differences = settings
+            .Where(x => otherValues == null || otherValues.ContainsKey(x.Name))
             .Select(x => new
             {
                 name = x.Name,
@@ -128,7 +134,7 @@ public class StoreSettingsTools(
         return $"Secrets are not listed. A person enters them in the back office: {screen}.";
     }
 
-    // Whether the module registers store-level settings, secret and hidden ones included.
+    // Whether the module registers store-level settings, secret, hidden and configuration-set ones included.
     protected virtual bool HasStoreSettings(string moduleId)
     {
         return (settingsRegistrar.GetSettingsForType(nameof(Store)) ?? []).Any(x => x.ModuleId.EqualsIgnoreCase(moduleId.Trim()));

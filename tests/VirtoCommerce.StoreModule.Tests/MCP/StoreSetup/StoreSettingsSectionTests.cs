@@ -87,8 +87,9 @@ public class StoreSettingsSectionTests
         //Arrange
         var stores = new List<Store> { CreateStore() };
         var registrar = CreateRegistrar();
-        var setupSettings = new RecordingSetupSettings(registrar, new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())),
-            new McpSettingTexts(CreateTranslationService()), new McpSetupValues());
+        var setupSettings = new RecordingSetupSettings(registrar, Mock.Of<ISettingsOverrideProvider>(), Options.Create(new FixedSettings()),
+            new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())), new McpSettingTexts(CreateTranslationService()),
+            new McpSetupValues());
         var part = new StoreSettingsSetupPart(setupSettings, registrar, TestStoreService.Create(stores).Object);
         var context = new StoreSetupContext { Store = CreateStore() };
         var section = new StoreSettingsSection();
@@ -122,6 +123,22 @@ public class StoreSettingsSectionTests
         Assert.Equal(false, Assert.Single(stores).Settings.Single(x => x.Name == _taxCalculation.Name).Value);
     }
 
+    // The settings manager reads a setting the platform's configuration sets as read-only. The state leaves it out, as
+    // get_store_settings does, although its value differs from the default, so a state sent back never names it.
+    [Fact]
+    public async Task GetStateAsync_LeavesOutASettingThePlatformsConfigurationSets()
+    {
+        //Arrange
+        var store = CreateStore();
+        store.Settings.Single(x => x.Name == _seoLinks.Name).IsReadOnly = true;
+
+        //Act
+        var state = (StoreSettingsSection)await CreatePart([]).GetStateAsync(store);
+
+        //Assert
+        Assert.Equal([_taxCalculation.Name], state.Values.Keys);
+    }
+
     private static Store CreateStore()
     {
         return new Store
@@ -145,8 +162,9 @@ public class StoreSettingsSectionTests
     private static StoreSettingsSetupPart CreatePart(List<Store> stores)
     {
         var registrar = CreateRegistrar();
-        var setupSettings = new StoreSetupSettings(registrar, new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())),
-            new McpSettingTexts(CreateTranslationService()), new McpSetupValues());
+        var setupSettings = new StoreSetupSettings(registrar, Mock.Of<ISettingsOverrideProvider>(), Options.Create(new FixedSettings()),
+            new McpSecretSettings(Options.Create(new McpSecretSettingsOptions())), new McpSettingTexts(CreateTranslationService()),
+            new McpSetupValues());
 
         return new StoreSettingsSetupPart(setupSettings, registrar, TestStoreService.Create(stores).Object);
     }

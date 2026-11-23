@@ -37,7 +37,7 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
     public virtual IDictionary<string, object> GetValues(IHasSettings owner, IEnumerable<SettingDescriptor> descriptors)
     {
         return (descriptors ?? [])
-            .Where(x => !IsSecret(x))
+            .Where(x => !IsSecret(x) && !IsForced(owner, x))
             .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(x => x.Name, x => GetValue(owner, x), StringComparer.OrdinalIgnoreCase);
     }
@@ -46,7 +46,11 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        return owner?.Settings?.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name))?.Value ?? descriptor.DefaultValue;
+        // The entry's default is a configured default (VirtoCommerce:Settings:Override:DefaultValue) when there is one: the
+        // settings manager sets it when it reads the object's settings.
+        var entry = FindEntry(owner, descriptor);
+
+        return entry?.Value ?? entry?.DefaultValue ?? descriptor.DefaultValue;
     }
 
     public virtual IDictionary<string, object> PlanSettings(McpSetupPartPlan plan, IHasSettings owner, IList<SettingDescriptor> descriptors,
@@ -68,14 +72,15 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
         foreach (var (name, raw) in values)
         {
             var descriptor = descriptors?.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
+            var refusal = GetRefusal(owner, descriptor, name, ownerTitle, listedBy);
 
-            if (descriptor == null)
+            if (refusal != null)
             {
-                plan.Errors.Add($"{ownerTitle} has no setting '{name}'. {listedBy} lists the settings.");
+                plan.Errors.Add(refusal);
                 continue;
             }
 
-            var entry = owner.Settings.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
+            var entry = FindEntry(owner, descriptor);
             var current = GetValue(owner, descriptor);
 
             // A null for a setting that has no value changes nothing, so a state read from get_store can be sent back.
@@ -84,7 +89,8 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
                 continue;
             }
 
-            if (!TryConvert(descriptor, raw, out var value, out var error))
+            // Converted with the object's default, so a null returns the setting to a configured default.
+            if (!TryConvert(GetDescriptorWithDefault(owner, descriptor), raw, out var value, out var error))
             {
                 plan.Errors.Add(error);
                 continue;
@@ -145,5 +151,54 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
     protected virtual bool IsEmpty(object value)
     {
         return value == null || value is string text && string.IsNullOrWhiteSpace(text);
+    }
+
+    // A setting the platform's configuration sets for the object: a value forced by VirtoCommerce:Settings:Override:
+    // CurrentValue, or a fixed setting. The settings manager reads its entry as read-only, and its save keeps the
+    // configured value whatever is sent, so the tools neither show nor change the setting.
+    protected virtual bool IsForced(IHasSettings owner, SettingDescriptor descriptor)
+    {
+        ArgumentNullException.ThrowIfNull(descriptor);
+
+        return FindEntry(owner, descriptor)?.IsReadOnly == true;
+    }
+
+    // Why a setting named in a settings map is refused before its value is read: the object does not take it, or the
+    // platform's configuration sets it (IsForced). Null when it is neither.
+    protected virtual string GetRefusal(IHasSettings owner, SettingDescriptor descriptor, string name, string ownerTitle, string listedBy)
+    {
+        if (descriptor == null)
+        {
+            return $"{ownerTitle} has no setting '{name}'. {listedBy} lists the settings.";
+        }
+
+        return IsForced(owner, descriptor)
+            ? $"Setting '{descriptor.Name}' is set by the platform's configuration, so the tools do not change it."
+            : null;
+    }
+
+    // The setting with the object's default, for the rules that read a default, such as a null that returns the setting to
+    // it: a configured default (VirtoCommerce:Settings:Override:DefaultValue) is the entry's default, which the settings
+    // manager sets when it reads the object's settings.
+    protected virtual SettingDescriptor GetDescriptorWithDefault(IHasSettings owner, SettingDescriptor descriptor)
+    {
+        ArgumentNullException.ThrowIfNull(descriptor);
+
+        var defaultValue = FindEntry(owner, descriptor)?.DefaultValue;
+
+        if (defaultValue == null || Equals(defaultValue, descriptor.DefaultValue))
+        {
+            return descriptor;
+        }
+
+        var withDefault = descriptor.CloneTyped();
+        withDefault.DefaultValue = defaultValue;
+
+        return withDefault;
+    }
+
+    private static ObjectSettingEntry FindEntry(IHasSettings owner, SettingDescriptor descriptor)
+    {
+        return owner?.Settings?.FirstOrDefault(x => x.Name.EqualsIgnoreCase(descriptor.Name));
     }
 }

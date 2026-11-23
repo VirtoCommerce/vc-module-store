@@ -44,6 +44,36 @@ public class StoreSetupSettingsBaseTests
         Assert.Equal("Test", setupSettings.GetValue(new TestMethod(), _mode));
     }
 
+    // A configured default (VirtoCommerce:Settings:Override:DefaultValue) is the entry's default, as the settings manager
+    // reads it: a setting without a value has it in effect, as the platform's own GetValue reads it.
+    [Fact]
+    public void GetValue_IsTheConfiguredDefault_ForAnEntryWithoutAValue()
+    {
+        //Arrange
+        var method = new TestMethod { Settings = [new ObjectSettingEntry(_mode) { DefaultValue = "Live" }] };
+
+        //Act
+        var value = new KeySecretSettings().GetValue(method, _mode);
+
+        //Assert
+        Assert.Equal("Live", value);
+    }
+
+    // The settings manager reads a setting the platform's configuration sets as read-only. A part's state leaves it out,
+    // so a state sent back never names it.
+    [Fact]
+    public void GetValues_LeavesOutASettingThePlatformsConfigurationSets()
+    {
+        //Arrange
+        var method = new TestMethod { Settings = [new ObjectSettingEntry(_rate) { Value = 4.5m, IsReadOnly = true }, new ObjectSettingEntry(_mode)] };
+
+        //Act
+        var values = new KeySecretSettings().GetValues(method, [_rate, _mode]);
+
+        //Assert
+        Assert.Equal(new Dictionary<string, object> { [_mode.Name] = "Test" }, values);
+    }
+
     [Fact]
     public void GetEmptyRequiredSettings_NamesTheEmptyOnes_AndOnlyCountsSecrets()
     {
@@ -74,6 +104,30 @@ public class StoreSetupSettingsBaseTests
 
         //Assert
         Assert.Equal([merchant.Name], names);
+    }
+
+    // A readiness check reads the values customers get, those the platform's configuration sets included: a forced value
+    // fills a required setting, and a forced empty text, as a fixed setting without a value reads, leaves it empty.
+    [Fact]
+    public void GetEmptyRequiredSettings_ReadsTheValuesThePlatformsConfigurationSets()
+    {
+        //Arrange
+        var merchant = new SettingDescriptor { Name = "Test.Method.Merchant", ValueType = SettingValueType.ShortText, IsRequired = true };
+        var region = new SettingDescriptor { Name = "Test.Method.Region", ValueType = SettingValueType.ShortText, IsRequired = true };
+        var method = new TestMethod
+        {
+            Settings =
+            [
+                new ObjectSettingEntry(merchant) { Value = "contoso", IsReadOnly = true },
+                new ObjectSettingEntry(region) { Value = string.Empty, IsReadOnly = true },
+            ],
+        };
+
+        //Act
+        var (names, _) = new KeySecretSettings().GetEmptyRequiredSettings(method, [merchant, region]);
+
+        //Assert
+        Assert.Equal([region.Name], names);
     }
 
     // Applying a plan to a method read again: only what the plan changes is copied, and what changed since stays.
@@ -127,5 +181,25 @@ public class StoreSetupSettingsBaseTests
         //Assert
         Assert.Equal("test", changed[_mode.Name]);
         Assert.Equal([$"methods.card.{_mode.Name}"], plan.Changes.Select(x => x.Field));
+    }
+
+    // The platform's save keeps a value its configuration sets, whatever is sent, so a plan refuses the setting instead of
+    // showing a change that would not happen.
+    [Fact]
+    public void PlanSettings_ASettingThePlatformsConfigurationSets_IsRefused()
+    {
+        //Arrange
+        var plan = new McpSetupPartPlan();
+        var method = new TestMethod { Settings = [new ObjectSettingEntry(_mode) { Value = "Live", IsReadOnly = true }] };
+
+        //Act
+        var changed = new KeySecretSettings().PlanSettings(plan, method, [_mode], new Dictionary<string, object> { [_mode.Name] = "Test" },
+            "methods.card.", "Method 'card'", "the options");
+
+        //Assert
+        Assert.Equal(["Setting 'Test.Method.Mode' is set by the platform's configuration, so the tools do not change it."], plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
+        Assert.Equal("Live", method.Settings.Single().Value);
     }
 }

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.MCP.Core.Services;
@@ -17,9 +18,12 @@ namespace VirtoCommerce.StoreModule.Data.MCP.StoreSetup;
 
 // What a setting means for a setup, from the platform's settings and the MCP module's rules: secrets (IMcpSecretSettings),
 // titles and descriptions (IMcpSettingTexts) and how values compare (IMcpSetupValues). The rules every part follows come
-// from StoreSetupSettingsBase.
+// from StoreSetupSettingsBase. settingsOverrideProvider and fixedSettings read the settings the platform's configuration
+// sets.
 public class StoreSetupSettings(
     ISettingsRegistrar settingsRegistrar,
+    ISettingsOverrideProvider settingsOverrideProvider,
+    IOptions<FixedSettings> fixedSettings,
     IMcpSecretSettings secretSettings,
     IMcpSettingTexts settingTexts,
     IMcpSetupValues setupValues)
@@ -93,20 +97,26 @@ public class StoreSetupSettings(
         ArgumentNullException.ThrowIfNull(store);
 
         var translation = settingTexts.GetTranslation();
-        var values = (store.Settings ?? [])
-            .Where(x => !string.IsNullOrEmpty(x.Name))
-            .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
+        // A setting the platform's configuration sets for the store is left out (IsForced). The others show the store's
+        // value and default in effect, a configured default included (GetDescriptorWithDefault).
         IList<McpSetupSetting> settings = (settingsRegistrar.GetSettingsForType(nameof(Store)) ?? [])
-            .Where(x => !x.IsHidden && !IsSecret(x))
+            .Where(x => !x.IsHidden && !IsSecret(x) && !IsForced(store, x))
             .DistinctBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(x => Describe(x, values.GetValueOrDefault(x.Name), translation))
+            .Select(x => Describe(GetDescriptorWithDefault(store, x), GetValue(store, x), translation))
             .OrderBy(x => x.ModuleId, StringComparer.OrdinalIgnoreCase)
             .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         return Task.FromResult(settings);
+    }
+
+    // A choice describes a setting without an object, so of the settings the platform's configuration sets, only those it
+    // sets for every object are known here, and they are left out. A setting the configuration sets for one object only
+    // is refused when a plan for that object names it.
+    public override IList<McpSetupSetting> DescribeAll(IEnumerable<SettingDescriptor> descriptors)
+    {
+        return base.DescribeAll(descriptors?.Where(x => !IsForced(owner: null, x)));
     }
 
     protected virtual McpSetupSetting Describe(SettingDescriptor descriptor, object value, JObject translation)
@@ -139,6 +149,17 @@ public class StoreSetupSettings(
     protected virtual bool CanChange(SettingDescriptor descriptor)
     {
         return !descriptor.IsHidden && !descriptor.IsDictionary && !descriptor.IsLocalizable;
+    }
+
+    // Also a setting the configuration sets for an object whose settings were not read, such as a store a setup creates,
+    // and, without an object, one it sets for every object: a fixed setting (the PlatformSettings section), which the
+    // settings manager serves read-only and never saves, or a value forced by VirtoCommerce:Settings:Override:CurrentValue,
+    // asked by the object's type and id as the settings manager and its save ask it (Global, without an object).
+    protected override bool IsForced(IHasSettings owner, SettingDescriptor descriptor)
+    {
+        return base.IsForced(owner, descriptor) ||
+            fixedSettings.Value.Settings?.Any(x => x.Name.EqualsIgnoreCase(descriptor.Name)) == true ||
+            settingsOverrideProvider.TryGetCurrentValue(descriptor, owner?.TypeName, owner?.Id, out _);
     }
 
     // A null returns the setting to its default, which is saved itself: the platform's settings save skips a null for a

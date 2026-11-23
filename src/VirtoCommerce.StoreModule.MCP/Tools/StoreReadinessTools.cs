@@ -46,6 +46,7 @@ public class StoreReadinessTools(
         "A list is the complete new list: what it does not name is removed.",
         "A settings map sets the named settings and leaves the others as they are; null returns a setting to its default, " +
             "or clears a setting that has allowed values but no default, and a setting with neither takes a value instead.",
+        "Settings the platform's configuration sets are not listed and cannot be changed.",
         "Secrets, such as payment keys, are never sent here: a person enters them in the back office.",
     ];
 

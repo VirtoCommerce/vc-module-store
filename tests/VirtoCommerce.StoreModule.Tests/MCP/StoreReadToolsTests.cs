@@ -678,6 +678,45 @@ public class StoreReadToolsTests
         Assert.False(difference.GetProperty("other_value").GetBoolean());
     }
 
+    // The platform's configuration sets store A's tax calculation (VirtoCommerce:Settings:Override:CurrentValue), so the
+    // settings manager reads it read-only: the tools do not list it, changed or not.
+    [Fact]
+    public async Task GetStoreSettings_LeavesOutASettingThePlatformsConfigurationSets()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Single(x => x.Id == StoreA).Settings = [new ObjectSettingEntry(TaxCalculation) { Value = true, IsReadOnly = true }];
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var all = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA });
+        var changedOnly = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA, changed_only = true });
+
+        //Assert
+        Assert.Empty(GetSettingNames(all));
+        Assert.DoesNotContain(TaxCalculation.Name, all.Text);
+        Assert.Empty(GetSettingNames(changedOnly));
+    }
+
+    // Store B's tax calculation is set by the platform's configuration, so neither store's is compared: store B does not
+    // list it, and store A's has nothing to be compared with, although the values differ.
+    [Fact]
+    public async Task CompareStoreSettings_LeavesOutASettingThePlatformsConfigurationSets_InEitherStore()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Single(x => x.Id == StoreB).Settings = [new ObjectSettingEntry(TaxCalculation) { Value = false, IsReadOnly = true }];
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var withForcedOther = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreA, other_store_id = StoreB });
+        var ofForcedStore = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreB, other_store_id = StoreA });
+
+        //Assert
+        Assert.Empty(withForcedOther.EnsureSucceeded().Json.GetProperty("differences").GetProperty("items").EnumerateArray());
+        Assert.Empty(ofForcedStore.EnsureSucceeded().Json.GetProperty("differences").GetProperty("items").EnumerateArray());
+    }
+
     // A part that cannot list its options is named with a reason, never with the exception's text, and the others are
     // still listed.
     [Fact]

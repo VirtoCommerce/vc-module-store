@@ -98,6 +98,23 @@ public class StoreSetupSettingsTests
         Assert.False(states.IsChangeable);
     }
 
+    // A configured default (VirtoCommerce:Settings:Override:DefaultValue) is the store's entry's default, as the settings
+    // manager reads it: a setting without a value shows it as its default and its value, unchanged, as a null returns it.
+    [Fact]
+    public async Task GetStoreSettingsAsync_ShowsAConfiguredDefault_AsTheDefaultAndTheValueInEffect()
+    {
+        //Arrange
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(_paymentMode) { DefaultValue = "Live" }] };
+
+        //Act
+        var paymentMode = (await CreateSettings().GetStoreSettingsAsync(store)).Single(x => x.Name == _paymentMode.Name);
+
+        //Assert
+        Assert.Equal("Live", paymentMode.DefaultValue);
+        Assert.Equal("Live", paymentMode.Value);
+        Assert.False(paymentMode.IsChanged);
+    }
+
     [Fact]
     public void Describe_Secret_HasNoValues()
     {
@@ -108,6 +125,41 @@ public class StoreSetupSettingsTests
         Assert.Null(setting.Value);
         Assert.Null(setting.DefaultValue);
         Assert.False(setting.IsChangeable);
+    }
+
+    // A choice describes a setting without an object, so of the settings the platform's configuration sets, it leaves out
+    // those set for every object (VirtoCommerce:Settings:Override:CurrentValue:Global), as the platform's settings schema
+    // marks them read-only.
+    [Fact]
+    public void DescribeAll_LeavesOutASettingTheConfigurationSetsForEveryObject()
+    {
+        //Arrange
+        var overrideProvider = new Mock<ISettingsOverrideProvider>();
+        object forcedValue = "Live";
+        overrideProvider
+            .Setup(x => x.TryGetCurrentValue(It.Is<SettingDescriptor>(d => d.Name == _paymentMode.Name), null, null, out forcedValue))
+            .Returns(true);
+
+        //Act
+        var described = CreateSettings(overrideProvider.Object).DescribeAll([_taxCalculation, _paymentMode]);
+
+        //Assert
+        Assert.Equal([_taxCalculation.Name], described.Select(x => x.Name));
+    }
+
+    // A fixed setting (the PlatformSettings section) is fixed for every object, so it is known without one: the settings
+    // manager serves it read-only and never saves it, and a choice leaves it out, whatever the case of its name.
+    [Fact]
+    public void DescribeAll_LeavesOutAFixedSetting()
+    {
+        //Arrange
+        var fixedSettings = new FixedSettings { Settings = [new ObjectSettingEntry { Name = _paymentMode.Name.ToUpperInvariant(), Value = "Live" }] };
+
+        //Act
+        var described = CreateSettings(fixedSettings: fixedSettings).DescribeAll([_taxCalculation, _paymentMode]);
+
+        //Assert
+        Assert.Equal([_taxCalculation.Name], described.Select(x => x.Name));
     }
 
     [Theory]
@@ -293,7 +345,94 @@ public class StoreSetupSettingsTests
         Assert.Empty(changed);
     }
 
-    private static StoreSetupSettings CreateSettings()
+    // A store a setup creates has no settings read yet, so the configuration is asked by the store's type and id, as the
+    // platform's save asks it: a setting it sets is refused, instead of being planned and then dropped by the save.
+    [Fact]
+    public void PlanSettings_ASettingTheConfigurationSetsForANewStore_IsRefused()
+    {
+        //Arrange
+        var overrideProvider = new Mock<ISettingsOverrideProvider>();
+        object forcedValue = true;
+        overrideProvider
+            .Setup(x => x.TryGetCurrentValue(It.Is<SettingDescriptor>(d => d.Name == _taxCalculation.Name), nameof(Store), "new-store", out forcedValue))
+            .Returns(true);
+        var store = new Store { Id = "new-store", Settings = [] };
+        var values = new Dictionary<string, object> { [_taxCalculation.Name] = JsonSerializer.SerializeToElement(true) };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings(overrideProvider.Object).PlanSettings(plan, store, [_taxCalculation], values, string.Empty, "The store", "get_store_settings");
+
+        //Assert
+        Assert.Equal(["Setting 'Stores.TaxCalculationEnabled' is set by the platform's configuration, so the tools do not change it."], plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
+    }
+
+    // A fixed setting is fixed for a store a setup creates too, although the store has no settings read yet: the plan
+    // refuses it, instead of planning a value the platform's save never writes.
+    [Fact]
+    public void PlanSettings_AFixedSettingForANewStore_IsRefused()
+    {
+        //Arrange
+        var fixedSettings = new FixedSettings { Settings = [new ObjectSettingEntry { Name = _taxCalculation.Name, Value = false }] };
+        var store = new Store { Id = "new-store", Settings = [] };
+        var values = new Dictionary<string, object> { [_taxCalculation.Name] = JsonSerializer.SerializeToElement(true) };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings(fixedSettings: fixedSettings).PlanSettings(plan, store, [_taxCalculation], values, string.Empty, "The store", "get_store_settings");
+
+        //Assert
+        Assert.Equal(["Setting 'Stores.TaxCalculationEnabled' is set by the platform's configuration, so the tools do not change it."], plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
+    }
+
+    // A configured default (VirtoCommerce:Settings:Override:DefaultValue) is the entry's default, as the settings manager
+    // reads it: a null returns the setting to it, also when the setting declares no default of its own.
+    [Theory]
+    [InlineData("Welcome")]
+    [InlineData(null)]
+    public void PlanSettings_ANull_ReturnsASettingToItsConfiguredDefault(string declaredDefault)
+    {
+        //Arrange
+        var banner = new SettingDescriptor { Name = "Stores.Banner", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, DefaultValue = declaredDefault };
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(banner) { Value = "Summer sale", DefaultValue = "Hello" }] };
+        var values = new Dictionary<string, object> { [banner.Name] = JsonDocument.Parse("null").RootElement };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings().PlanSettings(plan, store, [banner], values, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Empty(plan.Errors);
+        Assert.Equal([("settings.Stores.Banner", (object)"Summer sale", (object)"Hello")], plan.Changes.Select(x => (x.Field, x.From, x.To)));
+        Assert.Equal("Hello", changed[banner.Name]);
+    }
+
+    // The platform saves an empty text as none, which reads back as the configured default: an empty text never replaces
+    // it, as it never replaces a declared default text.
+    [Fact]
+    public void PlanSettings_AnEmptyText_IsRefused_ForATextSettingWithAConfiguredDefaultText()
+    {
+        //Arrange
+        var banner = new SettingDescriptor { Name = "Stores.Banner", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText };
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(banner) { Value = "Summer sale", DefaultValue = "Hello" }] };
+        var values = new Dictionary<string, object> { [banner.Name] = JsonSerializer.SerializeToElement(string.Empty) };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings().PlanSettings(plan, store, [banner], values, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Equal(["Setting 'Stores.Banner' cannot be empty: the platform keeps no empty text, so it would show its default 'Hello'. " +
+            "Send null to return it to its default, or another text."], plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
+    }
+
+    private static StoreSetupSettings CreateSettings(ISettingsOverrideProvider overrideProvider = null, FixedSettings fixedSettings = null)
     {
         var registrar = new Mock<ISettingsRegistrar>();
         registrar
@@ -315,6 +454,7 @@ public class StoreSetupSettingsTests
         var secretOptions = new McpSecretSettingsOptions();
         secretOptions.SettingNames.Add(KnownSecretName);
 
-        return new StoreSetupSettings(registrar.Object, new McpSecretSettings(Options.Create(secretOptions)), new McpSettingTexts(translationService.Object), new McpSetupValues());
+        return new StoreSetupSettings(registrar.Object, overrideProvider ?? Mock.Of<ISettingsOverrideProvider>(), Options.Create(fixedSettings ?? new FixedSettings()),
+            new McpSecretSettings(Options.Create(secretOptions)), new McpSettingTexts(translationService.Object), new McpSetupValues());
     }
 }

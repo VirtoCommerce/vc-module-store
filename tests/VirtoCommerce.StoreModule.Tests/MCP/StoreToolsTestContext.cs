@@ -86,6 +86,10 @@ public static class StoreToolsTestContext
         services.AddSingleton(CreateSettingsRegistrar());
         services.AddSingleton(CreateTranslationService());
         services.AddSingleton(CreateSettingsManager());
+        // The overrides and the fixed settings the platform reads from its configuration: the tests' configuration sets no
+        // setting.
+        services.AddSingleton(Mock.Of<ISettingsOverrideProvider>());
+        services.AddSingleton(Options.Create(new FixedSettings()));
         services.AddSingleton(CreateCurrencyService());
     }
 
