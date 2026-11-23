@@ -72,7 +72,16 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
         foreach (var (name, raw) in values)
         {
             var descriptor = descriptors?.FirstOrDefault(x => x.Name.EqualsIgnoreCase(name));
-            var refusal = GetRefusal(owner, descriptor, name, ownerTitle, listedBy);
+
+            // The object takes no setting by this name: refused here, not in an overridable step, so every step after it
+            // gets a setting.
+            if (descriptor == null)
+            {
+                plan.Errors.Add($"{ownerTitle} has no setting '{name}'. {listedBy} lists the settings.");
+                continue;
+            }
+
+            var refusal = GetRefusal(owner, descriptor);
 
             if (refusal != null)
             {
@@ -80,39 +89,47 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
                 continue;
             }
 
-            var entry = FindEntry(owner, descriptor);
-            var current = GetValue(owner, descriptor);
-
-            // A null for a setting that has no value changes nothing, so a state read from get_store can be sent back.
-            if (current == null && (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined }))
-            {
-                continue;
-            }
-
-            // Converted with the object's default, so a null returns the setting to a configured default.
-            if (!TryConvert(GetDescriptorWithDefault(owner, descriptor), raw, out var value, out var error))
-            {
-                plan.Errors.Add(error);
-                continue;
-            }
-
-            if (SetupValues.AreEqual(current, value))
-            {
-                continue;
-            }
-
-            if (entry == null)
-            {
-                entry = new ObjectSettingEntry(descriptor);
-                owner.Settings.Add(entry);
-            }
-
-            entry.Value = value;
-            plan.AddChange($"{fieldPrefix}{descriptor.Name}", current, value);
-            changed[descriptor.Name] = value;
+            PlanValue(plan, owner, descriptor, raw, fieldPrefix, changed);
         }
 
         return changed;
+    }
+
+    // Sets one setting's value on the object and lists the change; the object's settings are a list of its own by now. A
+    // null for a setting that has no value changes nothing, so a state read from get_store can be sent back, and neither
+    // does a value equal to the one in effect.
+    protected virtual void PlanValue(McpSetupPartPlan plan, IHasSettings owner, SettingDescriptor descriptor, object raw, string fieldPrefix,
+        IDictionary<string, object> changed)
+    {
+        var entry = FindEntry(owner, descriptor);
+        var current = GetValue(owner, descriptor);
+
+        if (current == null && (raw is null or JsonElement { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined }))
+        {
+            return;
+        }
+
+        // Converted with the object's default, so a null returns the setting to a configured default.
+        if (!TryConvert(GetDescriptorWithDefault(owner, descriptor), raw, out var value, out var error))
+        {
+            plan.Errors.Add(error);
+            return;
+        }
+
+        if (SetupValues.AreEqual(current, value))
+        {
+            return;
+        }
+
+        if (entry == null)
+        {
+            entry = new ObjectSettingEntry(descriptor);
+            owner.Settings.Add(entry);
+        }
+
+        entry.Value = value;
+        plan.AddChange($"{fieldPrefix}{descriptor.Name}", current, value);
+        changed[descriptor.Name] = value;
     }
 
     public virtual (IList<string> Names, int SecretCount) GetEmptyRequiredSettings(IHasSettings owner, IEnumerable<SettingDescriptor> descriptors)
@@ -163,14 +180,11 @@ public abstract class StoreSetupSettingsBase(IMcpSetupValues setupValues) : ISto
         return FindEntry(owner, descriptor)?.IsReadOnly == true;
     }
 
-    // Why a setting named in a settings map is refused before its value is read: the object does not take it, or the
-    // platform's configuration sets it (IsForced). Null when it is neither.
-    protected virtual string GetRefusal(IHasSettings owner, SettingDescriptor descriptor, string name, string ownerTitle, string listedBy)
+    // Why a setting the object takes is refused before its value is read: the platform's configuration sets it (IsForced).
+    // Null when it is not refused.
+    protected virtual string GetRefusal(IHasSettings owner, SettingDescriptor descriptor)
     {
-        if (descriptor == null)
-        {
-            return $"{ownerTitle} has no setting '{name}'. {listedBy} lists the settings.";
-        }
+        ArgumentNullException.ThrowIfNull(descriptor);
 
         return IsForced(owner, descriptor)
             ? $"Setting '{descriptor.Name}' is set by the platform's configuration, so the tools do not change it."
