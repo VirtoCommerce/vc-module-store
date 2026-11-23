@@ -58,18 +58,12 @@ public static class StoreToolsTestContext
             services =>
             {
                 CreateModule(mcpInstalled: true).Initialize(services);
+                AddPlatformServices(services, data);
 
-                // What the platform, the database and the MCP module provide.
-                services.AddSingleton(TestStoreService.Create(data.Stores).Object);
-                services.AddSingleton<IStoreSearchService>(new InMemoryStoreSearchService(data.Stores));
+                // What the MCP module provides.
                 services.AddSingleton(CreatePendingChangeSearchService(data.PendingChanges));
-                services.AddSingleton(CreateCountriesService());
                 services.AddSingleton<IMcpPageSizeResolver, FixedPageSizeResolver>();
                 services.AddSingleton<IMcpPublicOriginResolver>(new McpPublicOriginResolver(Options.Create(new McpOptions { PublicOrigin = PublicOrigin })));
-                services.AddSingleton(CreateSettingsRegistrar());
-                services.AddSingleton(CreateTranslationService());
-                services.AddSingleton(CreateSettingsManager());
-                services.AddSingleton(CreateCurrencyService());
 
                 // The Catalog module's part, which a real installation has: a new store's catalog comes from it.
                 services.AddSingleton<IStoreSetupPart>(new TestCatalogPart());
@@ -81,6 +75,18 @@ public static class StoreToolsTestContext
             },
             configureServices: null,
             scope: null);
+    }
+
+    // What the platform, the Core module and the database provide to Store's services, over the stores of the test.
+    public static void AddPlatformServices(IServiceCollection services, StoreToolsTestData data)
+    {
+        services.AddSingleton(TestStoreService.Create(data.Stores).Object);
+        services.AddSingleton<IStoreSearchService>(new InMemoryStoreSearchService(data.Stores));
+        services.AddSingleton(CreateCountriesService());
+        services.AddSingleton(CreateSettingsRegistrar());
+        services.AddSingleton(CreateTranslationService());
+        services.AddSingleton(CreateSettingsManager());
+        services.AddSingleton(CreateCurrencyService());
     }
 
     public static Task<McpToolCallResult> CallAsync(McpToolHarness harness, ClaimsPrincipal user, string toolName, object arguments = null, bool approved = false)

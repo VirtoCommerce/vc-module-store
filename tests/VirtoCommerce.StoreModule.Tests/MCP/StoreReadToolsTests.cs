@@ -43,6 +43,23 @@ public class StoreReadToolsTests
         Assert.Equal(0, overview.EnsureSucceeded().Json.GetProperty("total_count").GetInt32());
     }
 
+    // A storefront finds its store by the store's URL only, so that is the URL listed, not the secure URL.
+    [Fact]
+    public async Task ListStores_AStoreWithBothUrls_ListsItsUrl()
+    {
+        //Arrange
+        var data = new StoreToolsTestData();
+        data.Stores.Single(x => x.Id == StoreA).SecureUrl = "https://secure.a.example.com";
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var json = (await CallAsync(harness, StoreAdministrator(), "list_stores")).EnsureSucceeded().Json;
+
+        //Assert
+        var storeA = json.GetProperty("items").EnumerateArray().Single(x => x.GetProperty("store_id").GetString() == StoreA);
+        Assert.Equal("https://a.example.com", storeA.GetProperty("url").GetString());
+    }
+
     [Fact]
     public async Task GetStore_OfAStoreTheUserDoesNotManage_IsForbidden()
     {

@@ -116,7 +116,8 @@ public class StoreOverviewTools(
             default_currency = store.DefaultCurrency,
             currencies = store.Currencies,
             catalog_id = store.Catalog,
-            url = store.SecureUrl.IfNullOrEmpty(store.Url),
+            // A storefront finds the store by this URL; the secure URL plays no part in it.
+            url = store.Url,
         });
     }
 

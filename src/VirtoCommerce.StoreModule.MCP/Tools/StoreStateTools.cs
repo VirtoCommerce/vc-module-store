@@ -118,17 +118,24 @@ public class StoreStateTools(StoreAccess access, IStoreService storeService, ISt
             "get_store_readiness_report lists them and says how to fix each.";
     }
 
-    // The warnings a store opens with, named in a dry run as the caller may read them, and counted by part in an approved
-    // change, as GetBlockingMessage does.
+    // The warnings a store opens with, as GetBlockingMessage gives what blocks it: a dry run names them as the caller may
+    // read them and counts the others by part, with the permission that shows them; an approved change counts them all by
+    // part.
     protected virtual IList<string> GetWarnings(ClaimsPrincipal user, Store store, IList<McpFinding> findings, bool dryRun)
     {
         var warnings = findings.Where(x => McpFindingSeverities.Warning.EqualsIgnoreCase(x.Severity)).ToList();
 
         if (dryRun)
         {
-            var (shown, _) = access.SplitReadableFindings(user, store.Id, warnings);
+            var (shown, notShown) = access.SplitReadableFindings(user, store.Id, warnings);
+            var previewWarnings = shown.Select(x => $"{x.Title}.").ToList();
 
-            return shown.Select(x => $"{x.Title}.").ToList();
+            if (notShown.Count > 0)
+            {
+                previewWarnings.Add($"It opens with warnings: {string.Join("; ", notShown)}.");
+            }
+
+            return previewWarnings;
         }
 
         return warnings.Count == 0

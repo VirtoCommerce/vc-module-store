@@ -592,9 +592,10 @@ public class StoreActionToolsTests
         Assert.Equal(StoreState.Open, data.Stores.Single(x => x.Id == StoreA).StoreState);
     }
 
-    // A warning of a part the user may not read is counted, never repeated among the warnings of a preview.
+    // A warning of a part the user may not read is counted by part, with the permission that shows it, and never named:
+    // open_store counts it among its warnings, apply_store_setup in not_shown.
     [Fact]
-    public async Task OpenStore_And_ApplyStoreSetup_WarningOfAPartTheUserMayNotRead_IsNotAPreviewWarning()
+    public async Task OpenStore_And_ApplyStoreSetup_WarningOfAPartTheUserMayNotRead_IsCounted_NotNamed()
     {
         //Arrange
         var catalog = new TestCheckPart("catalog") { Permissions = new McpSetupPermissions { Read = "catalog:read" } }
@@ -614,8 +615,10 @@ public class StoreActionToolsTests
         Assert.DoesNotContain("Finding catalog-few-images", hiddenOpen.EnsureSucceeded().Text);
         Assert.DoesNotContain("Finding catalog-few-images", hiddenApply.EnsureSucceeded().Text);
         Assert.DoesNotContain("Evidence of catalog-few-images", hiddenApply.Text);
+        Assert.Contains("It opens with warnings: Test part catalog: 1 finding not shown (needs catalog:read).", GetWarnings(hiddenOpen));
         Assert.Equal(["Test part catalog: 1 finding not shown (needs catalog:read)"], hiddenApply.Json.GetProperty("not_shown").EnumerateArray().Select(x => x.GetString()));
         Assert.Contains("Finding catalog-few-images.", GetWarnings(shownOpen.EnsureSucceeded()));
+        Assert.DoesNotContain(GetWarnings(shownOpen), x => x.Contains("not shown"));
         Assert.Contains("Finding catalog-few-images.", GetWarnings(shownApply.EnsureSucceeded()));
     }
 

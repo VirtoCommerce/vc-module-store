@@ -22,7 +22,8 @@ public interface IStoreSetupSettings
     // The value a request sends, converted to the setting's type and checked against its allowed values. Refuses a
     // secret and a setting that a setup cannot change: hidden, dictionary and localizable settings are changed in the
     // back office only. A null value returns the setting to its default; a setting without a default and without allowed
-    // values refuses it.
+    // values refuses it. An empty text is refused for a text setting with a default text: the platform keeps no empty
+    // text, so the default would show instead.
     bool TryConvert(SettingDescriptor descriptor, object raw, out object value, out string error);
 
     // The store-level settings of every installed module with the store's values, without secrets and hidden settings.

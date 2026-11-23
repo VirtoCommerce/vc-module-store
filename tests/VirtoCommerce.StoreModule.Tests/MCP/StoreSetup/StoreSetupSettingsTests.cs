@@ -207,6 +207,92 @@ public class StoreSetupSettingsTests
         Assert.Equal("Setting 'Stores.Banner' takes at most 512 characters.", error);
     }
 
+    // The platform saves an empty text, or one of spaces only, as none, and a setting saved as none shows its default: an
+    // empty text never replaces a default text, and every later setup would plan the same change again.
+    [Theory]
+    [InlineData(SettingValueType.ShortText, "")]
+    [InlineData(SettingValueType.ShortText, "   ")]
+    [InlineData(SettingValueType.LongText, "")]
+    public void PlanSettings_AnEmptyText_IsRefused_ForATextSettingWithADefaultText(SettingValueType valueType, string text)
+    {
+        //Arrange
+        var banner = new SettingDescriptor { Name = "Stores.Banner", ModuleId = "VirtoCommerce.Store", ValueType = valueType, DefaultValue = "Welcome" };
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(banner) { Value = "Summer sale" }] };
+        var values = new Dictionary<string, object> { [banner.Name] = JsonSerializer.SerializeToElement(text) };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings().PlanSettings(plan, store, [banner], values, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Equal(["Setting 'Stores.Banner' cannot be empty: the platform keeps no empty text, so it would show its default 'Welcome'. " +
+            "Send null to return it to its default, or another text."], plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
+        Assert.Equal("Summer sale", store.Settings.Single().Value);
+    }
+
+    // The control: a text setting without a default text clears with an empty text. The platform saves it as none, which
+    // reads back as none, and none equals an empty text, so the change sticks.
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void PlanSettings_AnEmptyText_ClearsATextSettingWithoutADefaultText(string defaultValue)
+    {
+        //Arrange
+        var banner = new SettingDescriptor { Name = "Stores.Banner", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText, DefaultValue = defaultValue };
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(banner) { Value = "Summer sale" }] };
+        var values = new Dictionary<string, object> { [banner.Name] = JsonSerializer.SerializeToElement(string.Empty) };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings().PlanSettings(plan, store, [banner], values, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Empty(plan.Errors);
+        Assert.Equal([("settings.Stores.Banner", (object)"Summer sale", (object)string.Empty)], plan.Changes.Select(x => (x.Field, x.From, x.To)));
+        Assert.Equal(string.Empty, changed[banner.Name]);
+    }
+
+    // Without a default text, a text of spaces only is planned as the empty text the platform saves it as: it clears the
+    // setting, and the plan shows the empty text that a later setup reads back.
+    [Fact]
+    public void PlanSettings_ATextOfSpaces_ClearsATextSettingWithoutADefaultText_AsAnEmptyText()
+    {
+        //Arrange
+        var banner = new SettingDescriptor { Name = "Stores.Banner", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText };
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(banner) { Value = "Summer sale" }] };
+        var values = new Dictionary<string, object> { [banner.Name] = JsonSerializer.SerializeToElement("   ") };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings().PlanSettings(plan, store, [banner], values, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Empty(plan.Errors);
+        Assert.Equal([("settings.Stores.Banner", (object)"Summer sale", (object)string.Empty)], plan.Changes.Select(x => (x.Field, x.From, x.To)));
+        Assert.Equal(string.Empty, changed[banner.Name]);
+    }
+
+    // A text of spaces only for a setting that is already empty changes nothing, so a repeat plans nothing.
+    [Fact]
+    public void PlanSettings_ATextOfSpaces_ChangesNothing_ForAnEmptyTextSettingWithoutADefaultText()
+    {
+        //Arrange
+        var banner = new SettingDescriptor { Name = "Stores.Banner", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText };
+        var store = new Store { Id = "eu-store", Settings = [new ObjectSettingEntry(banner)] };
+        var values = new Dictionary<string, object> { [banner.Name] = JsonSerializer.SerializeToElement("   ") };
+        var plan = new McpSetupPartPlan();
+
+        //Act
+        var changed = CreateSettings().PlanSettings(plan, store, [banner], values, "settings.", "Store 'eu-store'", "get_store_settings");
+
+        //Assert
+        Assert.Empty(plan.Errors);
+        Assert.Empty(plan.Changes);
+        Assert.Empty(changed);
+    }
+
     private static StoreSetupSettings CreateSettings()
     {
         var registrar = new Mock<ISettingsRegistrar>();

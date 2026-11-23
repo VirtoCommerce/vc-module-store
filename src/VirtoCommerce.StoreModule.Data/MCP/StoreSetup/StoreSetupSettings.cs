@@ -101,6 +101,22 @@ public class StoreSetupSettings(
             }
         }
 
+        // The platform saves an empty text, or one of spaces only, as none, and a setting saved as none shows its default:
+        // an empty text never replaces a default text, and every later setup would plan the same change again. Without a
+        // default text, an empty text clears the setting, and a text of spaces only is planned as the empty text it is
+        // saved as, so a later setup finds nothing to change.
+        if (converted is string text && string.IsNullOrWhiteSpace(text))
+        {
+            if (SetupValues.ToInvariantString(descriptor.DefaultValue) is { Length: > 0 } defaultText)
+            {
+                error = $"Setting '{descriptor.Name}' cannot be empty: the platform keeps no empty text, so it would show its default '{defaultText}'. " +
+                    "Send null to return it to its default, or another text.";
+                return false;
+            }
+
+            converted = string.Empty;
+        }
+
         value = converted;
         return true;
     }
