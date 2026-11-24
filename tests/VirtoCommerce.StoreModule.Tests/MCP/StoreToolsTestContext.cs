@@ -83,7 +83,7 @@ public static class StoreToolsTestContext
         services.AddSingleton(TestStoreService.Create(data.Stores).Object);
         services.AddSingleton<IStoreSearchService>(new InMemoryStoreSearchService(data.Stores));
         services.AddSingleton(CreateCountriesService());
-        services.AddSingleton(CreateSettingsRegistrar());
+        services.AddSingleton(CreateSettingsRegistrar(data.StoreSettings));
         services.AddSingleton(CreateTranslationService());
         services.AddSingleton(CreateSettingsManager());
         // The overrides and the fixed settings the platform reads from its configuration: the tests' configuration sets no
@@ -223,10 +223,10 @@ public static class StoreToolsTestContext
         return countriesService.Object;
     }
 
-    private static ISettingsRegistrar CreateSettingsRegistrar()
+    private static ISettingsRegistrar CreateSettingsRegistrar(List<SettingDescriptor> storeSettings)
     {
         var registrar = new Mock<ISettingsRegistrar>();
-        registrar.Setup(x => x.GetSettingsForType(nameof(Store))).Returns([TaxCalculation, MapsApiKey]);
+        registrar.Setup(x => x.GetSettingsForType(nameof(Store))).Returns(storeSettings);
 
         return registrar.Object;
     }

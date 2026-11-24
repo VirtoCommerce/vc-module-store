@@ -15,6 +15,7 @@ using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.Platform.Core.Settings;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.MCP.Models;
 using VirtoCommerce.StoreModule.MCP.Services;
 using StorePermissions = VirtoCommerce.StoreModule.Core.ModuleConstants.Security.Permissions;
 
@@ -76,7 +77,8 @@ public class StoreSettingsTools(
             name = store.Name,
             settings = McpPage<McpSetupSetting>.FromList(found, paging),
             secrets = await GetSecretsNoteAsync(store.Name ?? store.Id),
-            next_step = "apply_store_setup with the 'settings' section changes the settings whose is_changeable is true.",
+            next_step = "apply_store_setup with the 'settings' section changes the settings whose is_changeable is true. The " +
+                "others, dictionary and localizable settings, are changed in the back office.",
         };
     }
 
@@ -108,15 +110,8 @@ public class StoreSettingsTools(
         // comparing with the default instead would show a difference that is not there, or hide one that is.
         var differences = settings
             .Where(x => otherValues == null || otherValues.ContainsKey(x.Name))
-            .Select(x => new
-            {
-                name = x.Name,
-                title = x.Title,
-                module_id = x.ModuleId,
-                value = x.Value,
-                other_value = otherValues?.GetValueOrDefault(x.Name) ?? x.DefaultValue,
-            })
-            .Where(x => !setupValues.AreEqual(x.value, x.other_value));
+            .Select(x => CreateDifference(x, otherValues?.GetValueOrDefault(x.Name) ?? x.DefaultValue))
+            .Where(x => !setupValues.AreEqual(x.Value, x.OtherValue));
 
         return new
         {
@@ -125,6 +120,19 @@ public class StoreSettingsTools(
             differences = differences.ToMcpPage(paging, x => x),
             next_step = "apply_store_setup with the 'settings' section copies the values you choose.",
         };
+    }
+
+    // A row of compare_store_settings: the setting's value in the store, and in the other store or by default.
+    protected virtual StoreSettingDifference CreateDifference(McpSetupSetting setting, object otherValue)
+    {
+        var difference = AbstractTypeFactory<StoreSettingDifference>.TryCreateInstance();
+        difference.Name = setting.Name;
+        difference.Title = setting.Title;
+        difference.ModuleId = setting.ModuleId;
+        difference.Value = setting.Value;
+        difference.OtherValue = otherValue;
+
+        return difference;
     }
 
     protected virtual async Task<string> GetSecretsNoteAsync(string storeName)

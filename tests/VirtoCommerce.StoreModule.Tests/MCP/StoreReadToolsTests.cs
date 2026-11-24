@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -228,15 +229,41 @@ public class StoreReadToolsTests
         var json = report.EnsureSucceeded().Json;
         Assert.True(json.GetProperty("ready_to_open").GetBoolean());
         Assert.False(json.GetProperty("can_check_out").GetBoolean());
-        Assert.Equal("currency-not-in-store", Assert.Single(json.GetProperty("findings").EnumerateArray()).GetProperty("id").GetString());
+        var finding = Assert.Single(json.GetProperty("findings").EnumerateArray());
+        Assert.Equal("currency-not-in-store", finding.GetProperty("id").GetString());
+        // Critical for paying in EUR, which can_check_out says; it does not block opening the store.
+        Assert.Equal(("critical", false), (finding.GetProperty("severity").GetString(), finding.GetProperty("blocks_go_live").GetBoolean()));
+        Assert.Equal("Nothing blocks going live, but customers cannot check out with this currency or country: fix its critical findings, then check again.",
+            json.GetProperty("next_step").GetString());
 
         var withStoreCurrency = (await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency = "USD" })).EnsureSucceeded().Json;
         Assert.True(withStoreCurrency.GetProperty("ready_to_open").GetBoolean());
         Assert.True(withStoreCurrency.GetProperty("can_check_out").GetBoolean());
         Assert.Empty(withStoreCurrency.GetProperty("findings").EnumerateArray());
+        Assert.Equal("Nothing blocks going live: open_store opens the store after approval.", withStoreCurrency.GetProperty("next_step").GetString());
 
         var withoutCurrency = (await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA })).EnsureSucceeded().Json;
         Assert.False(withoutCurrency.TryGetProperty("can_check_out", out _));
+    }
+
+    // With a currency, a part's own blocking finding still blocks going live; only the finding the currency adds does not.
+    [Fact]
+    public async Task GetStoreReadinessReport_WithACurrency_APartsBlockingFindingStillBlocksGoingLive()
+    {
+        //Arrange
+        var catalog = new TestCheckPart("catalog").WithFinding("catalog-no-products", McpFindingSeverities.Critical);
+        await using var harness = CreateHarness(catalog);
+
+        //Act
+        var report = await CallAsync(harness, StoreAdministrator(), "get_store_readiness_report", new { store_id = StoreA, currency = "EUR" });
+
+        //Assert
+        var json = report.EnsureSucceeded().Json;
+        Assert.Equal((false, false), (json.GetProperty("ready_to_open").GetBoolean(), json.GetProperty("can_check_out").GetBoolean()));
+        var blocks = json.GetProperty("findings").EnumerateArray()
+            .ToDictionary(x => x.GetProperty("id").GetString(), x => x.GetProperty("blocks_go_live").GetBoolean());
+        Assert.Equal(new Dictionary<string, bool> { ["catalog-no-products"] = true, ["currency-not-in-store"] = false }, blocks);
+        Assert.Equal("Fix the blocking findings first, then check again.", json.GetProperty("next_step").GetString());
     }
 
     // The market's codes take the platform's spelling, as the basics' codes do.
@@ -350,6 +377,54 @@ public class StoreReadToolsTests
 
         //Assert
         Assert.Empty(result.EnsureSucceeded().Json.GetProperty("differences").GetProperty("items").EnumerateArray());
+    }
+
+    // A value that is not set is written as null, so it is not read as one the answer leaves out: store B has no greeting,
+    // and the setting has no default.
+    [Fact]
+    public async Task CompareStoreSettings_WritesAValueThatIsNotSet_AsNull()
+    {
+        //Arrange
+        var greeting = new SettingDescriptor { Name = "Stores.Greeting", ModuleId = "VirtoCommerce.Store", ValueType = SettingValueType.ShortText };
+        var data = new StoreToolsTestData();
+        data.StoreSettings.Add(greeting);
+        data.Stores.Single(x => x.Id == StoreA).Settings.Add(new ObjectSettingEntry(greeting) { Value = "Hello" });
+        await using var harness = CreateHarness(data);
+
+        //Act
+        var withStoreB = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreA, other_store_id = StoreB });
+        var withDefaults = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreA });
+        var ofStoreB = await CallAsync(harness, StoreAdministrator(), "compare_store_settings", new { store_id = StoreB, other_store_id = StoreA });
+
+        //Assert
+        Assert.Equal(("Hello", JsonValueKind.Null), GetGreetingValues(withStoreB));
+        Assert.Equal(("Hello", JsonValueKind.Null), GetGreetingValues(withDefaults));
+        var reversed = GetGreetingRow(ofStoreB);
+        Assert.Equal((JsonValueKind.Null, "Hello"), (reversed.GetProperty("value").ValueKind, reversed.GetProperty("other_value").GetString()));
+
+        JsonElement GetGreetingRow(McpToolCallResult result) => result.EnsureSucceeded().Json.GetProperty("differences").GetProperty("items")
+            .EnumerateArray().Single(x => x.GetProperty("name").GetString() == greeting.Name);
+
+        (string, JsonValueKind) GetGreetingValues(McpToolCallResult result)
+        {
+            var row = GetGreetingRow(result);
+            return (row.GetProperty("value").GetString(), row.GetProperty("other_value").ValueKind);
+        }
+    }
+
+    // The settings a setup cannot change are changed in the back office, as the answer says beside is_changeable.
+    [Fact]
+    public async Task GetStoreSettings_SaysWhereTheSettingsASetupCannotChangeAreChanged()
+    {
+        //Arrange
+        await using var harness = CreateHarness();
+
+        //Act
+        var result = await CallAsync(harness, StoreAdministrator(), "get_store_settings", new { store_id = StoreA });
+
+        //Assert
+        Assert.Equal("apply_store_setup with the 'settings' section changes the settings whose is_changeable is true. The others, " +
+            "dictionary and localizable settings, are changed in the back office.", result.EnsureSucceeded().Json.GetProperty("next_step").GetString());
     }
 
     [Fact]

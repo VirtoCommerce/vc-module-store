@@ -16,6 +16,7 @@ using VirtoCommerce.MCP.Core.Models;
 using VirtoCommerce.Platform.Core.Common;
 using VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
 using VirtoCommerce.StoreModule.Core.Model;
+using VirtoCommerce.StoreModule.MCP.Models;
 using VirtoCommerce.StoreModule.MCP.Services;
 using StorePermissions = VirtoCommerce.StoreModule.Core.ModuleConstants.Security.Permissions;
 
@@ -69,9 +70,18 @@ public class StoreReadinessTools(
         // Going live is decided as open_store decides it, without a currency or a country; with them, the findings say
         // what keeps their customers from checking out, and can_check_out sums it up.
         var forMarket = currency != null || country != null;
-        var readyToOpen = !(forMarket ? await setupService.CheckAsync(store) : findings).Any(setupService.BlocksGoLive);
+        var goLiveFindings = forMarket ? await setupService.CheckAsync(store) : findings;
+        var readyToOpen = !goLiveFindings.Any(setupService.BlocksGoLive);
+        bool? canCheckOut = forMarket ? !findings.Any(setupService.BlocksGoLive) : null;
+        var allRows = findingRows.CreateList(findings, link);
+
+        if (forMarket)
+        {
+            ClearMarketBlocks(allRows, goLiveFindings);
+        }
+
         // A part's findings show with its state: the others are counted, and still decide readiness.
-        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, findingRows.CreateList(findings, link));
+        var (rows, notShown) = access.SplitReadableFindings(context.User, store.Id, allRows);
 
         return new
         {
@@ -79,13 +89,31 @@ public class StoreReadinessTools(
             name = store.Name,
             state = StoreStateNames.ToName(store.StoreState),
             ready_to_open = readyToOpen,
-            can_check_out = forMarket ? !findings.Any(setupService.BlocksGoLive) : (bool?)null,
+            can_check_out = canCheckOut,
             findings = rows,
             not_shown = notShown,
             checked_parts = setupService.GetParts().OfType<IStoreSetupCheck>().Select(x => x.Name).ToList(),
             back_office = link,
-            next_step = GetNextStep(store, readyToOpen),
+            next_step = GetNextStep(store, readyToOpen, canCheckOut),
         };
+    }
+
+    // A finding that only the currency or the country adds keeps that market's customers from checking out, which
+    // can_check_out counts, and not the store from opening: its row does not block going live.
+    protected virtual void ClearMarketBlocks(IList<StoreFinding> rows, IList<McpFinding> goLiveFindings)
+    {
+        foreach (var row in rows.Where(x => x.BlocksGoLive && !goLiveFindings.Any(finding => IsSameFinding(finding, x))))
+        {
+            row.BlocksGoLive = false;
+        }
+    }
+
+    // The same finding of the same part, about the same object.
+    protected virtual bool IsSameFinding(McpFinding finding, McpFinding other)
+    {
+        return finding.Id.EqualsIgnoreCase(other.Id)
+            && finding.Category.EqualsIgnoreCase(other.Category)
+            && finding.ObjectId.EqualsIgnoreCase(other.ObjectId);
     }
 
     [McpServerTool(Name = "get_store_setup_options", ReadOnly = true, Destructive = false, Idempotent = true)]
@@ -198,11 +226,19 @@ public class StoreReadinessTools(
         return (knownCurrency, knownCountry);
     }
 
-    protected virtual string GetNextStep(Store store, bool readyToOpen)
+    // canCheckOut: null without a currency or a country.
+    protected virtual string GetNextStep(Store store, bool readyToOpen, bool? canCheckOut)
     {
         if (!readyToOpen)
         {
             return "Fix the blocking findings first, then check again.";
+        }
+
+        if (canCheckOut == false)
+        {
+            var state = store.StoreState == StoreState.Open ? "The store is open" : "Nothing blocks going live";
+
+            return $"{state}, but customers cannot check out with this currency or country: fix its critical findings, then check again.";
         }
 
         return store.StoreState == StoreState.Open
