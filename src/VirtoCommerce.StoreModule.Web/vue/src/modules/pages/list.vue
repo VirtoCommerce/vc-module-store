@@ -13,6 +13,7 @@
       :total-count="totalCount"
       :pagination="pagination"
       :searchable="true"
+      search-bar
       :state-key="'STORES'"
       :active-item-id="activeItemId"
       :show-all-columns="!activeItemId"
@@ -102,7 +103,7 @@ const PAGE_SIZE = 20;
 const items = ref<Store[]>([]);
 const totalCount = ref(0);
 const activeItemId = ref<string>();
-const storeState = ref<StoreState>();
+const storeStates = ref<StoreState[]>([]);
 
 const { sortField, sortOrder, sortExpression } = useDataTableSort({ stateKey: "STORES", initialField: "name", initialDirection: "ASC" });
 const { searchValue } = useTableSearch({ stateKey: "STORES" });
@@ -114,7 +115,7 @@ const { loading, action: load } = useAsync(async () => {
   const result = await search.latest(
     client.searchStores({
       keyword: searchValue.value || undefined,
-      storeStates: storeState.value ? [storeState.value] : undefined,
+      storeStates: storeStates.value.length ? storeStates.value : undefined,
       sort: sortExpression.value,
       skip: pagination.skip,
       take: PAGE_SIZE,
@@ -129,17 +130,18 @@ const globalFilters = computed(() => [
   {
     id: "storeState",
     label: t("STORES.PAGES.LIST.COLUMNS.STATE"),
-    filter: { options: Object.values(StoreState).map((s) => ({ value: s, label: stateLabel(s) })) },
+    filter: { multiple: true, options: Object.values(StoreState).map((s) => ({ value: s, label: stateLabel(s) })) },
   },
 ]);
 
 function onFilter(event: { filters: Record<string, unknown> }) {
-  storeState.value = (event.filters.storeState as StoreState) || undefined;
+  const states = event.filters.storeState;
+  storeStates.value = ([] as StoreState[]).concat((states as StoreState | StoreState[] | undefined) ?? []);
 }
 
 load();
-watch([searchValue, storeState], () => pagination.setPage(1));
-watch([sortExpression, searchValue, storeState, () => pagination.skip], debounce(load, 300));
+watch([searchValue, storeStates], () => pagination.setPage(1));
+watch([sortExpression, searchValue, storeStates, () => pagination.skip], debounce(load, 300));
 
 const copy = (text?: string) => text && navigator.clipboard.writeText(text);
 
