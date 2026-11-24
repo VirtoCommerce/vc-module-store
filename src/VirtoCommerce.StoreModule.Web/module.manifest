@@ -10,7 +10,7 @@
     <dependency id="VirtoCommerce.AdminShell" version="3.1101.0" optional="true" />
     <dependency id="VirtoCommerce.Core" version="3.1012.0" />
     <!-- Optional: with the MCP module installed, the store admin toolset is served on its admin scope (/admin/mcp). -->
-    <dependency id="VirtoCommerce.MCP" version="3.1003.0-alpha.28-vcst-6918-store-admin-toolset" optional="true" />
+    <dependency id="VirtoCommerce.MCP" version="3.1003.0-alpha.29-vcst-6918-store-admin-toolset" optional="true" />
     <dependency id="VirtoCommerce.Notifications" version="3.1018.0" />
     <dependency id="VirtoCommerce.Seo" version="3.1005.0" />
   </dependencies>
