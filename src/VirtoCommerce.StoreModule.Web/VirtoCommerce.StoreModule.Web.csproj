@@ -37,6 +37,7 @@
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Data.PostgreSql\VirtoCommerce.StoreModule.Data.PostgreSql.csproj" />
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Data.SqlServer\VirtoCommerce.StoreModule.Data.SqlServer.csproj" />
     <ProjectReference Include="..\VirtoCommerce.StoreModule.Data\VirtoCommerce.StoreModule.Data.csproj" />
+    <ProjectReference Include="..\VirtoCommerce.StoreModule.MCP\VirtoCommerce.StoreModule.MCP.csproj" />
   </ItemGroup>
   <!-- Admin Shell plugin: built from vue/ into plugins/admin-shell/ before publish, so vc-build Compress (locally and in CI)
        packs it, as VirtoCommerce.SalesRep builds its storefront plugin. SkipAdminShellPlugin=true leaves it out. -->
