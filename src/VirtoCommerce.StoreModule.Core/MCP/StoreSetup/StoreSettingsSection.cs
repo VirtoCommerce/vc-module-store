@@ -1,0 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+
+namespace VirtoCommerce.StoreModule.Core.MCP.StoreSetup;
+
+// The store-level settings of a setup.
+public class StoreSettingsSection
+{
+    [Description("Setting name to value. Sets the named settings and leaves the others as they are; null returns a " +
+        "setting to its default, or clears a setting that has allowed values but no default, and a setting with neither " +
+        "takes a value instead. An empty text clears only a text setting without a default text. get_store_settings " +
+        "lists the names. Settings the platform's configuration sets are not listed and cannot be changed. Secrets are " +
+        "entered in the back office.")]
+    public IDictionary<string, object> Values { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+}
